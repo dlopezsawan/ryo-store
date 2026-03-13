@@ -48,13 +48,18 @@ services:
       - n8n_default
 
   storefront:
-    # Usar imagen pre-construida (evita provenance que se traba). Para reconstruir:
-    # docker buildx build --provenance=false --load -f storefront/Dockerfile -t ryo-store-storefront ./storefront
-    image: ryo-store-storefront
+    build:
+      context: ./storefront
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://api.enrola.shop
+        - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY}
+        - RESEND_API_KEY=${RESEND_API_KEY:-build_placeholder}
     restart: unless-stopped
     depends_on:
       - medusa
     environment:
+      MEDUSA_BACKEND_URL: http://medusa:9000
       NEXT_PUBLIC_MEDUSA_BACKEND_URL: https://api.enrola.shop
       NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY}
       NEXT_PUBLIC_STORE_NAME: RYO Store
