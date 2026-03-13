@@ -15,18 +15,20 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG NODE_OPTIONS=--max-old-space-size=2048
 ENV NODE_OPTIONS=${NODE_OPTIONS}
-RUN npm run build
+RUN npm run build && \
+  mkdir -p .medusa/server/public/admin && \
+  cp -r .medusa/client/* .medusa/server/public/admin/ && \
+  test -f .medusa/server/public/admin/index.html || (echo "Admin build failed: index.html not found" && exit 1)
 
-# Production
+# Production: Medusa ejecuta desde .medusa/server; admin en public/admin
 FROM base AS runner
 ENV NODE_ENV=production
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/.medusa ./.medusa
-# Medusa busca admin en ./public/admin; el build lo genera en .medusa/server/public/admin
-RUN ln -s /app/.medusa/server/public /app/public
-COPY --from=build /app/package.json ./
-COPY --from=build /app/medusa-config.ts ./
-COPY --from=build /app/tsconfig.json ./
-COPY --from=build /app/src ./src
+WORKDIR /app
+COPY --from=build /app/.medusa/server ./
+COPY --from=build /app/.medusa/client ./.medusa/client/
+# Medusa espera public/admin; el build pone el admin en .medusa/client
+RUN mkdir -p public .medusa && rm -rf public/admin 2>/dev/null; ln -sfn /app/.medusa/client /app/public/admin && test -f /app/public/admin/index.html || (echo "Admin missing" && exit 1)
+# Instalar deps de producción del build standalone
+RUN npm install --omit=dev
 EXPOSE 9000
 CMD ["npm", "run", "start"]
