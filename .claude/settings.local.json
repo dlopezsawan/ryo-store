@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(bun --version)",
+      "Bash(npx create-next-app@latest storefront --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)",
+      "Bash(npx create-next-app@latest storefront --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git --yes)",
+      "Bash(npm install:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(cp \"LOGO RYO WEB.svg\" storefront/public/logo-ryo.svg)",
+      "Bash(mkdir -p storefront/public/images)",
+      "Bash(cp *.webp *.jpeg *.jpg storefront/public/images/)",
+      "Bash(cp *.webp storefront/public/images/)"
+    ]
+  }
+}

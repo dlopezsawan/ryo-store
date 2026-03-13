@@ -1,0 +1,83 @@
+# RYO Store - desplegar como nuevo proyecto en el mismo VPS que n8n
+# Se conecta a la red de n8n para usar Traefik
+# Desplegar con: Hostinger MCP -> VPS_createNewProjectV1 (content = URL de este repo o YAML)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: medusa
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medusa_secret}
+      POSTGRES_DB: medusa
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - n8n_default
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks:
+      - n8n_default
+
+  medusa:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_URL: postgres://medusa:${POSTGRES_PASSWORD:-medusa_secret}@postgres:5432/medusa
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      COOKIE_SECRET: ${COOKIE_SECRET:-change-me-in-production}
+      STORE_CORS: https://enrola.shop,https://www.enrola.shop
+      ADMIN_CORS: https://enrola.shop,https://api.enrola.shop
+      AUTH_CORS: https://enrola.shop,https://api.enrola.shop
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.medusa.rule=Host(`api.enrola.shop`)
+      - traefik.http.routers.medusa.tls=true
+      - traefik.http.routers.medusa.entrypoints=websecure
+      - traefik.http.routers.medusa.tls.certresolver=mytlschallenge
+      - traefik.http.services.medusa.loadbalancer.server.port=9000
+    networks:
+      - n8n_default
+
+  storefront:
+    build:
+      context: ./storefront
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - medusa
+    environment:
+      NEXT_PUBLIC_MEDUSA_BACKEND_URL: https://api.enrola.shop
+      NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY}
+      NEXT_PUBLIC_STORE_NAME: RYO Store
+      NEXT_PUBLIC_STORE_URL: https://enrola.shop
+      CONTACT_EMAIL: ${CONTACT_EMAIL}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM: ${RESEND_FROM}
+      NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+      RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY}
+      BCV_EUR_RATE: ${BCV_EUR_RATE:-510.49}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.storefront.rule=Host(`enrola.shop`) || Host(`www.enrola.shop`)
+      - traefik.http.routers.storefront.tls=true
+      - traefik.http.routers.storefront.entrypoints=websecure
+      - traefik.http.routers.storefront.tls.certresolver=mytlschallenge
+      - traefik.http.services.storefront.loadbalancer.server.port=3000
+    networks:
+      - n8n_default
+
+volumes:
+  postgres_data:
+
+networks:
+  n8n_default:
+    external: true

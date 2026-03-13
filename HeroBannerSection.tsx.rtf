@@ -1,0 +1,82 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2868
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 import heroImage from "./hero-image.png";\
+import leftImage from "./left-image.png";\
+import rightImage from "./right-image.png";\
+import star1 from "./star-1.svg";\
+import star2 from "./star-2.svg";\
+import star3 from "./star-3.svg";\
+\
+export const HeroBannerSection = (): JSX.Element => \{\
+  return (\
+    <div className="absolute top-[382px] left-[-49px] w-[1539px] h-[1985px]">\
+      <div className="absolute top-[-89px] left-[calc(50.00%_-_80px)] w-[161px] [font-family:'Kanit-Regular',Helvetica] font-normal text-[#1f1d1b] text-[92px] tracking-[0] leading-[normal]">\
+        The\
+      </div>\
+\
+      <div className="absolute top-[-38px] left-[calc(50.00%_-_662px)] [font-family:'Kanit-Regular',Helvetica] font-normal text-[#1f1d1b] text-[220px] tracking-[-4.40px] leading-[normal]">\
+        Roll Your Own\
+      </div>\
+\
+      <img\
+        className="absolute top-[280px] left-[49px] w-[251px] h-[451px] object-cover"\
+        alt="Left image"\
+        src=\{leftImage\}\
+      />\
+\
+      <img\
+        className="absolute top-[1387px] left-[1238px] w-[251px] h-[452px] object-cover"\
+        alt="Right image"\
+        src=\{rightImage\}\
+      />\
+\
+      <img\
+        className="absolute top-[851px] left-[174px] w-[61px] h-[61px]"\
+        alt="Star"\
+        src=\{star1\}\
+      />\
+\
+      <img\
+        className="absolute top-[258px] left-[calc(50.00%_-_50px)] w-[67px] h-[67px]"\
+        alt="Star"\
+        src=\{star3\}\
+      />\
+\
+      <img\
+        className="absolute top-[1120px] left-[1316px] w-[84px] h-[84px]"\
+        alt="Star"\
+        src=\{star2\}\
+      />\
+\
+      <button className="all-[unset] box-border absolute top-[1867px] left-[calc(50.00%_-_204px)] w-[408px] h-[118px]">\
+        <div className="absolute top-[15px] left-2.5 w-[387px] h-[103px] rounded-[193.5px/51.5px] border-2 border-solid border-[#1c1b19]" />\
+\
+        <div className="inline-flex flex-col items-start gap-2.5 absolute top-0 left-2.5">\
+          <div className="relative w-[387px] h-[101px] bg-[#ff3b27] rounded-[193.5px/50.5px]" />\
+\
+          <div className="absolute top-[37px] left-[133px] [font-family:'Inter-SemiBold',Helvetica] font-semibold text-[#eeeae1] text-[22px] tracking-[0] leading-[normal]">\
+            COMPRAR\
+          </div>\
+        </div>\
+      </button>\
+\
+      <img\
+        className="absolute top-[430px] left-[calc(50.00%_-_408px)] w-[814px] h-[1308px] object-cover"\
+        alt="Hero image"\
+        src=\{heroImage\}\
+      />\
+\
+      <div className="absolute top-[326px] left-[calc(50.00%_-_268px)] w-[534px] h-[127px] bg-[#eeeae1] rounded-3xl" />\
+\
+      <div className="absolute top-[326px] left-[calc(50.00%_-_200px)] [font-family:'Kanit-Regular',Helvetica] font-normal text-[#1f1d1b] text-[92px] tracking-[0] leading-[normal]">\
+        Essentials\
+      </div>\
+    </div>\
+  );\
+\};\
+}

@@ -1,0 +1,39 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2868
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 import \{ BestSellersSection \} from "./BestSellersSection";\
+import \{ FooterSection \} from "./FooterSection";\
+import \{ HeroBannerSection \} from "./HeroBannerSection";\
+import \{ NavigationBarSection \} from "./NavigationBarSection";\
+import vector2 from "./vector-2.svg";\
+\
+export const SkinCareLanding = (): JSX.Element => \{\
+  return (\
+    <div className="bg-[#eeeae1] overflow-hidden w-full min-w-[1440px] min-h-[6585px] relative">\
+      <NavigationBarSection />\
+      <div className="flex w-[858px] items-center gap-4 px-4 py-3.5 absolute top-[190px] left-[calc(50.00%_-_429px)] rounded-[120px] border border-solid border-[#1c1b1980]">\
+        <div className="relative w-6 h-6">\
+          <img\
+            className="absolute w-[90.71%] h-[90.71%] top-[9.29%] left-[9.29%]"\
+            alt="Vector"\
+            src=\{vector2\}\
+          />\
+        </div>\
+\
+        <div className="relative w-fit [font-family:'Inter-Medium',Helvetica] font-medium text-[#1c1b1980] text-lg tracking-[0] leading-[normal]">\
+          Buscar\
+        </div>\
+      </div>\
+\
+      <HeroBannerSection />\
+      <BestSellersSection />\
+      <FooterSection />\
+      <div className="absolute top-[5051px] left-[calc(50.00%_-_653px)] w-[1318px] h-[807px] bg-[url(/prmr0228-0373-1.png)] bg-cover bg-[50%_50%]" />\
+    </div>\
+  );\
+\};\
+}
