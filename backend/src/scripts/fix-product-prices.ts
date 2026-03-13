@@ -33,19 +33,20 @@ export default async function fixProductPrices({ container }: ExecArgs) {
   let updated = 0;
   for (const ps of priceSets) {
     const prices = ps.prices ?? [];
-    const pricesToFix = prices.filter(
-      (p: { amount: number; currency_code: string }) => getFix(p.amount, p.currency_code)
+    const pricesToFix = prices.filter((p: { amount?: unknown; currency_code?: string }) =>
+      getFix(Number(p.amount ?? 0), p.currency_code ?? "")
     );
     if (!pricesToFix.length) continue;
 
     const allPrices = prices.map(
-      (p: { id: string; amount: number; currency_code: string; price_rules?: unknown[] }) => {
-        const fix = getFix(p.amount, p.currency_code);
+      (p: { id: string; amount?: unknown; currency_code?: string; price_rules?: unknown[] }) => {
+        const amt = Number(p.amount ?? 0);
+        const fix = getFix(amt, p.currency_code ?? "");
         if (fix) {
           updated++;
-          return { id: p.id, amount: fix.newAmount, currency_code: p.currency_code };
+          return { id: p.id, amount: fix.newAmount, currency_code: p.currency_code ?? "" };
         }
-        return { id: p.id, amount: p.amount, currency_code: p.currency_code };
+        return { id: p.id, amount: amt, currency_code: p.currency_code ?? "" };
       }
     );
     await pricingModule.updatePriceSets(ps.id, { prices: allPrices });

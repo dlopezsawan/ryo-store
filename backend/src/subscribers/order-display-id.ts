@@ -16,7 +16,8 @@ export default async function orderDisplayIdHandler({
 
   try {
     const orderModule = container.resolve(Modules.ORDER);
-    await orderModule.updateOrders(orderId, { custom_display_id: shortId });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+await orderModule.updateOrders(orderId, { custom_display_id: shortId } as any);
   } catch {
     // Ignore errors
   }

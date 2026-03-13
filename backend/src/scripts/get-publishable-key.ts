@@ -30,6 +30,7 @@ export default async function getPublishableKey({ container }: ExecArgs) {
     return;
   }
 
+  if (!newKey.id) return;
   await linkSalesChannelsToApiKeyWorkflow(container).run({
     input: { id: newKey.id, add: [defaultChannel.id] },
   });

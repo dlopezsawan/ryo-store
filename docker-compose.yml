@@ -30,7 +30,7 @@ services:
       - postgres
       - redis
     environment:
-      DATABASE_URL: postgres://medusa:${POSTGRES_PASSWORD:-medusa_secret}@postgres:5432/medusa
+      DATABASE_URL: postgres://medusa:${POSTGRES_PASSWORD:-medusa_secret}@postgres:5432/medusa?sslmode=disable
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       COOKIE_SECRET: ${COOKIE_SECRET:-change-me-in-production}
@@ -48,9 +48,9 @@ services:
       - n8n_default
 
   storefront:
-    build:
-      context: ./storefront
-      dockerfile: Dockerfile
+    # Usar imagen pre-construida (evita provenance que se traba). Para reconstruir:
+    # docker buildx build --provenance=false --load -f storefront/Dockerfile -t ryo-store-storefront ./storefront
+    image: ryo-store-storefront
     restart: unless-stopped
     depends_on:
       - medusa
@@ -59,6 +59,7 @@ services:
       NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY}
       NEXT_PUBLIC_STORE_NAME: RYO Store
       NEXT_PUBLIC_STORE_URL: https://enrola.shop
+      NEXT_PUBLIC_PRICE_DIVISOR: ${NEXT_PUBLIC_PRICE_DIVISOR:-100}
       CONTACT_EMAIL: ${CONTACT_EMAIL}
       RESEND_API_KEY: ${RESEND_API_KEY}
       RESEND_FROM: ${RESEND_FROM}
@@ -72,11 +73,14 @@ services:
       - traefik.http.routers.storefront.entrypoints=websecure
       - traefik.http.routers.storefront.tls.certresolver=mytlschallenge
       - traefik.http.services.storefront.loadbalancer.server.port=3000
+    volumes:
+      - payment_proofs:/app/public/uploads
     networks:
       - n8n_default
 
 volumes:
   postgres_data:
+  payment_proofs:
 
 networks:
   n8n_default:
