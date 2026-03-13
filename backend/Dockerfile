@@ -15,17 +15,12 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG NODE_OPTIONS=--max-old-space-size=2048
 ENV NODE_OPTIONS=${NODE_OPTIONS}
-RUN npm run build && \
-  mkdir -p .medusa/server/public/admin && \
-  cp -r .medusa/client/* .medusa/server/public/admin/ && \
-  test -f .medusa/server/public/admin/index.html || (echo "Admin build failed" && exit 1) && \
-  cd .medusa/server && npm install --omit=dev --prefer-offline --no-audit --no-fund
+RUN npm run build && cd .medusa/server && npm install --omit=dev --prefer-offline --no-audit --no-fund
 
-# Production: copiamos todo pre-instalado; public/admin ya viene del build (no symlink)
+# Production: sin admin embebido (usar admin externo en Vercel)
 FROM base AS runner
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=build /app/.medusa/server ./
-RUN test -f /app/public/admin/index.html || (echo "Admin missing in public/admin" && exit 1)
 EXPOSE 9000
 CMD ["npm", "run", "start"]
