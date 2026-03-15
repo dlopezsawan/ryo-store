@@ -72,7 +72,7 @@ function NewsletterPage() {
   const [error, setError] = useState("")
 
   useEffect(() => {
-    fetch("/admin/newsletter", { credentials: "include" })
+    fetch("https://api.enrola.shop/admin/newsletter", { credentials: "include" })
       .then(r => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`)
         return r.json()
