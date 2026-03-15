@@ -35,7 +35,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       COOKIE_SECRET: ${COOKIE_SECRET:-change-me-in-production}
       STORE_CORS: https://enrola.shop,https://www.enrola.shop
-      ADMIN_CORS: https://enrola.shop,https://api.enrola.shop,https://admin.enrola.shop
+      ADMIN_CORS: https://enrola.shop,https://api.enrola.shop
       AUTH_CORS: https://enrola.shop,https://api.enrola.shop,https://admin.enrola.shop
       BACKEND_PUBLIC_URL: https://api.enrola.shop
       MAIL_IMAP_HOST: mailserver
@@ -55,6 +55,13 @@ services:
       - traefik.http.routers.medusa.entrypoints=websecure
       - traefik.http.routers.medusa.tls.certresolver=mytlschallenge
       - traefik.http.services.medusa.loadbalancer.server.port=9000
+      # Admin dashboard at enrola.shop/dashboard
+      - traefik.http.routers.medusa-dashboard.rule=Host(`enrola.shop`) && PathPrefix(`/dashboard`)
+      - traefik.http.routers.medusa-dashboard.tls=true
+      - traefik.http.routers.medusa-dashboard.entrypoints=websecure
+      - traefik.http.routers.medusa-dashboard.tls.certresolver=mytlschallenge
+      - traefik.http.routers.medusa-dashboard.service=medusa
+      - traefik.http.routers.medusa-dashboard.priority=10
     networks:
       - n8n_default
 
