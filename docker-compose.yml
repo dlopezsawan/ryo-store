@@ -61,7 +61,7 @@ services:
       - traefik.http.routers.medusa-dashboard.entrypoints=websecure
       - traefik.http.routers.medusa-dashboard.tls.certresolver=mytlschallenge
       - traefik.http.routers.medusa-dashboard.service=medusa
-      - traefik.http.routers.medusa-dashboard.priority=10
+      - traefik.http.routers.medusa-dashboard.priority=200
     networks:
       - n8n_default
 
@@ -136,7 +136,7 @@ services:
       LISTMONK_db__database: "listmonk"
       LISTMONK_db__ssl_mode: "disable"
     volumes:
-      - ./listmonk-static/logo.png:/listmonk/static/logo.png:ro
+      - ./listmonk-static/logo.svg:/listmonk/static/logo.svg:ro
       - ./listmonk-static/favicon.png:/listmonk/static/favicon.png:ro
     labels:
       - traefik.enable=true
