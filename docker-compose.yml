@@ -35,8 +35,19 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       COOKIE_SECRET: ${COOKIE_SECRET:-change-me-in-production}
       STORE_CORS: https://enrola.shop,https://www.enrola.shop
-      ADMIN_CORS: https://enrola.shop,https://api.enrola.shop
-      AUTH_CORS: https://enrola.shop,https://api.enrola.shop
+      ADMIN_CORS: https://enrola.shop,https://api.enrola.shop,https://admin.enrola.shop
+      AUTH_CORS: https://enrola.shop,https://api.enrola.shop,https://admin.enrola.shop
+      BACKEND_PUBLIC_URL: https://api.enrola.shop
+      MAIL_IMAP_HOST: mailserver
+      MAIL_IMAP_PORT: "143"
+      MAIL_SMTP_HOST: mailserver
+      MAIL_SMTP_PORT: "587"
+      LISTMONK_URL: http://listmonk:9000
+      LISTMONK_ADMIN_USER: admin
+      LISTMONK_ADMIN_PASSWORD: ${LISTMONK_ADMIN_PASSWORD:-RyoListmonk2024!}
+      LISTMONK_LIST_ID: ${LISTMONK_LIST_ID:-3}
+    volumes:
+      - medusa_uploads:/app/static
     labels:
       - traefik.enable=true
       - traefik.http.routers.medusa.rule=Host(`api.enrola.shop`)
@@ -54,7 +65,9 @@ services:
       args:
         - NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://api.enrola.shop
         - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY}
+        - NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
         - RESEND_API_KEY=${RESEND_API_KEY:-build_placeholder}
+        - NEXT_PUBLIC_GOOGLE_ENABLED=${NEXT_PUBLIC_GOOGLE_ENABLED:-false}
     restart: unless-stopped
     depends_on:
       - medusa
@@ -64,13 +77,29 @@ services:
       NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY}
       NEXT_PUBLIC_STORE_NAME: RYO Store
       NEXT_PUBLIC_STORE_URL: https://enrola.shop
-      NEXT_PUBLIC_PRICE_DIVISOR: ${NEXT_PUBLIC_PRICE_DIVISOR:-100}
-      CONTACT_EMAIL: ${CONTACT_EMAIL}
-      RESEND_API_KEY: ${RESEND_API_KEY}
-      RESEND_FROM: ${RESEND_FROM}
+      NEXT_PUBLIC_PRICE_DIVISOR: ${NEXT_PUBLIC_PRICE_DIVISOR:-1}
+      CONTACT_EMAIL: ${CONTACT_EMAIL:-hola@enrola.shop}
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY}
       BCV_EUR_RATE: ${BCV_EUR_RATE:-510.49}
+      SMTP_HOST: mailserver
+      SMTP_PORT: "587"
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_FROM:-RYO Store <hola@enrola.shop>}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      PEDIDOS_EMAIL: ${PEDIDOS_EMAIL:-pedidos@enrola.shop}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      LISTMONK_URL: http://listmonk:9000
+      LISTMONK_ADMIN_USER: admin
+      LISTMONK_ADMIN_PASSWORD: ${LISTMONK_ADMIN_PASSWORD:-RyoListmonk2024!}
+      LISTMONK_LIST_ID: ${LISTMONK_LIST_ID:-3}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: https://enrola.shop
+      NEXT_PUBLIC_GOOGLE_ENABLED: ${NEXT_PUBLIC_GOOGLE_ENABLED:-false}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
     labels:
       - traefik.enable=true
       - traefik.http.routers.storefront.rule=Host(`enrola.shop`) || Host(`www.enrola.shop`)
@@ -83,9 +112,39 @@ services:
     networks:
       - n8n_default
 
+  listmonk:
+    image: listmonk/listmonk:latest
+    restart: unless-stopped
+    command: ["/bin/sh", "-c", "./listmonk --install --yes && ./listmonk"]
+    depends_on:
+      - postgres
+    environment:
+      LISTMONK_app__address: "0.0.0.0:9000"
+      LISTMONK_app__admin_username: "admin"
+      LISTMONK_app__admin_password: "${LISTMONK_ADMIN_PASSWORD:-RyoListmonk2024!}"
+      LISTMONK_db__host: "postgres"
+      LISTMONK_db__port: "5432"
+      LISTMONK_db__user: "medusa"
+      LISTMONK_db__password: "${POSTGRES_PASSWORD:-medusa_secret}"
+      LISTMONK_db__database: "listmonk"
+      LISTMONK_db__ssl_mode: "disable"
+    volumes:
+      - ./listmonk-static/logo.png:/listmonk/static/logo.png:ro
+      - ./listmonk-static/favicon.png:/listmonk/static/favicon.png:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.listmonk.rule=Host(`newsletter.enrola.shop`)
+      - traefik.http.routers.listmonk.tls=true
+      - traefik.http.routers.listmonk.entrypoints=websecure
+      - traefik.http.routers.listmonk.tls.certresolver=mytlschallenge
+      - traefik.http.services.listmonk.loadbalancer.server.port=9000
+    networks:
+      - n8n_default
+
 volumes:
   postgres_data:
   payment_proofs:
+  medusa_uploads:
 
 networks:
   n8n_default:
