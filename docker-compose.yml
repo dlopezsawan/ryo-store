@@ -38,10 +38,6 @@ services:
       ADMIN_CORS: https://enrola.shop,https://api.enrola.shop
       AUTH_CORS: https://enrola.shop,https://api.enrola.shop,https://admin.enrola.shop
       BACKEND_PUBLIC_URL: https://api.enrola.shop
-      MAIL_IMAP_HOST: mailserver
-      MAIL_IMAP_PORT: "143"
-      MAIL_SMTP_HOST: mailserver
-      MAIL_SMTP_PORT: "587"
       LISTMONK_URL: http://listmonk:9000
       LISTMONK_ADMIN_USER: admin
       LISTMONK_ADMIN_PASSWORD: ${LISTMONK_ADMIN_PASSWORD:-RyoListmonk2024!}
@@ -89,11 +85,6 @@ services:
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY}
       BCV_EUR_RATE: ${BCV_EUR_RATE:-510.49}
-      SMTP_HOST: mailserver
-      SMTP_PORT: "587"
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASS: ${SMTP_PASS}
-      SMTP_FROM: ${SMTP_FROM:-RYO Store <hola@enrola.shop>}
       RESEND_API_KEY: ${RESEND_API_KEY}
       PEDIDOS_EMAIL: ${PEDIDOS_EMAIL:-pedidos@enrola.shop}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
