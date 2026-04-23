@@ -20,6 +20,9 @@ module.exports = defineConfig({
   },
   modules: [
     {
+      resolve: "./src/modules/social",
+    },
+    {
       resolve: "@medusajs/medusa/file",
       options: {
         providers: [

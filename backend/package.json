@@ -20,6 +20,7 @@
     "setup-venezuela": "medusa exec ./src/scripts/setup-venezuela.ts",
     "fix-sales-channel": "medusa exec ./src/scripts/fix-sales-channel-stock-location.ts",
     "fix-product-prices": "medusa exec ./src/scripts/fix-product-prices.ts",
+    "social:sync": "medusa exec ./src/scripts/social-sync.ts",
     "start": "medusa start",
     "dev": "medusa develop",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
