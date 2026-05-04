@@ -42,6 +42,9 @@ services:
       LISTMONK_ADMIN_USER: admin
       LISTMONK_ADMIN_PASSWORD: ${LISTMONK_ADMIN_PASSWORD:-RyoListmonk2024!}
       LISTMONK_LIST_ID: ${LISTMONK_LIST_ID:-3}
+      GOOGLE_BRIDGE_SECRET: ${GOOGLE_BRIDGE_SECRET}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      CONTACT_EMAIL: ${CONTACT_EMAIL:-hola@enrola.shop}
     volumes:
       - medusa_uploads:/app/static
     labels:
@@ -58,6 +61,20 @@ services:
       - traefik.http.routers.medusa-dashboard.tls.certresolver=mytlschallenge
       - traefik.http.routers.medusa-dashboard.service=medusa
       - traefik.http.routers.medusa-dashboard.priority=200
+      # Admin API calls from the dashboard SPA (relative URLs need routing)
+      - traefik.http.routers.medusa-admin-api.rule=Host(`enrola.shop`) && PathPrefix(`/admin`)
+      - traefik.http.routers.medusa-admin-api.tls=true
+      - traefik.http.routers.medusa-admin-api.entrypoints=websecure
+      - traefik.http.routers.medusa-admin-api.tls.certresolver=mytlschallenge
+      - traefik.http.routers.medusa-admin-api.service=medusa
+      - traefik.http.routers.medusa-admin-api.priority=300
+      # Auth endpoints used by admin
+      - traefik.http.routers.medusa-auth.rule=Host(`enrola.shop`) && PathPrefix(`/auth`)
+      - traefik.http.routers.medusa-auth.tls=true
+      - traefik.http.routers.medusa-auth.entrypoints=websecure
+      - traefik.http.routers.medusa-auth.tls.certresolver=mytlschallenge
+      - traefik.http.routers.medusa-auth.service=medusa
+      - traefik.http.routers.medusa-auth.priority=300
     networks:
       - n8n_default
 
@@ -98,6 +115,7 @@ services:
       NEXT_PUBLIC_GOOGLE_ENABLED: ${NEXT_PUBLIC_GOOGLE_ENABLED:-false}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_BRIDGE_SECRET: ${GOOGLE_BRIDGE_SECRET}
     labels:
       - traefik.enable=true
       - traefik.http.routers.storefront.rule=Host(`enrola.shop`) || Host(`www.enrola.shop`)

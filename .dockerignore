@@ -1,0 +1,8 @@
+# Para build del admin (contexto raíz)
+node_modules
+backend/node_modules
+storefront
+.git
+*.log
+.env*
+backend/.medusa
