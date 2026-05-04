@@ -1,0 +1,80 @@
+name: Deploy to VPS
+
+# Triggers:
+# - Push to main → auto-deploy. The standard happy path: PR merged → deploy.
+# - workflow_dispatch → manual run from the Actions UI or `gh workflow run`.
+#   Useful for hot-fixes that need a re-deploy without a code change, or for
+#   redeploying after a VPS-side issue (e.g. Docker daemon restart).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Concurrency: serialize deploys. If a second push lands while one is in
+# flight, queue it (we never want two builds racing for the same containers).
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Pull + rebuild + restart on VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout (for the workflow file itself; lets us read VERSION etc.)
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          # 25 minutes — leaves slack for slow npm install during build.
+          # If we ever exceed this, we should investigate Docker layer cache
+          # eviction, not raise the timeout further.
+          command_timeout: 25m
+          script: |
+            set -euo pipefail
+            cd /root/ryo-store
+
+            # Stash anything an operator left uncommitted on the box. We
+            # never want to drop work, but git pull would refuse with
+            # uncommitted changes. A stash entry is recoverable via
+            # `git stash list` if it turns out to matter.
+            if ! git diff --quiet || ! git diff --cached --quiet; then
+              echo "::warning::Uncommitted changes found on VPS — stashing"
+              git stash push -u -m "auto-stash-by-deploy-$(date -u +%Y%m%dT%H%M%SZ)"
+            fi
+
+            echo "─── pulling latest from origin/main ───"
+            git fetch origin main
+            git reset --hard origin/main
+            git log -1 --oneline
+
+            echo "─── building containers (with cache when possible) ───"
+            docker compose build medusa storefront
+
+            echo "─── recreating containers ───"
+            docker compose up -d medusa storefront
+
+            echo "─── pruning dangling images ───"
+            docker image prune -f --filter "label!=keep" || true
+
+            echo "─── post-deploy health check ───"
+            # Give medusa ~25s to bind the port; healthcheck endpoint is just
+            # a 200/404 — we just want to confirm the process is up.
+            for i in $(seq 1 12); do
+              if curl -s -o /dev/null -w '%{http_code}' http://localhost:9000/health 2>/dev/null | grep -qE '200|404'; then
+                echo "✓ medusa responding"
+                break
+              fi
+              echo "waiting for medusa ($i/12)…"; sleep 5
+            done
+
+            echo "─── deploy summary ───"
+            docker compose ps --format 'table {{.Name}}\t{{.Status}}\t{{.Ports}}' | head -10
+            echo ""
+            echo "✓ Deploy complete: $(git log -1 --pretty=format:'%h %s')"

@@ -93,3 +93,4 @@ backend/src/admin/.cache/
 /CONTEXT_*.md
 /CONFIGURAR-*.md
 /PROMPT-ENVIO-*.md
+.deploy-keys/
