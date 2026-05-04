@@ -28,14 +28,19 @@ updates:
       prefix: "chore(deps)"
       include: scope
     groups:
+      # Only group PATCH and MINOR — safe-by-default updates batch into
+      # one PR. Major bumps (potentially breaking) get their own PR each
+      # so they can be reviewed and tested individually.
       backend-prod:
         applies-to: version-updates
         dependency-type: production
         patterns: ["*"]
+        update-types: [patch, minor]
       backend-dev:
         applies-to: version-updates
         dependency-type: development
         patterns: ["*"]
+        update-types: [patch, minor]
     ignore:
       # Pinned for compatibility with our custom modules — bump manually.
       - dependency-name: "@medusajs/*"
@@ -60,10 +65,12 @@ updates:
         applies-to: version-updates
         dependency-type: production
         patterns: ["*"]
+        update-types: [patch, minor]
       storefront-dev:
         applies-to: version-updates
         dependency-type: development
         patterns: ["*"]
+        update-types: [patch, minor]
 
   # ─── Operator panel (Next.js) ────────────────────────────────────────
   - package-ecosystem: npm
@@ -84,6 +91,7 @@ updates:
       panel-all:
         applies-to: version-updates
         patterns: ["*"]
+        update-types: [patch, minor]
 
   # ─── GitHub Actions versions ─────────────────────────────────────────
   - package-ecosystem: github-actions
@@ -112,3 +120,10 @@ updates:
     commit-message:
       prefix: "chore(docker)"
       include: scope
+    ignore:
+      # Medusa v2 officially supports Node 20 LTS / Node 22.
+      # Don't auto-bump past 22 — major Node jumps (especially to non-LTS
+      # like 23, 25) historically break Medusa's bundled SWC + native bindings.
+      # Manual bumps will accompany Medusa version upgrades.
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
