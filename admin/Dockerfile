@@ -1,5 +1,5 @@
 # Admin standalone - se sirve en admin.enrola.shop (raíz) para evitar problemas de rutas
-FROM node:20-alpine AS base
+FROM node:25-alpine AS base
 WORKDIR /app
 
 # Dependencies con Yarn (npm se cuelga con deps Medusa)
