@@ -1,0 +1,114 @@
+# Dependabot config — automated PRs for outdated dependencies.
+#
+# Strategy:
+# - npm: weekly check, group production deps separately from devDeps so
+#   prod-dep updates get reviewed more carefully.
+# - github-actions: monthly check, since action versions move slowly.
+# - docker: monthly check for base image updates.
+#
+# All Dependabot PRs land as drafts to avoid CI burst — promoted to ready
+# manually after a quick triage.
+
+version: 2
+
+updates:
+  # ─── Backend (Medusa) ────────────────────────────────────────────────
+  - package-ecosystem: npm
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Europe/Madrid
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - area/backend
+    commit-message:
+      prefix: "chore(deps)"
+      include: scope
+    groups:
+      backend-prod:
+        applies-to: version-updates
+        dependency-type: production
+        patterns: ["*"]
+      backend-dev:
+        applies-to: version-updates
+        dependency-type: development
+        patterns: ["*"]
+    ignore:
+      # Pinned for compatibility with our custom modules — bump manually.
+      - dependency-name: "@medusajs/*"
+
+  # ─── Storefront (Next.js) ────────────────────────────────────────────
+  - package-ecosystem: npm
+    directory: /storefront
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Europe/Madrid
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - area/storefront
+    commit-message:
+      prefix: "chore(deps)"
+      include: scope
+    groups:
+      storefront-prod:
+        applies-to: version-updates
+        dependency-type: production
+        patterns: ["*"]
+      storefront-dev:
+        applies-to: version-updates
+        dependency-type: development
+        patterns: ["*"]
+
+  # ─── Operator panel (Next.js) ────────────────────────────────────────
+  - package-ecosystem: npm
+    directory: /panel
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Europe/Madrid
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - area/panel
+    commit-message:
+      prefix: "chore(deps)"
+      include: scope
+    groups:
+      panel-all:
+        applies-to: version-updates
+        patterns: ["*"]
+
+  # ─── GitHub Actions versions ─────────────────────────────────────────
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    labels:
+      - dependencies
+      - area/ci
+    commit-message:
+      prefix: "chore(ci)"
+      include: scope
+
+  # ─── Docker base images ──────────────────────────────────────────────
+  - package-ecosystem: docker
+    directories:
+      - /backend
+      - /admin
+      - /panel
+      - /storefront
+    schedule:
+      interval: monthly
+    labels:
+      - dependencies
+      - area/infra
+    commit-message:
+      prefix: "chore(docker)"
+      include: scope
