@@ -95,13 +95,16 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const tickStep = Math.max(1, Math.floor(revenueDailySeries.length / 6))
 
   return (
-    <div className="p-7 space-y-5 relative">
-      <div className="watermark-amp text-[400px] -top-32 right-0 select-none italic">&amp;</div>
+    <div className="p-4 md:p-7 space-y-5 relative">
+      {/* Decorative `&` watermark — hidden on mobile because at 400px it
+          would otherwise dominate the (narrow) viewport. The layout
+          wrapper also clips horizontal overflow as a safety net. */}
+      <div className="watermark-amp text-[400px] -top-32 right-0 select-none italic hidden md:block">&amp;</div>
 
-      <div className="flex items-end justify-between relative">
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between relative">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="font-display font-black text-[34px] text-ink leading-none tracking-tight">DASHBOARD</h1>
+            <h1 className="font-display font-black text-[28px] md:text-[34px] text-ink leading-none tracking-tight">DASHBOARD</h1>
             <div className="vintage-stamp text-primary mt-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
               LIVE
@@ -109,7 +112,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
           <p className="text-[13px] text-ink-3 font-medium capitalize">Resumen del negocio · {todayLabel}</p>
         </div>
-        <div className="flex items-center gap-2">
+        {/* On mobile the period selector + export button stack to a wrap
+            row so they never get squeezed under the title. */}
+        <div className="flex items-center gap-2 flex-wrap">
           <PeriodSelector active={period} />
           <a
             href={`/dashboard/export?period=${period}`}
@@ -329,12 +334,12 @@ function Kpi({
   const showDelta = delta !== null && delta !== undefined && Number.isFinite(delta)
   const positive = (delta ?? 0) >= 0
   return (
-    <div className="stamp-card p-5 relative overflow-hidden">
-      <div className="flex items-center justify-between mb-3">
-        <div className="text-[9px] font-display font-bold uppercase tracking-[0.18em] text-ink-3">{label}</div>
+    <div className="stamp-card p-3 md:p-5 relative overflow-hidden">
+      <div className="flex items-center justify-between mb-3 gap-2">
+        <div className="text-[9px] font-display font-bold uppercase tracking-[0.18em] text-ink-3 truncate">{label}</div>
         {showDelta && (
           <span
-            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-display font-bold num ${
+            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-display font-bold num flex-shrink-0 ${
               positive ? "text-secondary bg-secondary/10" : "text-primary bg-primary/10"
             }`}
             style={{ border: `1px solid ${positive ? "#4D5431" : "#BB3B2E"}` }}
@@ -344,7 +349,7 @@ function Kpi({
           </span>
         )}
       </div>
-      <div className={`stat-display text-[34px] ${valueClass}`}>{value}</div>
+      <div className={`stat-display text-[24px] md:text-[34px] ${valueClass}`}>{value}</div>
       <div className="text-[12px] text-ink-3 font-medium mt-1">{sub}</div>
       {spark && (
         <>
