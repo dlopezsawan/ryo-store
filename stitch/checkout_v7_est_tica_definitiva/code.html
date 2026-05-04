@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#BB3B2E", // Red from request
+                        "secondary": "#4D5431", // Dark Green from request
+                        "vintage-cream": "#F2E8D5",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221610",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .vintage-border {
+            border: 3px solid #4D5431;
+        }
+        .vintage-shadow {
+            box-shadow: 6px 6px 0px 0px #4D5431;
+        }
+        body {
+            font-family: 'Public Sans', sans-serif;
+            background-color: #f8f6f6;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Header -->
+<header class="flex items-center justify-between border-b-4 border-secondary bg-vintage-cream px-6 py-4 md:px-20 lg:px-40">
+<div class="flex items-center gap-4">
+<img alt="RYO Logo" class="h-12 w-auto" data-alt="RYO vintage style brand logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCB_I1CLy9xMc4FKCeEIbPKvU0Z1zkkUzHc0K3sc48wbHWXUzJaQUtHa74vpJlnZCjtv1l3Vd9m4WEZ_-zCzDPIvyks_ToQ4Apo-IfD-KCwpCNUH9saKuIbc9RtIP0oYvbrgGt_BvKZbdmLDYBR-6ZYSoAQ9RxQfyGpyzyfBWXZgFy8PveWEiDTe8jsu7qftefF1S4WfJKg6a772i4QVXe98TGyWCkMUggrea_eM4s9NxSEm9Tfx3Cj9SJc51NfHo_msVfE5SyzsqU"/>
+<h2 class="text-secondary text-2xl font-black leading-tight tracking-tight">RYO</h2>
+</div>
+<div class="flex flex-1 justify-end gap-4">
+<button class="flex items-center justify-center rounded-lg h-12 w-12 bg-primary text-white border-2 border-secondary shadow-[3px_3px_0px_0px_rgba(77,84,49,1)]">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-secondary" data-alt="User profile avatar photo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDOMYqLNkHe09CfP4gRgjIdHzV8nGBUImczTAInjFdEmYVOPzZSesWGQnWY07U9CAwt_HfklpBr3MD2XiBHcF7u7OLJRMqQp9TjGxla6RBLCJ1SxLqjmVGNc_VbsX-OuzijlcsAElFlBVmgM3GIfVs59RTQb1AK_nKq0WcWzD3YCHhhcuQoazIkejAXjnHGw4ZmFSjMPMFaA_wc56Lc4pnD-5v9etnpjHIv0u5Nggpi2wPdTOYCjgzRBSsPby7aE9Z_QXQiM3wMWak");'></div>
+</div>
+</header>
+<main class="mx-auto w-full max-w-[1200px] px-6 py-10 md:px-10 lg:px-20">
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-2 mb-8 text-secondary font-bold uppercase tracking-wider text-sm">
+<a class="hover:text-primary" href="#">Carrito</a>
+<span class="material-symbols-outlined text-xs">arrow_forward_ios</span>
+<a class="hover:text-primary" href="#">Envío</a>
+<span class="material-symbols-outlined text-xs">arrow_forward_ios</span>
+<span class="text-primary underline decoration-2 underline-offset-4">Pago</span>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+<!-- Left Column: Forms -->
+<div class="lg:col-span-2 space-y-10">
+<section>
+<h1 class="text-4xl font-black text-secondary mb-2">FINALIZAR COMPRA</h1>
+<p class="text-secondary/80 font-medium italic">Estás a un paso de completar tu estilo vintage.</p>
+</section>
+<!-- Shipping Info -->
+<section class="bg-white vintage-border p-6 vintage-shadow">
+<div class="flex items-center gap-2 mb-6 border-b-2 border-secondary/20 pb-2">
+<span class="material-symbols-outlined text-primary">local_shipping</span>
+<h2 class="text-xl font-bold text-secondary uppercase tracking-tight">Datos de Envío</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col gap-2">
+<label class="text-secondary font-bold text-sm uppercase">Nombre</label>
+<input class="w-full vintage-border bg-background-light p-4 focus:ring-primary focus:border-primary text-secondary font-medium outline-none" placeholder="Ej. Juan" type="text"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-secondary font-bold text-sm uppercase">Apellido</label>
+<input class="w-full vintage-border bg-background-light p-4 focus:ring-primary focus:border-primary text-secondary font-medium outline-none" placeholder="Ej. Pérez" type="text"/>
+</div>
+<div class="flex flex-col gap-2 md:col-span-2">
+<label class="text-secondary font-bold text-sm uppercase">Dirección (Venezuela)</label>
+<input class="w-full vintage-border bg-background-light p-4 focus:ring-primary focus:border-primary text-secondary font-medium outline-none" placeholder="Calle, Edificio, Apto..." type="text"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-secondary font-bold text-sm uppercase">Estado</label>
+<select class="w-full vintage-border bg-background-light p-4 focus:ring-primary focus:border-primary text-secondary font-medium outline-none">
+<option>Distrito Capital</option>
+<option>Miranda</option>
+<option>Zulia</option>
+<option>Carabobo</option>
+</select>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-secondary font-bold text-sm uppercase">Teléfono</label>
+<input class="w-full vintage-border bg-background-light p-4 focus:ring-primary focus:border-primary text-secondary font-medium outline-none" placeholder="0412-0000000" type="tel"/>
+</div>
+</div>
+</section>
+<!-- Payment Methods -->
+<section class="bg-white vintage-border p-6 vintage-shadow">
+<div class="flex items-center gap-2 mb-6 border-b-2 border-secondary/20 pb-2">
+<span class="material-symbols-outlined text-primary">payments</span>
+<h2 class="text-xl font-bold text-secondary uppercase tracking-tight">Método de Pago</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Pago Movil -->
+<label class="relative flex cursor-pointer items-start gap-4 vintage-border p-4 bg-background-light hover:bg-primary/5 transition-colors has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
+<input checked="" class="mt-1 text-primary focus:ring-primary h-5 w-5 border-2 border-secondary" name="payment" type="radio"/>
+<div>
+<span class="block font-black text-secondary uppercase">Pago Móvil</span>
+<span class="text-xs text-secondary/70">Bolívares (Tasa BCV)</span>
+</div>
+<span class="material-symbols-outlined ml-auto text-secondary">smartphone</span>
+</label>
+<!-- Zelle -->
+<label class="relative flex cursor-pointer items-start gap-4 vintage-border p-4 bg-background-light hover:bg-primary/5 transition-colors has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
+<input class="mt-1 text-primary focus:ring-primary h-5 w-5 border-2 border-secondary" name="payment" type="radio"/>
+<div>
+<span class="block font-black text-secondary uppercase">Zelle</span>
+<span class="text-xs text-secondary/70">Dólares USD</span>
+</div>
+<span class="material-symbols-outlined ml-auto text-secondary">account_balance_wallet</span>
+</label>
+</div>
+<!-- Payment Details Display -->
+<div class="mt-6 p-4 bg-secondary/10 vintage-border border-dashed border-2">
+<p class="text-secondary font-bold mb-2">Instrucciones de Pago:</p>
+<div class="text-sm space-y-1 text-secondary/80">
+<p>Banco: Banesco (0134)</p>
+<p>RIF: J-12345678-9</p>
+<p>Teléfono: 0412-5556677</p>
+<p class="pt-2 italic text-primary font-bold">* Favor adjuntar comprobante después de pagar.</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Order Summary -->
+<div class="lg:col-span-1">
+<div class="sticky top-10 space-y-6">
+<section class="bg-vintage-cream vintage-border p-6 vintage-shadow">
+<h2 class="text-xl font-black text-secondary uppercase mb-6 border-b-2 border-secondary/20 pb-2">Resumen</h2>
+<div class="space-y-4 mb-6">
+<div class="flex justify-between items-center gap-4">
+<div class="flex items-center gap-3">
+<div class="h-14 w-14 vintage-border bg-white flex-shrink-0 flex items-center justify-center overflow-hidden">
+<img class="object-cover h-full w-full" data-alt="Vintage t-shirt product thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP7vrdj-R2elOaBT5CnBNO-vF790pYTnq581vmB3bpVBEuF0tvcqTsB3jR6EQx7jlb348g9UNSMCh_0iG2wdFbgUBPt0emh3bFTs3bu9EW_dcarFiaO_adtZJQoTgJd3GQTi7kycSvrf463wdg_D0T5KLQfsTHt7RCKNq6ISwZNmRs2Wgel98AFkS520xH9piIObzxWgWhK0I2G8-cUhbswndXXY4xFEv6RXqpgj4gjHTX9E9FePEvOaJw96poW1c6atBtF-Kim-0"/>
+</div>
+<div>
+<p class="font-bold text-secondary text-sm leading-tight">Camiseta RYO Classic</p>
+<p class="text-xs text-secondary/60">Talla: L | Color: Tierra</p>
+</div>
+</div>
+<p class="font-black text-primary">$25.00</p>
+</div>
+<div class="flex justify-between items-center gap-4">
+<div class="flex items-center gap-3">
+<div class="h-14 w-14 vintage-border bg-white flex-shrink-0 flex items-center justify-center overflow-hidden">
+<img class="object-cover h-full w-full" data-alt="Vintage accessory product thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1NQRrcBNR_0zoygQXdGLq0ytUfssdgDSP8suSS4UCi2lmcJwomU1hBIHIHolhrVB2EpL59FmhPEsXRMGm9FmsZovjddjSjhuQ1LBGhhslHB4_XW_70tbT4B0TJGJF7YQX7ShfcfL8wDkvaagrR0dhLfg7agRQ-n6Zn9xzIzEhOWcOs3rllgWrMpxXBWopRqA2GlNJO0EW0YfOkb9B8r_wsBETn3xMjw1UCexvAhftCBJwuA_Mkq5ym3cYuZ4P5WCH5byf6YC5yLs"/>
+</div>
+<div>
+<p class="font-bold text-secondary text-sm leading-tight">Gorra RYO Denim</p>
+<p class="text-xs text-secondary/60">Talla: Única</p>
+</div>
+</div>
+<p class="font-black text-primary">$15.00</p>
+</div>
+</div>
+<div class="border-t-2 border-secondary/20 pt-4 space-y-2">
+<div class="flex justify-between text-secondary">
+<span class="font-medium">Subtotal</span>
+<span class="font-bold">$40.00</span>
+</div>
+<div class="flex justify-between text-secondary">
+<span class="font-medium">Envío</span>
+<span class="font-bold text-secondary/60">Calculado al pagar</span>
+</div>
+<div class="flex justify-between text-2xl font-black text-primary pt-4 border-t-2 border-secondary/40 mt-4">
+<span>TOTAL</span>
+<span>$40.00</span>
+</div>
+<p class="text-[10px] text-secondary/60 italic text-right mt-1">Aprox. 1.450,00 Bs. (Tasa BCV)</p>
+</div>
+<button class="w-full mt-8 bg-primary text-white font-black text-lg py-4 vintage-border uppercase tracking-widest hover:brightness-110 active:translate-y-1 active:translate-x-1 active:shadow-none transition-all vintage-shadow">
+                                Confirmar Pedido
+                            </button>
+<div class="flex items-center justify-center gap-2 mt-4 text-secondary/60 text-xs">
+<span class="material-symbols-outlined text-sm">lock</span>
+<span>Pago 100% seguro y encriptado</span>
+</div>
+</section>
+<!-- Discount Code -->
+<div class="bg-white vintage-border p-4">
+<label class="block text-secondary font-bold text-xs uppercase mb-2">Código de Descuento</label>
+<div class="flex gap-2">
+<input class="flex-1 vintage-border border-dashed bg-background-light px-3 py-2 text-sm font-bold text-secondary uppercase" placeholder="CÓDIGO" type="text"/>
+<button class="bg-secondary text-white px-4 py-2 font-bold text-xs uppercase">Aplicar</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Footer -->
+<footer class="mt-auto border-t-4 border-secondary bg-vintage-cream py-8 px-6 text-center">
+<p class="text-secondary font-bold text-sm tracking-widest uppercase">© 2024 RYO CLOTHING - VINTAGE ESSENTIALS</p>
+<div class="flex justify-center gap-6 mt-4">
+<a class="text-secondary hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">camera_enhance</span></a>
+<a class="text-secondary hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">mail</span></a>
+<a class="text-secondary hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">support_agent</span></a>
+</div>
+</footer>
+</div>
+</body></html>

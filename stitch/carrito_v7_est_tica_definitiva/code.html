@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#BB3B2E",
+                        "secondary": "#4D5431",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221610",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .vintage-border {
+            border: 3px solid #4D5431;
+            box-shadow: 6px 6px 0px 0px #4D5431;
+        }
+        .item-divider {
+            border-bottom: 2px dashed #4D5431;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Header -->
+<header class="flex items-center justify-between border-b-4 border-secondary bg-background-light dark:bg-background-dark px-6 md:px-20 py-4 sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="h-12 w-auto">
+<img alt="RYO Vintage Logo" class="h-full object-contain" data-alt="RYO Vintage brand logo in red and green" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAM9kEjur7OzmzFHYNo6l9u0T8YQZCOXYo-1IJbE7e90DbGW4RzWoVaD502ptLwfaisg1cmUPDD6ZoW-FbcFkZ6uq7SGu9-vlPkrLmE_0r4FCnIg_ARtPONTwuzm_u4Bo2bsoBB68VYoeExZKIN_B2uv05liHdgC3QyqfhbLY-4whi-BTnFpHMWRpf_MpZbQwDUdsyYdUtDUvUshzaAmNqlVBIdRwlMUrp0paA5REBl4m9LYycijkuYtm6hs43ZYxl9XMOAnFS-6ww"/>
+</div>
+</div>
+<nav class="hidden md:flex gap-8 font-bold text-secondary uppercase tracking-widest text-sm">
+<a class="hover:text-primary transition-colors" href="#">Catálogo</a>
+<a class="hover:text-primary transition-colors" href="#">Colecciones</a>
+<a class="hover:text-primary transition-colors" href="#">Sobre RYO</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center rounded-full p-2 hover:bg-secondary/10 text-secondary">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="flex items-center justify-center rounded-full p-2 hover:bg-secondary/10 text-secondary relative">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-secondary" data-alt="User profile avatar circle" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAO8M-ZVpYcTi1BGOA51OL2fcBvluWRuQkp7CDExQb39d85kPdekejMOGx2HRei1FXBrdRgnqbWmp_h5vlf6TZvKbKisRdX3lLlBoGwoKASyUmtNoJV6MRHeY4xjQtVLuZDdnOBq1AfrgSL3DsRJy30hAaUY8pB6WLJ1XFcR_RVurGGlEfC7UTBg2Kz0xBW5QnStlf9UUY21gL6hepNLmCWOD1zwnURYVG_cLyH876_1QBdJSHcPZB3Ae3OnA79RvU2eT3szzlAuHI");'></div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto w-full px-6 py-12">
+<div class="flex flex-col gap-2 mb-10">
+<h1 class="text-secondary text-5xl font-black uppercase italic tracking-tighter">Tu Carrito</h1>
+<div class="h-1 w-24 bg-primary"></div>
+<p class="text-secondary/70 text-lg font-medium italic mt-2">Revisa tus selecciones de estilo craft auténtico</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+<!-- Product List -->
+<div class="lg:col-span-2 flex flex-col gap-8">
+<!-- Item 1 -->
+<div class="flex flex-col sm:flex-row gap-6 pb-8 item-divider">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-40 border-2 border-secondary shrink-0" data-alt="RYO Classic vintage denim jacket in dark green" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCSPD6K6qpMxgphHAYqOD-qFsmbkXGojjUtzjtpo7mT_JQuieP9D4RvYSVwrg0Yh9G5iMhlTmNOCbyMJa43cktdqK-6_IxFoYcA-JjYybtZSV2x-K5KM_5jaqZkLYetLZseUUTEtCbOHkHruFxlXQPhUlnjeVKcPmSReLxxuiThgUQ9Lw1Uvx7W6DwOhcCR6s_uhWwX2MaPVmBUEQ9CNMBoe1cRNzcyEfDuS3hnHYBZq4yjlwgEyhJEka52z_fRdlEECFJise0HNvM");'></div>
+<div class="flex flex-1 flex-col justify-between py-2">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="text-secondary text-2xl font-black uppercase">Chaqueta RYO Classic</h3>
+<button class="text-primary hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+<p class="text-secondary/60 font-bold uppercase text-xs mt-1">Ref: RYO-2024-VJ</p>
+<div class="mt-4 flex flex-wrap gap-4 text-sm font-bold text-secondary/80">
+<span class="bg-secondary/10 px-3 py-1 rounded">Talla: L</span>
+<span class="bg-secondary/10 px-3 py-1 rounded">Color: Verde Oscuro</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6 sm:mt-0">
+<div class="flex items-center gap-4 bg-secondary/5 rounded-lg p-1 border border-secondary/20">
+<button class="flex h-8 w-8 items-center justify-center rounded bg-secondary text-white hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<span class="text-lg font-black text-secondary w-6 text-center">1</span>
+<button class="flex h-8 w-8 items-center justify-center rounded bg-secondary text-white hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<p class="text-primary text-2xl font-black">$85.00</p>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex flex-col sm:flex-row gap-6 pb-8 item-divider">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-40 border-2 border-secondary shrink-0" data-alt="RYO Craft Logo embroidered baseball cap" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCUFpnSM739joNc1miHMEgqa66RdSfPJFh7qc294jc-TzynQ0iehaJ3rNv4H8aFicZcK1J49zNyotSHoqZ-2QLnac5gUeBv_Z12OPNLRVczmHSPTFEKlHdzrI_jYTzPt7U575dI4X9wNr_NLOfPcvvzJA2B-N0U680gIFXlvIryiE82pCDJ7fGHKSC-_clJtR74KJgGg_olNIARR1nqSCtL5Qi0CIx-TEip8xMxjTnDR63UbclXBNs6dTrSVAVYwqm0vDJ1Bsf4qaY");'></div>
+<div class="flex flex-1 flex-col justify-between py-2">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="text-secondary text-2xl font-black uppercase">Gorra Craft Logo</h3>
+<button class="text-primary hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+<p class="text-secondary/60 font-bold uppercase text-xs mt-1">Ref: RYO-C-44</p>
+<div class="mt-4 flex flex-wrap gap-4 text-sm font-bold text-secondary/80">
+<span class="bg-secondary/10 px-3 py-1 rounded">Talla: Única</span>
+<span class="bg-secondary/10 px-3 py-1 rounded">Color: Rojo Vintage</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6 sm:mt-0">
+<div class="flex items-center gap-4 bg-secondary/5 rounded-lg p-1 border border-secondary/20">
+<button class="flex h-8 w-8 items-center justify-center rounded bg-secondary text-white hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<span class="text-lg font-black text-secondary w-6 text-center">2</span>
+<button class="flex h-8 w-8 items-center justify-center rounded bg-secondary text-white hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<p class="text-primary text-2xl font-black">$88.00</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Summary Sidebar -->
+<div class="lg:sticky lg:top-28 h-fit">
+<div class="vintage-border bg-white dark:bg-background-dark p-8 rounded-lg flex flex-col gap-6">
+<h2 class="text-secondary text-2xl font-black uppercase italic border-b-2 border-secondary pb-4">Resumen de Compra</h2>
+<div class="flex flex-col gap-4">
+<div class="flex justify-between text-secondary font-bold">
+<span>Subtotal</span>
+<span>$173.00</span>
+</div>
+<div class="flex justify-between text-secondary/70 text-sm font-medium">
+<span>Envío (Estándar)</span>
+<span class="uppercase">Gratis</span>
+</div>
+<div class="flex justify-between text-secondary/70 text-sm font-medium">
+<span>Impuestos (IVA)</span>
+<span>$12.50</span>
+</div>
+</div>
+<div class="border-t-2 border-secondary pt-6 flex justify-between items-end">
+<div>
+<p class="text-secondary/60 text-xs font-black uppercase">Total a pagar</p>
+<p class="text-primary text-4xl font-black">$185.50</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 mt-4">
+<button class="w-full bg-primary text-white font-black py-4 rounded-lg uppercase tracking-widest text-lg hover:brightness-110 active:translate-y-1 transition-all">
+                            Finalizar Compra
+                        </button>
+<button class="w-full border-2 border-secondary text-secondary font-black py-3 rounded-lg uppercase tracking-widest text-sm hover:bg-secondary/5 transition-colors">
+                            Seguir comprando
+                        </button>
+</div>
+<div class="flex items-center gap-2 justify-center mt-4">
+<span class="material-symbols-outlined text-secondary text-lg">lock</span>
+<p class="text-[10px] text-secondary/60 font-bold uppercase tracking-tight text-center">Pago 100% Seguro &amp; Encriptado</p>
+</div>
+</div>
+<!-- Promo Code -->
+<div class="mt-8 px-2">
+<p class="text-secondary font-black uppercase text-xs mb-2">¿Tienes un código?</p>
+<div class="flex gap-2">
+<input class="flex-1 bg-transparent border-2 border-secondary rounded-lg px-4 py-2 font-bold text-secondary uppercase text-sm focus:ring-primary focus:border-primary" placeholder="CÓDIGO VINTAGE" type="text"/>
+<button class="bg-secondary text-white px-4 py-2 rounded-lg font-black uppercase text-xs">Aplicar</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Simple -->
+<footer class="mt-20 border-t-4 border-secondary py-10 px-6 bg-secondary/5">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-4 grayscale opacity-60">
+<img alt="RYO Small" class="h-8" data-alt="RYO Vintage secondary logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWbKnHowD4Ks1pBacDL1J6G3iZD-vvODt587Uj94Vn0BP_SK8KgFbIyBvszbZLNgO9wn3VL9N5Df4Hc7X3-W5_Oue6aJwrxdc-RB8CSMTB8rexCXWeT2WB43j-BkZ9l939yjZiE6iZBMr7vgrSGDIE8K6KwPV5xGMm2Hrfp7ZrqVAW_GrzWWloR6ciitfhX2VSEio02Zfzi-7FZ4yp0NIdmGPDT85QvgoZg6qeDUAeaUKrqMwdIFxwx0_YeoYlMjIxRuudoayLwn8"/>
+<p class="text-secondary text-xs font-bold uppercase">© 2024 RYO Vintage Craft - Todos los derechos reservados.</p>
+</div>
+<div class="flex gap-6">
+<span class="material-symbols-outlined text-secondary">credit_card</span>
+<span class="material-symbols-outlined text-secondary">local_shipping</span>
+<span class="material-symbols-outlined text-secondary">workspace_premium</span>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

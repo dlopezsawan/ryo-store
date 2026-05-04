@@ -1,0 +1,398 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Theme tokens (manual toggle via .dark class on <html>) ──────────
+   Las brand colors viven en tailwind.config (orange, primary, secondary).
+   Aquí sólo viven los tokens semánticos que cambian entre modos. */
+:root {
+  /* RGB tuples para que Tailwind pueda usar /<alpha-value> */
+  --page:        245 242 232;   /* #F5F2E8 cream */
+  --surface:     255 255 255;
+  --surface-2:   234 229 214;   /* #EAE5D6 zebra / inputs */
+  --surface-3:   222 216 200;   /* hover */
+  --ink:          26  26  26;   /* #1A1A1A primary text */
+  --ink-2:        82  80  76;   /* secondary — high contrast */
+  --ink-3:       119 116 110;   /* muted — visible pero soft */
+
+  /* Sólidos para CSS custom (no rgb) */
+  --border:           #1A1A1A;
+  --border-soft:      rgba(26, 26, 26, 0.14);
+  --shadow-color:     #1A1A1A;
+  --watermark-color:  rgba(26, 26, 26, 0.04);
+
+  /* Radii semánticos — Enrola con esquinas más smooth */
+  --radius-xs: 4px;   /* pills, badges */
+  --radius-sm: 6px;   /* botones secundarios, inputs */
+  --radius-md: 8px;   /* cards, botones principales */
+  --radius-lg: 12px;  /* hero cards */
+
+  /* Sidebar tokens — light mode = claro de verdad. Dark mode = negro.
+     Set propio porque el sidebar siempre necesita contraste con la page,
+     sea light o dark. En light el sidebar es un surface elevado del page
+     cream, con texto oscuro y border-right negro signature. */
+  --sidebar-bg:           255 255 255;          /* white surface */
+  --sidebar-text:          26  26  26;
+  --sidebar-text-muted:    82  80  76;
+  --sidebar-text-soft:    119 116 110;
+  --sidebar-divider:      rgba(26, 26, 26, 0.10);
+  --sidebar-hover:        rgba(26, 26, 26, 0.04);
+  --sidebar-active-bg:    rgba(255, 59, 39, 0.10);
+  --sidebar-watermark:    rgba(255, 59, 39, 0.06);
+}
+
+html.dark {
+  /* Dark mode con contraste fuerte y gradación clara entre superficies. */
+  --page:           10   8  12;   /* #0A080C casi negro frío */
+  --surface:        24  22  28;   /* #16161C — claramente lifted del page */
+  --surface-2:      36  33  42;   /* #24212A — zebra/inputs */
+  --surface-3:      52  47  60;   /* #342F3C — hover */
+  --ink:           248 247 244;   /* #F8F7F4 near-white, alto contraste */
+  --ink-2:         206 200 188;   /* #CEC8BC — secundario legible */
+  --ink-3:         158 152 142;   /* #9E988E — muted, NUNCA invisible */
+
+  --border:           #4A4452;
+  --border-soft:      rgba(255, 255, 255, 0.16);
+  --shadow-color:     rgba(255, 59, 39, 0.45);  /* orange offset chunky */
+  --watermark-color:  rgba(255, 255, 255, 0.05);
+
+  /* Sidebar dark — negro puro con orange line border (signature) */
+  --sidebar-bg:           0 0 0;
+  --sidebar-text:        248 247 244;
+  --sidebar-text-muted:  206 200 188;
+  --sidebar-text-soft:   158 152 142;
+  --sidebar-divider:     rgba(255, 255, 255, 0.10);
+  --sidebar-hover:       rgba(255, 255, 255, 0.05);
+  --sidebar-active-bg:   rgba(255, 59, 39, 0.15);
+  --sidebar-watermark:   rgba(255, 59, 39, 0.10);
+}
+
+html, body {
+  background: rgb(var(--page));
+  font-family: var(--font-inter), system-ui, sans-serif;
+  color: rgb(var(--ink));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle paper grain — solo light, dark queda flat */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M0 0h1v1H0zM20 20h1v1h-1z' fill='%231A1A1A' fill-opacity='0.04'/%3E%3C/svg%3E");
+}
+html.dark body::before { display: none; }
+
+/* ──────────────────────────────────────────────────────────────────────
+   Sello Enrola: card con border + offset shadow.
+   En light: shadow chunky negra (firma vintage).
+   En dark: shadow chunky orange dim (mantiene firma sin neón). */
+.stamp-card {
+  background: rgb(var(--surface));
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 4px 4px 0 0 var(--shadow-color);
+  transition: transform .12s, box-shadow .12s;
+}
+.stamp-card-hover:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 0 var(--shadow-color);
+}
+.stamp-card-cream {
+  background: rgb(var(--surface-2));
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* Pill = stamp pequeño rounded-full para look más smooth */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;  /* fully rounded — más minimal */
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1.5px solid currentColor;
+  font-family: var(--font-kanit), sans-serif;
+}
+.pill-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: currentColor;
+}
+
+/* Vintage stamp rotado (-2deg) — firma Enrola */
+.vintage-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 2px solid currentColor;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-kanit), sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px;
+  transform: rotate(-2deg);
+  background: rgba(255, 255, 255, 0.5);
+}
+html.dark .vintage-stamp { background: rgba(255, 255, 255, 0.06); }
+
+/* Sidebar: light en light mode, dark en dark mode.
+   Border-right negro en light, orange en dark — firma Enrola. */
+.sidebar-bg {
+  background: rgb(var(--sidebar-bg));
+  color: rgb(var(--sidebar-text));
+  border-right: 2px solid #1A1A1A;
+}
+html.dark .sidebar-bg {
+  border-right: 2px solid #FF3B27;
+}
+
+/* Sidebar collapse: el <main> respeta el width del sidebar via CSS var.
+   El sidebar setea data-sidebar="collapsed" o "expanded" en <html>. */
+.panel-main { margin-left: 244px; transition: margin-left 200ms ease-out; }
+html[data-sidebar="collapsed"] .panel-main { margin-left: 64px; }
+
+/* Mobile (<768px): sidebar como drawer off-canvas, main sin margen.
+   El sidebar se desliza con translate; se controla via data-sidebar-mobile. */
+@media (max-width: 767px) {
+  .panel-main { margin-left: 0 !important; }
+  /* Reducir padding general de páginas para evitar overflow horizontal */
+  .panel-main .p-7 { padding: 1rem !important; }
+  .panel-main .p-5 { padding: 0.75rem !important; }
+  .panel-main .px-7 { padding-left: 1rem !important; padding-right: 1rem !important; }
+  .panel-main .px-5 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+  /* Forzar grids densos a layouts mobile-friendly.
+     - 2-cols → 1 col
+     - 3/4 cols → 2 cols (KPI cards quedan 2x2)
+     - 5/6/7/12 cols → 2 cols también (raro pero pasa en algunas dashboards)
+     Las páginas que YA tienen md:grid-cols-N usan ese override correctamente. */
+  .panel-main .grid-cols-2 { grid-template-columns: minmax(0, 1fr) !important; }
+  .panel-main .grid-cols-3,
+  .panel-main .grid-cols-4,
+  .panel-main .grid-cols-5,
+  .panel-main .grid-cols-6,
+  .panel-main .grid-cols-7,
+  .panel-main .grid-cols-12 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  /* Cualquier hijo de grid-cols-12 que use col-span-N → full width.
+     Esto resuelve los layouts grid-cols-12 + col-span-7 / col-span-5 que rompen en mobile. */
+  .panel-main [class*="grid-cols-12"] > [class*="col-span-"] { grid-column: span 2 / span 2 !important; }
+  /* Tablas: scroll horizontal SÓLO en stamp-card que contiene table.
+     El border de la card se mantiene fijo, el contenido scrollea adentro.
+     min-width: max-content fuerza a la tabla a su ancho natural sin squishear columnas. */
+  .panel-main .stamp-card:has(> table),
+  .panel-main .stamp-card:has(> div > table),
+  .panel-main .stamp-card.overflow-hidden:has(table) { overflow-x: auto; }
+  .panel-main table { min-width: max-content; width: 100%; }
+  /* Hint visual: shadow gradient a la derecha cuando hay overflow scrolleable */
+  .panel-main .stamp-card:has(table) {
+    background-image: linear-gradient(to left, rgba(0,0,0,0.04), transparent 24px);
+    background-attachment: local;
+  }
+  /* PageHeader: stamps + actions stack vertical en mobile en vez de wrap raro */
+  .panel-main .page-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  /* Reducir gaps grandes */
+  .panel-main .gap-5 { gap: 0.75rem !important; }
+  .panel-main .gap-7 { gap: 1rem !important; }
+  /* TopBar: ocultar el search trigger Cmd+K (sólo deja el botón hamburger + breadcrumbs).
+     El usuario siempre puede activar la palette con Cmd+K en teclado físico. */
+  .panel-main header > button[type="button"][class*="hidden md:flex"] { display: none !important; }
+  .sidebar-bg {
+    transform: translateX(-100%);
+    transition: transform 220ms ease-out;
+    width: 280px !important;
+    z-index: 60 !important;
+  }
+  html[data-sidebar-mobile="open"] .sidebar-bg {
+    transform: translateX(0);
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.25);
+  }
+  /* Backdrop overlay cuando está abierto */
+  html[data-sidebar-mobile="open"] body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 55;
+    animation: fadeIn 180ms ease-out;
+  }
+  /* Bloquear scroll del body cuando drawer está abierto */
+  html[data-sidebar-mobile="open"] body { overflow: hidden; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* KeyboardNavList: outline naranja en row activo */
+[data-knl-active] {
+  outline: 2px solid #FF3B27;
+  outline-offset: -2px;
+}
+
+/* Inventory bulk edit mode: intercambia spans estáticos por inputs */
+html[data-inventory-edit="true"] .inv-chip-static { display: none; }
+html[data-inventory-edit="true"] .inv-chip-input { display: inline-block !important; }
+
+/* Nav links — patrón hover/active */
+.nav-link { position: relative; transition: background .15s, color .15s; }
+.sidebar-nav-item {
+  color: rgb(var(--sidebar-text-muted));
+}
+.sidebar-nav-item:hover {
+  background: var(--sidebar-hover);
+  color: rgb(var(--sidebar-text));
+}
+.nav-active {
+  background: var(--sidebar-active-bg);
+  color: rgb(var(--sidebar-text)) !important;
+}
+.nav-active::before {
+  content: "";
+  position: absolute;
+  left: -2px; top: 6px; bottom: 6px;
+  width: 4px;
+  background: #FF3B27;
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 8px rgba(255, 59, 39, 0.6);
+}
+
+/* Decorative ampersand watermark */
+.watermark-amp {
+  position: absolute;
+  font-family: var(--font-kanit), serif;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--watermark-color);
+  pointer-events: none;
+  user-select: none;
+  line-height: 0.8;
+  z-index: 0;
+}
+
+/* Streak pulse */
+@keyframes streakpulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.08); }
+}
+.streak { animation: streakpulse 1.6s ease-in-out infinite; }
+
+/* Sparkline draw */
+@keyframes sparkdraw {
+  from { stroke-dashoffset: 200; }
+  to   { stroke-dashoffset: 0; }
+}
+.sparkline path {
+  stroke-dasharray: 200;
+  animation: sparkdraw 1s ease-out forwards;
+}
+
+/* Stat number display — Kanit Black tabular */
+.stat-display {
+  font-family: var(--font-kanit), sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+  font-variant-numeric: tabular-nums;
+}
+
+.num { font-variant-numeric: tabular-nums; }
+
+/* Dotted divider tipo recibo vintage */
+.dotted-div {
+  background-image: linear-gradient(to right, var(--border) 50%, transparent 50%);
+  background-size: 6px 1px;
+  background-repeat: repeat-x;
+  background-position: 0 50%;
+  height: 1px;
+  opacity: 0.5;
+}
+
+/* Table rows */
+.row-hover:hover { background: rgba(255, 59, 39, 0.06); }
+html.dark .row-hover:hover { background: rgba(255, 59, 39, 0.10); }
+.row-zebra:nth-child(even) { background: rgb(var(--surface-2) / 0.5); }
+html.dark .row-zebra:nth-child(even) { background: rgb(var(--surface-2) / 0.4); }
+
+/* Trophy w/ chunky shadow */
+.trophy { filter: drop-shadow(2px 2px 0 #1A1A1A); }
+html.dark .trophy { filter: drop-shadow(2px 2px 0 #000); }
+
+/* Hide scrollbar in nav */
+.nav-scroll::-webkit-scrollbar { width: 0; }
+
+/* Utility: hide scrollbar pero permitir scroll. Usado en ScrollableTabs. */
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Mail HTML body sandbox styles — content de IMAP renderizado en webmail */
+.mail-html-body { line-height: 1.5; word-break: break-word; }
+.mail-html-body img { max-width: 100%; height: auto; }
+.mail-html-body a { color: var(--orange, #FF3B27); text-decoration: underline; }
+.mail-html-body table { max-width: 100%; }
+.mail-html-body blockquote {
+  border-left: 3px solid var(--border-soft, #d4cfc5);
+  padding-left: 12px; margin-left: 0;
+  color: var(--ink-3, #6e665b);
+}
+
+/* ────────────────────────────────────────────────────────────────────
+   Dark mode overrides para clases Tailwind brand-color que NO se mueven.
+   Esto resuelve el problema de "gris claro + texto blanco" que pasaba
+   cuando elementos con bg-cream-2 (override en dark a #24212A) tenían
+   text-dark/text-warm-X hardcoded sin override.
+
+   Estrategia: TODAS las clases bg-cream/bg-cream-2/bg-white se redirigen
+   a tokens semánticos en dark, y los text-warm-X se ajustan al ink-X.
+   ──────────────────────────────────────────────────────────────────── */
+
+html.dark .bg-cream     { background-color: rgb(var(--page))      !important; }
+html.dark .bg-cream-2   { background-color: rgb(var(--surface-2)) !important; }
+html.dark .bg-white     { background-color: rgb(var(--surface))   !important; }
+html.dark .hover\:bg-cream-2:hover { background-color: rgb(var(--surface-3)) !important; }
+
+html.dark .text-dark      { color: rgb(var(--ink))   !important; }
+html.dark .text-warm-400  { color: rgb(var(--ink-3)) !important; }
+html.dark .text-warm-500  { color: rgb(var(--ink-3)) !important; }
+html.dark .text-warm-600  { color: rgb(var(--ink-2)) !important; }
+html.dark .text-warm-700  { color: rgb(var(--ink))   !important; }
+
+html.dark .border-dark        { border-color: var(--border) !important; }
+html.dark .border-warm-200    { border-color: var(--border-soft) !important; }
+html.dark .border-warm-200\/50 { border-color: var(--border-soft) !important; }
+html.dark .border-warm-300    { border-color: var(--border-soft) !important; }
+
+/* Inline styled chunky shadows en dark — switchear de #1A1A1A a token theme */
+html.dark [style*="box-shadow: 5px 5px 0 0 #1A1A1A"] { box-shadow: 5px 5px 0 0 var(--shadow-color) !important; }
+html.dark [style*="box-shadow: 4px 4px 0 0 #1A1A1A"] { box-shadow: 4px 4px 0 0 var(--shadow-color) !important; }
+html.dark [style*="box-shadow: 3px 3px 0 0 #1A1A1A"] { box-shadow: 3px 3px 0 0 var(--shadow-color) !important; }
+html.dark [style*="box-shadow: 2px 2px 0 0 #1A1A1A"] { box-shadow: 2px 2px 0 0 var(--shadow-color) !important; }
+
+/* Inline styled borders en dark */
+html.dark [style*="border: 2.5px solid #1A1A1A"] { border-color: var(--border) !important; }
+html.dark [style*="border: 2px solid #1A1A1A"]   { border-color: var(--border) !important; }
+html.dark [style*="border: 1.5px solid #1A1A1A"] { border-color: var(--border) !important; }
+html.dark [style*="border: 1px solid #BDB7A6"]   { border-color: var(--border-soft) !important; }
+
+/* Headers tabla / footers oscuros — mantener contrast text-cream */
+html.dark .bg-dark    { background-color: #000 !important; }
+html.dark .text-cream { color: rgb(var(--ink))   !important; }
+
+/* Achievement strip (always dark) — mantener orange shadow strong */
+html.dark [style*="box-shadow: 5px 5px 0 0 #FF3B27"] { box-shadow: 5px 5px 0 0 #FF3B27 !important; }

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#BB3B2E", // Rojo RYO
+                        "secondary": "#4D5431", // Verde Oscuro RYO
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221610",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .vintage-border {
+            border: 3px solid #4D5431;
+            box-shadow: 6px 6px 0px 0px #BB3B2E;
+        }
+        .vintage-input {
+            border: 2px solid #4D5431;
+            background-color: transparent;
+        }
+        .vintage-input:focus {
+            outline: none;
+            border-color: #BB3B2E;
+            ring: 0;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Header -->
+<header class="flex items-center justify-between border-b-4 border-secondary px-6 md:px-20 py-4 bg-background-light dark:bg-background-dark sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<img alt="RYO Craft &amp; Smoking Club Logo" class="h-12 w-auto" data-alt="RYO Craft and Smoking Club official vintage logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6EEUNsYrBzHATqhBuu8S5MtYfATCoBW3wH6Pbx-0EvPP684wIJFHRKcPa0Lvcg9X8tbymN0pqswGQjFtikAKoXJuviDHknDyQP107RWQTvk8HnO_DZ3OQVBrTta2SkpwfUlfZdxvg4q9Sris2FwxyltaDrMO4XC7c866NiATiaPPRfz57gE_1M8QDv6ZAJAOvnkp-X2V0sqJVL-c-nH-Cz_ojZfxrAACiqlW75aFmotlO6D0BIoJV4VGe1NpC800Lo0eTS56yfFg"/>
+<div class="hidden md:block">
+<h1 class="text-secondary dark:text-primary text-2xl font-black leading-tight tracking-tighter uppercase">RYO</h1>
+<p class="text-secondary/70 dark:text-primary/70 text-xs font-bold uppercase tracking-widest">Craft &amp; Smoking Club</p>
+</div>
+</div>
+<nav class="flex items-center gap-6">
+<a class="text-secondary font-bold hover:text-primary transition-colors uppercase text-sm" href="#">Inicio</a>
+<a class="text-secondary font-bold hover:text-primary transition-colors uppercase text-sm" href="#">Productos</a>
+<a class="text-primary font-black border-b-2 border-primary uppercase text-sm" href="#">Contacto</a>
+<div class="flex gap-2 ml-4">
+<button class="size-10 flex items-center justify-center rounded-full bg-secondary text-white hover:bg-primary transition-all">
+<span class="material-symbols-outlined text-xl">account_circle</span>
+</button>
+</div>
+</nav>
+</header>
+<main class="max-w-7xl mx-auto px-6 py-12 w-full">
+<!-- Hero Section -->
+<div class="mb-16 text-center">
+<h2 class="text-5xl md:text-7xl font-black text-secondary dark:text-primary uppercase tracking-tighter mb-4">Únete al Club</h2>
+<p class="text-xl text-secondary/80 dark:text-slate-300 max-w-2xl mx-auto font-medium italic">"Donde el tabaco se encuentra con el arte del craft."</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+<!-- Contact Info Cards -->
+<div class="space-y-8">
+<div class="vintage-border bg-white dark:bg-slate-800 p-8 rounded-none transition-transform hover:-translate-y-1">
+<div class="flex items-start gap-6">
+<div class="bg-primary p-4 text-white">
+<span class="material-symbols-outlined text-4xl">chat</span>
+</div>
+<div>
+<h3 class="text-2xl font-black text-secondary dark:text-primary uppercase mb-2">WhatsApp Directo</h3>
+<p class="text-slate-600 dark:text-slate-400 mb-4 font-medium">Atención personalizada para socios y consultas sobre stock.</p>
+<a class="inline-block bg-secondary text-white px-6 py-2 font-bold uppercase text-sm hover:bg-primary transition-colors" href="#">Enviar Mensaje</a>
+</div>
+</div>
+</div>
+<div class="vintage-border bg-white dark:bg-slate-800 p-8 rounded-none transition-transform hover:-translate-y-1">
+<div class="flex items-start gap-6">
+<div class="bg-primary p-4 text-white">
+<span class="material-symbols-outlined text-4xl">photo_camera</span>
+</div>
+<div>
+<h3 class="text-2xl font-black text-secondary dark:text-primary uppercase mb-2">Instagram</h3>
+<p class="text-slate-600 dark:text-slate-400 mb-4 font-medium">Sigue nuestra curaduría diaria y nuevos lanzamientos craft.</p>
+<p class="font-bold text-secondary dark:text-primary text-xl">@ryo_craftclub</p>
+</div>
+</div>
+</div>
+<div class="vintage-border bg-white dark:bg-slate-800 p-8 rounded-none transition-transform hover:-translate-y-1">
+<div class="flex items-start gap-6">
+<div class="bg-primary p-4 text-white">
+<span class="material-symbols-outlined text-4xl">storefront</span>
+</div>
+<div>
+<h3 class="text-2xl font-black text-secondary dark:text-primary uppercase mb-2">Showroom &amp; Lounge</h3>
+<p class="text-slate-600 dark:text-slate-400 mb-2 font-medium">Visítanos en nuestra atmósfera diseñada para el ritual.</p>
+<p class="text-secondary dark:text-white font-bold italic">Calle de la Tradición 42, Barrio Antiguo.</p>
+<p class="text-xs text-slate-500 mt-2">Lun - Vie: 11:00 - 20:00 | Sáb: 10:00 - 14:00</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Contact Form -->
+<div class="bg-secondary p-1 rounded-none shadow-[10px_10px_0px_0px_rgba(187,59,46,1)]">
+<div class="bg-background-light dark:bg-slate-900 p-8 h-full">
+<h3 class="text-3xl font-black text-secondary dark:text-primary uppercase mb-6 text-center">Mensaje para el Club</h3>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block text-xs font-black uppercase text-secondary mb-2">Nombre Completo</label>
+<input class="w-full vintage-input px-4 py-3 text-secondary font-bold placeholder:text-secondary/30" placeholder="Tu nombre" type="text"/>
+</div>
+<div>
+<label class="block text-xs font-black uppercase text-secondary mb-2">Email</label>
+<input class="w-full vintage-input px-4 py-3 text-secondary font-bold placeholder:text-secondary/30" placeholder="email@ejemplo.com" type="email"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-black uppercase text-secondary mb-2">Asunto</label>
+<select class="w-full vintage-input px-4 py-3 text-secondary font-bold">
+<option>Consulta General</option>
+<option>Membresía Club</option>
+<option>Pedidos Mayoristas</option>
+<option>Showroom</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-black uppercase text-secondary mb-2">Tu Mensaje</label>
+<textarea class="w-full vintage-input px-4 py-3 text-secondary font-bold placeholder:text-secondary/30" placeholder="¿Cómo podemos ayudarte hoy?" rows="5"></textarea>
+</div>
+<button class="w-full bg-primary text-white font-black uppercase py-4 tracking-widest hover:bg-secondary transition-all transform hover:scale-[1.02]" type="submit">
+                                Enviar al Club
+                            </button>
+</form>
+</div>
+</div>
+</div>
+<!-- Map Section -->
+<div class="mt-20">
+<div class="flex items-center gap-4 mb-8">
+<div class="h-1 grow bg-secondary"></div>
+<h3 class="text-3xl font-black text-secondary dark:text-primary uppercase flex-none">Nuestra Ubicación</h3>
+<div class="h-1 grow bg-secondary"></div>
+</div>
+<div class="vintage-border h-[400px] w-full overflow-hidden relative grayscale hover:grayscale-0 transition-all duration-700 bg-slate-200">
+<div class="absolute inset-0 bg-secondary/10 pointer-events-none z-10"></div>
+<div class="w-full h-full flex items-center justify-center" data-alt="Stylized vintage map of the club location" data-location="Buenos Aires" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAKepwcAcnnZycugce8F1QM1U-VfwUYA2f2fZQiA-L6ppZXMtCDkRkhdPDe_sN2EqIqtajI0m_350EXMaPPHC0m57SLkzrpCN-XXtkcpD1Sx9I3AQ7dHCHHiJDBwmPVl6DQQ9eYOlRuplizrb048wv4UiSz2U2YKuyDlGocm2zGZ217Wl3T9HrrBL4zRpZS5-8aDtvEBwbqOq10oimTMtwgDnyXbxfDKVqRVNHhopohRH97qO_M25fpAc3VYjqpxEWhMBrjIFguHq4"); background-size: cover;'>
+<div class="bg-primary text-white p-4 rounded-none vintage-border border-white flex items-center gap-2 z-20">
+<span class="material-symbols-outlined">location_on</span>
+<span class="font-black uppercase tracking-tighter">RYO HQ</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-secondary text-background-light py-12 px-6 mt-12 border-t-8 border-primary">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
+<div>
+<h4 class="text-xl font-black uppercase mb-4 tracking-tighter">RYO Club</h4>
+<p class="text-sm font-medium opacity-80 max-w-xs mx-auto md:mx-0">Preservando el arte del buen fumar con una estética moderna y espíritu artesanal.</p>
+</div>
+<div>
+<h4 class="text-xl font-black uppercase mb-4 tracking-tighter">Navegación</h4>
+<ul class="space-y-2 text-sm font-bold uppercase">
+<li><a class="hover:text-primary transition-colors" href="#">Productos</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Historia</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Membresías</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Privacidad</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-xl font-black uppercase mb-4 tracking-tighter">Newsletter</h4>
+<div class="flex">
+<input class="bg-white/10 border-none px-4 py-2 w-full text-white placeholder:text-white/50 focus:ring-1 focus:ring-primary" placeholder="Tu email" type="email"/>
+<button class="bg-primary px-4 py-2 hover:bg-white hover:text-primary transition-all">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+<p class="text-[10px] mt-2 opacity-50 uppercase font-black">Sólo para mayores de 18 años.</p>
+</div>
+</div>
+<div class="mt-12 text-center border-t border-white/10 pt-8">
+<p class="text-[10px] font-black uppercase tracking-[0.3em]">© 2024 RYO Craft &amp; Smoking Club - Handmade &amp; Selected</p>
+</div>
+</footer>
+</div>
+</body></html>
