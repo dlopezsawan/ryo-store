@@ -34,7 +34,7 @@
     "@medusajs/cli": "2.13.1",
     "@medusajs/framework": "2.13.1",
     "@medusajs/medusa": "2.13.1",
-    "@tiptap/extension-color": "^2.11.7",
+    "@tiptap/extension-color": "^3.22.5",
     "@tiptap/extension-font-family": "^2.11.7",
     "@tiptap/extension-link": "^2.11.7",
     "@tiptap/extension-text-align": "^2.11.7",
