@@ -1,9 +1,56 @@
+# Dependencies
 node_modules
+.pnp
+.pnp.js
+
+# Environment files (never commit secrets)
 .env
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env*.local
+
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
 .next
+.medusa
 dist
+build
+.cache
+*.tsbuildinfo
+
+# OS
 .DS_Store
+Thumbs.db
 *.tar.gz
+
+# IDE / editor settings
+.vscode
+.idea
+*.swp
+*.swo
+
+# Claude Code workspace (contains local CLI state, command history, settings,
+# and worktree branches — none of which should ever be in version control).
+.claude/
+
+# Cursor IDE worktrees
+.cursor/
+
+# Customer data: receipt photos with names, addresses, cédulas, payment refs.
+# These are uploaded by operators via Telegram/WhatsApp and stored on the VPS
+# disk. They MUST stay out of git for GDPR/PII reasons. Directories are
+# created at runtime — git only needs them gitignored, not the contents.
+backend/static/mrw-receipts/
+backend/static/wa-proofs/
+backend/static/payment-proofs/
+
+# Medusa generated types (auto-regenerated on build)
+backend/.medusa/
+backend/src/admin/.cache/
