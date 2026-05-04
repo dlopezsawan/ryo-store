@@ -55,10 +55,14 @@ jobs:
             git log -1 --oneline
 
             echo "─── building containers (with cache when possible) ───"
-            docker compose build medusa storefront
+            # Build all app services that ship code from this repo. If a
+            # future PR adds a new app service with its own Dockerfile,
+            # append it here — services missing from this list keep
+            # running their last built image and silently get out of sync.
+            docker compose build medusa storefront panel
 
             echo "─── recreating containers ───"
-            docker compose up -d medusa storefront
+            docker compose up -d medusa storefront panel
 
             echo "─── pruning dangling images ───"
             docker image prune -f --filter "label!=keep" || true
