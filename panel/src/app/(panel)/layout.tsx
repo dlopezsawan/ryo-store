@@ -73,7 +73,12 @@ export default async function PanelLayout({
       />
       <main className="panel-main flex-1 flex flex-col min-w-0">
         <TopBar />
-        <div className="flex-1 overflow-y-auto">{children}</div>
+        {/* overflow-x-hidden clips decorative watermarks (the absolute-
+            positioned `&` ampersands rendered at 400px) that overflow the
+            viewport on mobile, where the sidebar collapses and there is
+            no horizontal slack to absorb them. Without this, the page
+            scrolls horizontally and content sits offset to the right. */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
       </main>
       <CommandPalette />
     </div>
