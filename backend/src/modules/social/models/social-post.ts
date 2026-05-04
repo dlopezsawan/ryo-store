@@ -27,9 +27,15 @@ const SocialPost = model.define("social_post", {
 
   // State
   status: model.text().default("draft"),
-                                        // draft | in_review | approved | scheduled | published | failed
+                                        // draft | in_review | approved | scheduled | publishing | published | failed
+  scheduled_at: model.dateTime().nullable(), // when the worker should publish
+  buffer_post_id: model.text().nullable(),   // Buffer post id (pre-publish tracking)
   ig_post_id: model.text().nullable(),  // populated after publish
   published_at: model.dateTime().nullable(),
+
+  // Diagnostics for the publish pipeline
+  failure_reason: model.text().nullable(),
+  error_count: model.number().default(0),
 })
 
 export default SocialPost

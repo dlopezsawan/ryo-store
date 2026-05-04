@@ -26,8 +26,13 @@ const SocialStory = model.define("social_story", {
   // State
   status: model.text().default("draft"),
   scheduled_at: model.dateTime().nullable(),
+  buffer_post_id: model.text().nullable(),   // Buffer post id (pre-publish tracking)
   ig_story_id: model.text().nullable(),
   published_at: model.dateTime().nullable(),
+
+  // Diagnostics for the publish pipeline
+  failure_reason: model.text().nullable(),
+  error_count: model.number().default(0),
 })
 
 export default SocialStory

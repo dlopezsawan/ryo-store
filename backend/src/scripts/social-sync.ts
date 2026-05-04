@@ -100,7 +100,7 @@ export default async function socialSync({ container }: ExecArgs) {
     }
     const existing = await svc.listSocialPosts({ external_id: p.id } as never)
     if (existing.length > 0) {
-      await svc.updateSocialPosts({ id: existing[0].id }, payload as never)
+      await svc.updateSocialPosts({ ...payload, id: existing[0].id } as never)
       postsUpdated++
     } else {
       await svc.createSocialPosts({ ...payload, status: "draft" } as never)
@@ -118,9 +118,19 @@ export default async function socialSync({ container }: ExecArgs) {
       type: s.type,
       media_url,
     }
-    const existing = await svc.listSocialStories({ external_id: s.id } as never)
+    // Identity is (date, slot) — NOT external_id. The external_id encodes the
+    // story type ("story-2026-04-28-2-quote") and changes whenever we tweak
+    // the dashboard.html plan, but the actual slot (date Apr 28, slot #2) is
+    // the same human concept. Matching on external_id caused every type
+    // tweak to spawn a duplicate draft alongside the already-approved row.
+    const existing = await svc.listSocialStories({ date: s.date, slot: s.slot } as never)
     if (existing.length > 0) {
-      await svc.updateSocialStories({ id: existing[0].id }, payload as never)
+      // Pick the most recently updated row in case there are stale dupes
+      // — the active one is the one the user has been working with.
+      const target = existing.sort(
+        (a, b) => +new Date(b.updated_at as never) - +new Date(a.updated_at as never)
+      )[0]
+      await svc.updateSocialStories({ ...payload, id: target.id } as never)
       storiesUpdated++
     } else {
       await svc.createSocialStories({ ...payload, status: "draft" } as never)
