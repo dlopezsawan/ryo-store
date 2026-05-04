@@ -1,9 +1,96 @@
+# Dependencies
 node_modules
+.pnp
+.pnp.js
+
+# Environment files (never commit secrets)
 .env
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env*.local
+
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
 .next
+.medusa
 dist
+build
+.cache
+*.tsbuildinfo
+
+# OS
 .DS_Store
+Thumbs.db
 *.tar.gz
+
+# IDE / editor settings
+.vscode
+.idea
+*.swp
+*.swo
+
+# Claude Code workspace (contains local CLI state, command history, settings,
+# and worktree branches — none of which should ever be in version control).
+.claude/
+
+# Cursor IDE worktrees
+.cursor/
+
+# Customer data: receipt photos with names, addresses, cédulas, payment refs.
+# These are uploaded by operators via Telegram/WhatsApp and stored on the VPS
+# disk. They MUST stay out of git for GDPR/PII reasons. Directories are
+# created at runtime — git only needs them gitignored, not the contents.
+backend/static/mrw-receipts/
+backend/static/wa-proofs/
+backend/static/payment-proofs/
+
+# Medusa generated types (auto-regenerated on build)
+backend/.medusa/
+backend/src/admin/.cache/
+
+# Roo Code IDE workspace (similar to .cursor/, local-only)
+.roo/
+
+# MCP server config — sometimes contains tokens, keep local
+.mcp.json
+
+# Loose root assets that the user drops in via drag-and-drop while working
+# on copy/design iterations. They never belong in version control — proper
+# product assets live under storefront/public/ or game/sprites/.
+/*.webp
+/*.jpeg
+/*.jpg
+/*.png
+/*.svg
+/*.rtf
+/*.pdf
+/*.zip
+/*.json
+!/package.json
+!/package-lock.json
+!/.dockerignore
+/sin?fondo/
+/editadas/
+/listmonk-static/
+
+# Session conversation notes (auto-generated dumps from Claude/Cursor sessions
+# — useful as local notepad but should not pollute the repo)
+/CONTEXTO_*.md
+/RESUMEN_*.md
+/RESUMEN-*.md
+/PROMPT-*.md
+/PROMPT_*.md
+/GUIA-*.md
+/RYO-Store-*.md
+/PRÓXIMOS-*.md
+/CONTEXT_*.md
+/CONFIGURAR-*.md
+/PROMPT-ENVIO-*.md
+.deploy-keys/

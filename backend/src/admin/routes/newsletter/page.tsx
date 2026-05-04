@@ -3,6 +3,7 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { Container, Heading, Text, Badge } from "@medusajs/ui"
 import { useState, useEffect } from "react"
+import { PaperPlane } from "@medusajs/icons"
 
 type Subscriber = {
   id: number
@@ -262,6 +263,7 @@ function NewsletterPage() {
 
 export const config = defineRouteConfig({
   label: "Newsletter",
+  icon: PaperPlane,
 })
 
 export default NewsletterPage

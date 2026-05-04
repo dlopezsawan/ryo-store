@@ -1,0 +1,52 @@
+# Servicio del panel custom para añadir al docker-compose.yml del VPS.
+#
+# Routing: Traefik (no nginx) — el VPS comparte la red `n8n_default` con
+# Traefik que ya está corriendo y maneja TLS termination con Let's Encrypt
+# (resolver `mytlschallenge`).
+#
+# Para añadir: copiar este bloque dentro de `services:` del compose principal,
+# luego SIEMPRE usar:
+#
+#     docker compose up -d --no-deps --build panel
+#
+# ⚠️ El --no-deps es CRÍTICO. Sin él, compose v2 puede recrear medusa
+# (porque tenemos `depends_on: medusa`) tomando cambios uncommitted en
+# backend/ que pueden dejarlo en crash loop.
+#
+# Caso real: un job sin `export const config` en backend/src/jobs/ rompió
+# medusa al recrear. Fix: archivos que no son scheduled jobs van fuera de
+# /jobs/. Ver panel/README.md → "Gotchas".
+
+  panel:
+    build:
+      context: ./panel
+      dockerfile: Dockerfile
+    image: ryo-store-panel
+    restart: unless-stopped
+    environment:
+      # Comunicación interna a Medusa via docker network — sin TLS, sin DNS público.
+      MEDUSA_ADMIN_URL: http://medusa:9000
+      # Secret de la cookie firmada — viene de /root/ryo-store/.env
+      # Generado con `openssl rand -base64 48`. Distinto a JWT_SECRET de Medusa
+      # para permitir rotación independiente.
+      PANEL_SESSION_SECRET: ${PANEL_SESSION_SECRET}
+      # Cookie locked al subdominio del panel
+      PANEL_COOKIE_DOMAIN: panel.enrola.shop
+      PANEL_COOKIE_SECURE: "true"
+      # Resend — necesario para /webmail y "Email cliente" desde order detail.
+      # Si no está, esas pantallas muestran "no configurado" pero el resto
+      # del panel funciona normal.
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_ADDRESS: ${RESEND_FROM_ADDRESS:-Enrola <hola@enrola.shop>}
+    depends_on:
+      - medusa
+    networks:
+      - n8n_default
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.panel.rule=Host(`panel.enrola.shop`)
+      - traefik.http.routers.panel.tls=true
+      - traefik.http.routers.panel.entrypoints=websecure
+      - traefik.http.routers.panel.tls.certresolver=mytlschallenge
+      - traefik.http.services.panel.loadbalancer.server.port=3001
+      # Hardening: nada se sirve por http puro (Traefik redirige 80→443 globally)

@@ -1,0 +1,248 @@
+# ══════════════════════════════════════════════════════════════════════════
+# Enrola Blueprint — Brand Configuration Template
+# ══════════════════════════════════════════════════════════════════════════
+# Copy this file to blueprint.config.yml (gitignored) and fill in your values.
+# Then run: ./scripts/rebrand.sh blueprint.config.yml
+#
+# Every field has a comment explaining where it gets injected.
+# ══════════════════════════════════════════════════════════════════════════
+
+brand:
+  # Display name (capitalized) — used in UI titles, emails, meta tags
+  # Example: "Acme Supplies"
+  name: "YourBrand"
+
+  # Uppercase variant — used in sidebar brand, some headers, ASCII art
+  # Should be name.toUpperCase()
+  nameUpper: "YOURBRAND"
+
+  # URL-safe slug — used in Docker container names, CSS classes, file paths
+  # Must be: lowercase, no spaces, no accents, only a-z 0-9 -
+  # Example: "acme-supplies"
+  slug: "yourbrand"
+
+  # Full legal/commercial name for formal copy (emails, receipts, legal)
+  # Can include "Inc.", "SL", "C.A.", etc.
+  fullName: "YourBrand Shop"
+
+  # Tagline / elevator pitch (short)
+  tagline: "All your needs in one place"
+
+  # Longer description for meta tags and about sections
+  description: "YourBrand is the go-to e-commerce for [niche] in [country]."
+
+  # Primary language/locale (used in Next.js html lang, date formatting)
+  # Options: es, es-VE, es-ES, en, en-US, pt, pt-BR, etc.
+  locale: "es"
+
+  # ─── Domain + URLs ────────────────────────────────────────────────────────
+  # The main domain without protocol (no https://, no trailing slash)
+  domain: "yourbrand.com"
+
+  # Full URL of the storefront
+  baseUrl: "https://yourbrand.com"
+
+  # Subdomain for the API (Medusa admin + store endpoints)
+  apiUrl: "https://api.yourbrand.com"
+
+  # Subdomain for Umami self-hosted analytics
+  analyticsUrl: "https://analytics.yourbrand.com"
+
+  # Admin dashboard path (on main domain)
+  adminPath: "/dashboard"
+
+  # ─── Emails ───────────────────────────────────────────────────────────────
+  email:
+    contact: "hello@yourbrand.com"          # Main contact — alertas, replies-to
+    noreply: "noreply@yourbrand.com"        # Emails transaccionales (from)
+    sales: "sales@yourbrand.com"            # Ventas / cotizaciones
+    support: "support@yourbrand.com"        # Support / claims
+
+  # ─── Social media handles (sin @) ─────────────────────────────────────────
+  social:
+    instagram: "yourbrand"                  # https://instagram.com/yourbrand
+    tiktok: "yourbrand"                     # https://tiktok.com/@yourbrand
+    facebook: "yourbrand"                   # https://facebook.com/yourbrand
+    twitter: ""                             # empty = skip
+    youtube: ""
+    telegram: ""                            # t.me/yourbrand
+    whatsapp: ""                            # phone with country code, no +
+
+  # ─── Brand colors (CSS + Tailwind) ────────────────────────────────────────
+  # Hex values. Usados en globals.css + tailwind.config.js
+  colors:
+    primary: "#ff3b27"        # Color principal — CTAs, links, accents
+    secondary: "#2a2d34"      # Color secundario — headings, buttons alt
+    dark: "#1a1a1a"           # Texto principal, bg oscuro
+    cream: "#fef9f4"          # Bg claro / fondo de cards
+    orange: "#ff7a00"         # Accent vivo (CTA highlights, badges)
+    muted: "#6b6b6b"          # Texto muted, bordes
+    success: "#10b981"        # Verde éxito (confirmaciones)
+    error: "#ef4444"          # Rojo error
+    warning: "#f59e0b"        # Amarillo warning
+
+  # ─── Typography ───────────────────────────────────────────────────────────
+  fonts:
+    # Google Fonts name or "system" for stack por defecto
+    heading: "Kanit"
+    body: "system-ui"
+
+# ══════════════════════════════════════════════════════════════════════════
+# MARKET
+# ══════════════════════════════════════════════════════════════════════════
+market:
+  # ISO 3166-1 alpha-2 country code
+  country: "US"                             # VE, CO, MX, ES, US, etc.
+
+  # Currency (ISO 4217)
+  currency: "USD"                           # USD, EUR, VES, COP, MXN, BRL, etc.
+  currencySymbol: "$"
+
+  # Phone code (without +)
+  phoneCode: "1"                            # 58 VE, 57 CO, 52 MX, 34 ES
+
+  # Timezone IANA
+  timezone: "America/New_York"              # America/Caracas, America/Bogota, Europe/Madrid
+
+  # Primary city (for local SEO, shipping labels)
+  primaryCity: "New York"
+
+  # Tax / VAT rate as decimal (0.16 = 16%)
+  taxRate: 0.0
+
+# ══════════════════════════════════════════════════════════════════════════
+# FEATURES — toggle on/off per brand
+# ══════════════════════════════════════════════════════════════════════════
+features:
+  # Combo tiers — descuentos por volumen (3→10%, 5→15%, 10→20%, wholesale 24+)
+  # Útil para consumibles; OFF si cada producto es único
+  comboTiers: true
+
+  # Age gate — +18 check en primera visita
+  # ON solo si vendes productos para adultos
+  ageGate: false
+
+  # BCV rate — conversión automática de USD/EUR a bolívares
+  # ON solo para Venezuela (market.country == "VE")
+  bcvRate: false
+
+  # Manual payment — upload de comprobante de transferencia + validación manual
+  # Útil para mercados sin payment gateways (Venezuela, Argentina sin CBU, etc.)
+  # OFF si usas Stripe/Paypal/MercadoPago
+  manualPayment: false
+
+  # Loyalty module — sistema de puntos + rewards
+  loyalty: true
+
+  # WhatsApp bot — bot conversacional con LLM (DeepSeek) que atiende ventas por WA
+  # ON requiere WhatsApp Business API + DeepSeek API key + Groq para audio
+  whatsappBot: false
+
+  # Telegram webhook — recibir/enviar mensajes via Telegram
+  telegram: false
+
+  # Gamification — juego custom (muy específico, mejor OFF al inicio)
+  gamification: false
+
+  # Newsletter — Listmonk self-hosted para campañas email
+  newsletter: true
+
+  # Stockout alerts — remarketing preventivo cuando un SKU está por agotarse
+  stockoutAlerts: true
+
+  # Abandoned cart recovery — email 2h después de abandonar
+  abandonedCart: true
+
+  # UTM tracking — capturar UTMs en cookie y propagar a order.metadata
+  utmTracking: true
+
+  # Google Places autocomplete — para shipping address
+  googlePlaces: true
+
+  # Cedula/DNI validation — validación de documento de identidad
+  # Specific to some LATAM markets; ajusta el regex en components/form/
+  cedulaValidation: false
+
+# ══════════════════════════════════════════════════════════════════════════
+# SHIPPING OPTIONS (starter — editar post-deploy en admin)
+# ══════════════════════════════════════════════════════════════════════════
+shipping:
+  # Main warehouse city (source of orders)
+  origin_city: "Main City"
+
+  # Flat-rate options (en decimal; el script las usa para generar el seed)
+  options:
+    - name: "Local (free over $50)"
+      price: 0
+      description: "Same-day delivery within city"
+      code: "local_free"
+
+    - name: "Local standard"
+      price: 5
+      description: "Same-day delivery within city"
+      code: "local_std"
+
+    - name: "National carrier"
+      price: 0                              # 0 = cobro a destino (pay on delivery)
+      description: "2-3 day delivery, buyer pays carrier"
+      code: "national_cod"
+
+# ══════════════════════════════════════════════════════════════════════════
+# COMPETITORS (SEO Analytics starter — editar post-deploy)
+# ══════════════════════════════════════════════════════════════════════════
+# Si no los conoces aún, deja la lista vacía y los añades después en
+# /dashboard/seo/venezuela (o wherever).
+competitors: []
+# Ejemplo:
+# competitors:
+#   - name: "Acme Rival"
+#     domain: "acmerival.com"
+#     instagram: "acmerival"
+#     threat: "high"          # high | medium | watch | low
+#     notes: "Main competitor, 10 years in market"
+
+# ══════════════════════════════════════════════════════════════════════════
+# STARTER KEYWORDS (SEO — lista inicial a trackear)
+# ══════════════════════════════════════════════════════════════════════════
+# 5-10 keywords para arrancar el tracker. Editar desde admin después.
+starter_keywords:
+  - "your main product"
+  - "your niche keyword"
+  - "your city + product"
+
+# ══════════════════════════════════════════════════════════════════════════
+# COMBO TIERS (si features.comboTiers = true)
+# ══════════════════════════════════════════════════════════════════════════
+combo_tiers:
+  - min_items: 3
+    discount_pct: 10
+    label: "Combo 3"
+  - min_items: 5
+    discount_pct: 15
+    label: "Combo 5"
+  - min_items: 10
+    discount_pct: 20
+    label: "Combo 10"
+
+# Wholesale threshold (descuento extra por cantidad del mismo producto)
+wholesale:
+  min_qty: 24                               # 24+ del mismo SKU = mayorista
+  discount_pct: 30
+
+# ══════════════════════════════════════════════════════════════════════════
+# EXTERNAL SERVICES (fill during deploy)
+# ══════════════════════════════════════════════════════════════════════════
+# El rebrand script NO toca estos — los configuras en .env del VPS post-deploy.
+# Listados aquí solo para tu referencia de qué necesitas.
+external_services_checklist:
+  resend: "Get API key from https://resend.com"
+  google_cloud: "Create Service Account — see docs/SEO-ANALYTICS-GOOGLE-SETUP.md"
+  gsc: "Add Service Account to your Search Console property"
+  ga4: "Create GA4 property + grant Viewer access to Service Account"
+  crux: "Create API key in Google Cloud with Chrome UX Report API enabled"
+  posthog: "Sign up at posthog.com, create project, get 3 keys"
+  clarity: "Sign up at clarity.microsoft.com, create project, get ID"
+  deepseek: "Only if features.whatsappBot = true"
+  groq: "Only if features.whatsappBot = true (for audio transcription)"
+  cloudflare_dns: "Add A records for domain + api + analytics subdomains"
+  hostinger_vps: "Or any VPS with Docker + Traefik"

@@ -20,6 +20,15 @@ module.exports = defineConfig({
   },
   modules: [
     {
+      resolve: "./src/modules/loyalty",
+    },
+    {
+      resolve: "./src/modules/seo-analytics",
+    },
+    {
+      resolve: "./src/modules/social",
+    },
+    {
       resolve: "@medusajs/medusa/file",
       options: {
         providers: [

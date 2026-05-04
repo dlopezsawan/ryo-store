@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Enrola-Dex — 150 Criaturas</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1A1A1A;color:#F5F0E8;font-family:'Kanit',sans-serif;padding:20px}
+h1{text-align:center;font-size:2rem;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:5px;color:#E84B2B}
+.sub{text-align:center;font-size:.85rem;color:#F5F0E8aa;margin-bottom:20px}
+.filters{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.filters button{background:#2a2a2a;color:#F5F0E8;border:2px solid #333;padding:4px 12px;font-family:'Kanit',sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;cursor:pointer;transition:.2s}
+.filters button:hover,.filters button.active{background:#E84B2B;border-color:#E84B2B;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;max-width:1400px;margin:0 auto}
+.card{background:#2a2a2a;border:2px solid #333;padding:8px;text-align:center;transition:.2s;cursor:pointer;position:relative}
+.card:hover{border-color:#E84B2B;transform:translateY(-2px);box-shadow:0 4px 12px #E84B2B33}
+.card img{width:80px;height:80px;image-rendering:pixelated;display:block;margin:0 auto 4px}
+.card .num{font-size:.6rem;color:#F5F0E888}
+.card .name{font-size:.7rem;font-weight:700;text-transform:uppercase;line-height:1.1}
+.card .type{font-size:.55rem;color:#E84B2B;text-transform:uppercase;margin-top:2px}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000c;z-index:999;align-items:center;justify-content:center}
+.modal.open{display:flex}
+.modal-content{background:#2a2a2a;border:3px solid #E84B2B;padding:20px;text-align:center;max-width:350px;width:90%}
+.modal-content img{width:160px;height:160px;image-rendering:pixelated;margin-bottom:10px}
+.modal-content .mnum{font-size:.8rem;color:#F5F0E888}
+.modal-content .mname{font-size:1.4rem;font-weight:900;text-transform:uppercase}
+.modal-content .mtype{font-size:.8rem;color:#E84B2B;text-transform:uppercase;margin-top:4px}
+.modal-content .close{position:absolute;top:10px;right:15px;color:#F5F0E8;font-size:1.5rem;cursor:pointer}
+.stats{text-align:center;margin-top:20px;font-size:.75rem;color:#F5F0E866}
+</style>
+</head>
+<body>
+<h1>🔥 Enrola-Dex</h1>
+<p class="sub">150 criaturas — Enrola Legends</p>
+<div class="filters" id="filters"></div>
+<div class="grid" id="grid"></div>
+<div class="modal" id="modal" onclick="this.classList.remove('open')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <span class="close" onclick="document.getElementById('modal').classList.remove('open')">✕</span>
+    <img id="m-img"><div id="m-num" class="mnum"></div><div id="m-name" class="mname"></div><div id="m-type" class="mtype"></div>
+  </div>
+</div>
+<p class="stats" id="stats"></p>
+<script>
+const DEX=[
+{n:"001",name:"cogollito",file:"creatures/001-cogollito.png"},
+{n:"002",name:"cogollero",file:"creatures/002-cogollero.png"},
+{n:"003",name:"cogolord",file:"creatures/003-cogolord.png"},
+{n:"004",name:"mechita",file:"creatures/004-mechita.png"},
+{n:"005",name:"flamero",file:"creatures/005-flamero.png"},
+{n:"006",name:"infernal",file:"creatures/006-infernal.png"},
+{n:"007",name:"gotirro",file:"creatures/007-gotirro.png"},
+{n:"008",name:"caurialin",file:"creatures/008-cabrialin.png"},
+{n:"009",name:"cauriator",file:"creatures/009-cabriator.png"},
+{n:"010",name:"jalita",file:"creatures/010-jalita.png"},
+{n:"011",name:"ventolero",file:"creatures/011-ventolero.png"},
+{n:"012",name:"huracanal",file:"creatures/012-huracanal.png"},
+{n:"013",name:"uonguito",file:"creatures/013-bonguito.png"},
+{n:"014",name:"uonglass",file:"creatures/014-bonglass.png"},
+{n:"015",name:"prismorfo",file:"creatures/015-prismorfo.png"},
+{n:"016",name:"arepita",file:"creatures/016-arepita.png"},
+{n:"017",name:"arepaso",file:"creatures/017-arepaso.png"},
+{n:"018",name:"arepaking",file:"creatures/018-arepaking.png"},
+{n:"019",name:"grindito",file:"creatures/019-grindito.png"},
+{n:"020",name:"grindark",file:"creatures/020-grindark.png"},
+{n:"021",name:"moledron",file:"creatures/021-moledron.png"},
+{n:"022",name:"humito",file:"creatures/022-humito.png"},
+{n:"023",name:"neuuloso",file:"creatures/023-nebuloso.png"},
+{n:"024",name:"fumantis",file:"creatures/024-fumantis.png"},
+{n:"025",name:"terpino",file:"creatures/025-terpino.png"},
+{n:"026",name:"terpenol",file:"creatures/026-terpenol.png"},
+{n:"027",name:"daumaster",file:"creatures/027-dabmaster.png"},
+{n:"028",name:"calmita",file:"creatures/028-calmita.png"},
+{n:"029",name:"serenox",file:"creatures/029-serenox.png"},
+{n:"030",name:"nirvanol",file:"creatures/030-nirvanol.png"},
+{n:"031",name:"cachapin",file:"creatures/031-cachapin.png"},
+{n:"032",name:"cachapote",file:"creatures/032-cachapote.png"},
+{n:"033",name:"maizotan",file:"creatures/033-maizotan.png"},
+{n:"034",name:"turpial",file:"creatures/034-turpial.png"},
+{n:"035",name:"turpialar",file:"creatures/035-turpialar.png"},
+{n:"036",name:"uuruujin",file:"creatures/036-burbujin.png"},
+{n:"037",name:"percolin",file:"creatures/037-percolin.png"},
+{n:"038",name:"filtrador",file:"creatures/038-filtrador.png"},
+{n:"039",name:"cenicin",file:"creatures/039-cenicin.png"},
+{n:"040",name:"cenicero",file:"creatures/040-cenicero.png"},
+{n:"041",name:"pipita",file:"creatures/041-pipita.png"},
+{n:"042",name:"pipalux",file:"creatures/042-pipalux.png"},
+{n:"043",name:"pipatron",file:"creatures/043-pipatron.png"},
+{n:"044",name:"cunaguin",file:"creatures/044-cunaguin.png"},
+{n:"045",name:"cunaguaro",file:"creatures/045-cunaguaro.png"},
+{n:"046",name:"semillin",file:"creatures/046-semillin.png"},
+{n:"047",name:"plantula",file:"creatures/047-plantula.png"},
+{n:"048",name:"floresta",file:"creatures/048-floresta.png"},
+{n:"049",name:"hashito",file:"creatures/049-hashito.png"},
+{n:"050",name:"hashrak",file:"creatures/050-hashrak.png"},
+{n:"051",name:"uudarin",file:"creatures/051-budarin.png"},
+{n:"052",name:"uudarazo",file:"creatures/052-budarazo.png"},
+{n:"053",name:"fogonero",file:"creatures/053-fogonero.png"},
+{n:"054",name:"llovizna",file:"creatures/054-llovizna.png"},
+{n:"055",name:"aguaceno",file:"creatures/055-aguaceno.png"},
+{n:"056",name:"vaperin",file:"creatures/056-vaperin.png"},
+{n:"057",name:"vapornox",file:"creatures/057-vapornox.png"},
+{n:"058",name:"neuulon",file:"creatures/058-nebulon.png"},
+{n:"059",name:"chaman",file:"creatures/059-chaman.png"},
+{n:"060",name:"curandol",file:"creatures/060-curandol.png"},
+{n:"061",name:"chispin",file:"creatures/061-chispin.png"},
+{n:"062",name:"chispador",file:"creatures/062-chispador.png"},
+{n:"063",name:"zipporion",file:"creatures/063-zipporion.png"},
+{n:"064",name:"uarrin",file:"creatures/064-barrin.png"},
+{n:"065",name:"fanguero",file:"creatures/065-fanguero.png"},
+{n:"066",name:"lodazon",file:"creatures/066-lodazon.png"},
+{n:"067",name:"chimuito",file:"creatures/067-chimbito.png"},
+{n:"068",name:"quemacris",file:"creatures/068-quemacris.png"},
+{n:"069",name:"pegosin",file:"creatures/069-pegosin.png"},
+{n:"070",name:"pegostro",file:"creatures/070-pegostro.png"},
+{n:"071",name:"melazon",file:"creatures/071-melazon.png"},
+{n:"072",name:"suspirin",file:"creatures/072-suspirin.png"},
+{n:"073",name:"exhalon",file:"creatures/073-exhalon.png"},
+{n:"074",name:"uuublin",file:"creatures/074-bubblin.png"},
+{n:"075",name:"uuublash",file:"creatures/075-bubblash.png"},
+{n:"076",name:"icextract",file:"creatures/076-icextract.png"},
+{n:"077",name:"porrito",file:"creatures/077-porrito.png"},
+{n:"078",name:"canuto",file:"creatures/078-canuto.png"},
+{n:"079",name:"uluntazo",file:"creatures/079-bluntazo.png"},
+{n:"080",name:"filtrito",file:"creatures/080-filtrito.png"},
+{n:"081",name:"filtramax",file:"creatures/081-filtramax.png"},
+{n:"082",name:"heladin",file:"creatures/082-heladin.png"},
+{n:"083",name:"glacirin",file:"creatures/083-glacirin.png"},
+{n:"084",name:"crioneula",file:"creatures/084-crionebla.png"},
+{n:"085",name:"rosinin",file:"creatures/085-rosinin.png"},
+{n:"086",name:"rosinero",file:"creatures/086-rosinero.png"},
+{n:"087",name:"totemico",file:"creatures/087-totemico.png"},
+{n:"088",name:"petroglin",file:"creatures/088-petroglin.png"},
+{n:"089",name:"ancestron",file:"creatures/089-ancestron.png"},
+{n:"090",name:"velita",file:"creatures/090-velita.png"},
+{n:"091",name:"velarion",file:"creatures/091-velarion.png"},
+{n:"092",name:"mangolin",file:"creatures/092-mangolin.png"},
+{n:"093",name:"mangotal",file:"creatures/093-mangotal.png"},
+{n:"094",name:"mangouoss",file:"creatures/094-mangoboss.png"},
+{n:"095",name:"uolivin",file:"creatures/095-bolivin.png"},
+{n:"096",name:"carauouin",file:"creatures/096-carabobin.png"},
+{n:"097",name:"liuertador",file:"creatures/097-libertador.png"},
+{n:"098",name:"vitralin",file:"creatures/098-vitralin.png"},
+{n:"099",name:"vitralux",file:"creatures/099-vitralux.png"},
+{n:"100",name:"waxito",file:"creatures/100-waxito.png"},
+{n:"101",name:"waxmelt",file:"creatures/101-waxmelt.png"},
+{n:"102",name:"molinin",file:"creatures/102-molinin.png"},
+{n:"103",name:"turuinox",file:"creatures/103-turbinox.png"},
+{n:"104",name:"sahumerin",file:"creatures/104-sahumerin.png"},
+{n:"105",name:"sahumador",file:"creatures/105-sahumador.png"},
+{n:"106",name:"incensario",file:"creatures/106-incensario.png"},
+{n:"107",name:"tacarito",file:"creatures/107-tacarito.png"},
+{n:"108",name:"tacarigua",file:"creatures/108-tacarigua.png"},
+{n:"109",name:"tijerin",file:"creatures/109-tijerin.png"},
+{n:"110",name:"podarex",file:"creatures/110-podarex.png"},
+{n:"111",name:"chispita",file:"creatures/111-chispita.png"},
+{n:"112",name:"llamarada",file:"creatures/112-llamarada.png"},
+{n:"113",name:"perkito",file:"creatures/113-perkito.png"},
+{n:"114",name:"perkador",file:"creatures/114-perkador.png"},
+{n:"115",name:"perkmaster",file:"creatures/115-perkmaster.png"},
+{n:"116",name:"aromin",file:"creatures/116-aromin.png"},
+{n:"117",name:"aromantis",file:"creatures/117-aromantis.png"},
+{n:"118",name:"polvorin",file:"creatures/118-polvorin.png"},
+{n:"119",name:"polvorosa",file:"creatures/119-polvorosa.png"},
+{n:"120",name:"guacamin",file:"creatures/120-guacamin.png"},
+{n:"121",name:"guacamaya",file:"creatures/121-guacamaya.png"},
+{n:"122",name:"conservin",file:"creatures/122-conservin.png"},
+{n:"123",name:"conservero",file:"creatures/123-conservero.png"},
+{n:"124",name:"caruoncin",file:"creatures/124-carboncin.png"},
+{n:"125",name:"narguilor",file:"creatures/125-narguilor.png"},
+{n:"126",name:"hallaquin",file:"creatures/126-hallaquin.png"},
+{n:"127",name:"hallacazo",file:"creatures/127-hallacazo.png"},
+{n:"128",name:"papelon",file:"creatures/128-papelon.png"},
+{n:"129",name:"filtrox",file:"creatures/129-filtrox.png"},
+{n:"130",name:"clippy",file:"creatures/130-clippy.png"},
+{n:"131",name:"uongolon",file:"creatures/131-bongolon.png"},
+{n:"132",name:"vaporcito",file:"creatures/132-vaporcito.png"},
+{n:"133",name:"enrollao",file:"creatures/133-enrollao.png"},
+{n:"134",name:"moledora",file:"creatures/134-moledora.png"},
+{n:"135",name:"chaguaramin",file:"creatures/135-chaguaramin.png"},
+{n:"136",name:"hamaquero",file:"creatures/136-hamaquero.png"},
+{n:"137",name:"papagallo",file:"creatures/137-papagallo.png"},
+{n:"138",name:"roncador",file:"creatures/138-roncador.png"},
+{n:"139",name:"munchero",file:"creatures/139-munchero.png"},
+{n:"140",name:"pasillero",file:"creatures/140-pasillero.png"},
+{n:"141",name:"caouon",file:"creatures/141-caobon.png"},
+{n:"142",name:"teleferix",file:"creatures/142-teleferix.png"},
+{n:"143",name:"pilandero",file:"creatures/143-pilandero.png"},
+{n:"144",name:"samuilon",file:"creatures/144-sambilon.png"},
+{n:"145",name:"redactor",file:"creatures/145-redactor.png"},
+{n:"146",name:"caurialesix",file:"creatures/146-cabrialesix.png"},
+{n:"147",name:"penalveris",file:"creatures/147-penalveris.png"},
+{n:"148",name:"carauouex",file:"creatures/148-carabobex.png"},
+{n:"149",name:"redantom",file:"creatures/149-redantom.png"},
+{n:"150",name:"enrolador",file:"creatures/150-enrolador.png"},
+];
+const grid=document.getElementById('grid');
+const stats=document.getElementById('stats');
+function render(list){
+  grid.innerHTML='';
+  list.forEach(c=>{
+    const d=document.createElement('div');
+    d.className='card';
+    d.innerHTML=`<img src="${c.file}" alt="${c.name}" loading="lazy"><div class="num">#${c.n}</div><div class="name">${c.name}</div>`;
+    d.onclick=()=>{
+      document.getElementById('m-img').src=c.file;
+      document.getElementById('m-num').textContent='#'+c.n;
+      document.getElementById('m-name').textContent=c.name;
+      document.getElementById('modal').classList.add('open');
+    };
+    grid.appendChild(d);
+  });
+  stats.textContent=list.length+' / 150 criaturas';
+}
+render(DEX);
+</script>
+</body>
+</html>

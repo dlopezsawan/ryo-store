@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#BB3B2E",
+                        "accent-green": "#4D5431",
+                        "cream": "#F5F2E8",
+                        "background-light": "#F5F2E8",
+                        "background-dark": "#221610",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderWidth: {
+                        '3': '3px',
+                    },
+                    boxShadow: {
+                        'retro': '6px 6px 0px 0px rgba(0,0,0,1)',
+                        'retro-sm': '3px 3px 0px 0px rgba(0,0,0,1)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .retro-border { border: 3px solid black; }
+        .retro-shadow { box-shadow: 6px 6px 0px 0px black; }
+        .retro-shadow-sm { box-shadow: 3px 3px 0px 0px black; }
+        body { background-color: #F5F2E8; }
+    </style>
+</head>
+<body class="font-display text-slate-900 selection:bg-primary selection:text-white">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-cream border-b-3 border-black px-4 md:px-10 py-4">
+<div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<img alt="Logo" class="h-12 w-auto" data-alt="RYO Roll Your Own Official Vintage Logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYHXQD67Ysx7NPC-8Y62bL0dylzr9l-OahrWsUR3JQxxJjS_Y6rqUz6E1scgVwdiUcxSxzADLr_gJyd_QjSbkJJwPniNOISHri4VLGqto8lqhkX72oxdGtT0H3tIL3NQNxrfwxS_4i4f3R33W2KDFgXvTFzMXxEu_Y2f3zalBVzdfBFxabUxfZS5jIb2Dg-hJWFr7iIsoDJFypUfOtR8eQA3g1yOVQRKOa4GWvVmxliMTvQ_NvGLMfxfaBx4KBjDRSw2ZdJhGC_Po"/>
+</div>
+<div class="hidden md:flex flex-1 max-w-md mx-8">
+<div class="relative w-full">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-black">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2 bg-white retro-border rounded-none focus:ring-0 focus:outline-none placeholder-slate-500 font-bold" placeholder="BUSCAR PRODUCTOS..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary text-white p-2 retro-border retro-shadow-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button class="bg-accent-green text-white px-4 py-2 font-black text-sm uppercase retro-border retro-shadow-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+                    MI CUENTA
+                </button>
+</div>
+</div>
+</header>
+<!-- Top Filters Bar (Static) -->
+<div class="bg-cream border-b-3 border-black overflow-x-auto">
+<div class="max-w-7xl mx-auto flex items-center justify-center py-4 px-4 gap-6 whitespace-nowrap">
+<a class="font-black text-primary uppercase tracking-tighter hover:underline decoration-3" href="#">Papelillos</a>
+<img alt="separator" class="w-5 h-5" data-alt="Circular decorative separator icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcWXGoVTYTgfLsmjUDUE4qvJRkV23vR36pFlV37H4IA5y46FHz_6vYhBjZABftu8Tkh64SEzO7qqoxQBbRTF066iPV0GdZvVZ6XSN3oRnBtyOpoVhUtbCgwcU1UDx3Vg8RwrIzZMPXiGG3FHU7kioriM-MSN8g7CudSccWwzlLEpze7kCiarqjp3IKzXa5KNayy5eNlYkhSo_uN0tmPIhieXMNNOzAfCzlQZqkNRPUU4ftvrRQBZSWCMJ3ZLeK_ksFKTDsoNwoP0s"/>
+<a class="font-black text-accent-green uppercase tracking-tighter hover:underline decoration-3" href="#">Pipas</a>
+<img alt="separator" class="w-5 h-5" data-alt="Circular decorative separator icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkLfWvGb93Q6tP--Ii1q9TSKFIph81VieFInBMb2B8zZKDMrpBlzhJCELkmwGZnvAy1f6TWeeEq5DvAxgo1W2UUL88uidUliy0mjMfAfOCv7ZKd_mNp4ikVTplmD_j64yS4QY8B8wR-3oeyizNIAhCiHFVmhgojruZhR1BhuVDZqdXDQK9FNReaV2gA6xZx3yDQsBcWC-Sk1JGxB1RJ107Kt68TglKlM4_FBC2RV0yc8KlE9pfxduHqV9qetQywGPAFXGLXzt5OpY"/>
+<a class="font-black text-accent-green uppercase tracking-tighter hover:underline decoration-3" href="#">Grinders</a>
+<img alt="separator" class="w-5 h-5" data-alt="Circular decorative separator icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMRZ_YblzUreVW_b--44QQiO8i8b1GF240Ke_apHqJA2h77sW0RF1bQ3xicZvoEQi9Skeqm2qmn6y1MFPD6fA09GychdaVvCZbeHFiginqiTX0C81uKTqVZzo9IutlaP_KoOuD9yfvWvpfhEZCjx-3JKeyNq352UegevhDADGbRJy7UkdMlvWYpMayg6nxlHHlWM2D8LZBnb-h8EzXybQHXLI7oCzs0EDrfA0AKGotipMoJBq8_uILXAsz53ReYWld0gBYtExyluI"/>
+<a class="font-black text-accent-green uppercase tracking-tighter hover:underline decoration-3" href="#">Encendedores</a>
+<img alt="separator" class="w-5 h-5" data-alt="Circular decorative separator icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRxhWyf3XO5k5kv-eJfCvAW0VHtBtVFMznNtvMxGI6_fksOIg7O1k-pCjxUEjnF4HsxQ-eyxUkJVRvf56I4dXJXzybkcS5gvQn9ZsztKq89yX-nZYwvY1YjqrX0sc-eoO4ssWoTH7Q2A26MKUeVfqD5GHGYYlTQtW9t3J6rIg8nkYNagilUwa87R9MHdgPZQilbYGfGRhJy0BViQKE5KB2Iet-3HreRRiWAAG2SkcELGmJOdSftkTCNz7WP2q5nOc89-So7lWn9D8"/>
+<a class="font-black text-accent-green uppercase tracking-tighter hover:underline decoration-3" href="#">Bandejas</a>
+</div>
+</div>
+<main class="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
+<!-- Sidebar Filters -->
+<aside class="w-full md:w-64 flex-shrink-0">
+<div class="bg-white retro-border p-6 mb-8 retro-shadow">
+<h3 class="font-black text-xl uppercase mb-4 border-b-3 border-black pb-2">Filtrar por</h3>
+<div class="space-y-6">
+<!-- Material Filter -->
+<div>
+<p class="font-black uppercase text-sm mb-3 text-primary">Material</p>
+<div class="flex flex-col gap-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-5 h-5 border-2 border-black rounded-none text-primary focus:ring-0" type="checkbox"/>
+<span class="font-bold group-hover:text-primary">Orgánico</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-5 h-5 border-2 border-black rounded-none text-primary focus:ring-0" type="checkbox"/>
+<span class="font-bold group-hover:text-primary">Metal</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-5 h-5 border-2 border-black rounded-none text-primary focus:ring-0" type="checkbox"/>
+<span class="font-bold group-hover:text-primary">Madera</span>
+</label>
+</div>
+</div>
+<!-- Size Filter -->
+<div>
+<p class="font-black uppercase text-sm mb-3 text-primary">Tamaño</p>
+<div class="flex flex-wrap gap-2">
+<button class="px-3 py-1 bg-cream border-2 border-black font-bold text-xs hover:bg-primary hover:text-white transition-colors">1 1/4</button>
+<button class="px-3 py-1 bg-cream border-2 border-black font-bold text-xs hover:bg-primary hover:text-white transition-colors">KING SIZE</button>
+<button class="px-3 py-1 bg-cream border-2 border-black font-bold text-xs hover:bg-primary hover:text-white transition-colors">SLIM</button>
+</div>
+</div>
+<!-- Price Range -->
+<div>
+<p class="font-black uppercase text-sm mb-3 text-primary">Precio</p>
+<input class="w-full h-2 bg-slate-200 rounded-none appearance-none cursor-pointer accent-black" type="range"/>
+<div class="flex justify-between mt-2 font-black text-xs">
+<span>$0</span>
+<span>$50.000+</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-accent-green retro-border p-6 retro-shadow text-white">
+<h4 class="font-black text-lg uppercase mb-2">Oferta Semanal</h4>
+<p class="text-sm font-bold mb-4 opacity-90">20% de descuento en todos los Grinders de madera.</p>
+<button class="w-full bg-white text-black py-2 font-black uppercase text-sm border-2 border-black">Ver ahora</button>
+</div>
+</aside>
+<!-- Product Grid -->
+<section class="flex-1">
+<div class="flex justify-between items-end mb-8 border-b-3 border-black pb-4">
+<div>
+<h1 class="text-4xl font-black uppercase tracking-tighter text-primary">Catálogo Vintage</h1>
+<p class="font-bold text-slate-600 italic">"Calidad que se siente en cada calada"</p>
+</div>
+<div class="hidden md:block">
+<select class="bg-white border-2 border-black font-black text-sm p-2 rounded-none focus:ring-0">
+<option>ORDENAR POR: NOVEDADES</option>
+<option>PRECIO: MENOR A MAYOR</option>
+<option>PRECIO: MAYOR A MENOR</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Product Card 1 -->
+<div class="bg-white border-3 border-black retro-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all">
+<div class="aspect-square bg-cream border-b-3 border-black relative overflow-hidden group">
+<div class="absolute top-4 right-4 bg-primary text-white font-black px-3 py-1 text-sm border-2 border-black z-10">HOT</div>
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Vintage style classic rolling papers pack" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDqHm-FQ-SFCKLiiUdti2mE60knjzK1CDBDDzl5Syebz2M42u-wLnXewjIp-F2KbdOZkK4srCoiZY6QVHaf-3dBm24z54rO4VKu04EoaUY63yjfS1nIQZBHieS1KTp1GjZySJ1nwJpOo8J1l6lJKsLCgRxnhnal_36aJeRyyrt4JwNC4AuP5xaMc5FI8yuxljVPVcSdUtJTpRj_U0uvuJBEFD22PvYdIsFlOoO0WgZd8w7BK-j-54M_tsWwK2TbGMsaeTORjmzYO4"/>
+</div>
+<div class="p-4">
+<p class="text-xs font-black uppercase text-accent-green mb-1">Papelillos</p>
+<h3 class="font-black text-lg leading-tight mb-2">CLASSIC ORGANIC HEMP - KING SIZE</h3>
+<div class="flex justify-between items-center mt-4">
+<span class="text-xl font-black text-primary">$2.500</span>
+<button class="bg-black text-white px-4 py-2 font-black text-xs uppercase hover:bg-primary transition-colors">Añadir</button>
+</div>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="bg-white border-3 border-black retro-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all">
+<div class="aspect-square bg-cream border-b-3 border-black relative overflow-hidden group">
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Handcrafted wooden smoking pipe vintage design" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6U20o_nl4fZmFJlE10_lOISrdeL8d3hYPUf6r09WM7etNUj5CIDHpxu5KADuac16YqojagLPHtLWFtolpS-avXzc8ye2Zg3jVusotNiujraCImbE64ECmCvSRJIXDQujo4_RYyef8YZAykxR8D3QlTDjf3z7Y7LGUugz7MuRJ97Ky1d1239nsxAR_jC83iwvz7eKLMfbr7M5tDoG0ToK8kL4aSRJLceXMzLyIajlkm8NbLO5ZxkEs5gizz4msxVS4_61wcwoA_74"/>
+</div>
+<div class="p-4">
+<p class="text-xs font-black uppercase text-accent-green mb-1">Pipas</p>
+<h3 class="font-black text-lg leading-tight mb-2">PIPA DE CEDRO TALLADA A MANO</h3>
+<div class="flex justify-between items-center mt-4">
+<span class="text-xl font-black text-primary">$18.900</span>
+<button class="bg-black text-white px-4 py-2 font-black text-xs uppercase hover:bg-primary transition-colors">Añadir</button>
+</div>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="bg-white border-3 border-black retro-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all">
+<div class="aspect-square bg-cream border-b-3 border-black relative overflow-hidden group">
+<div class="absolute top-4 right-4 bg-accent-green text-white font-black px-3 py-1 text-sm border-2 border-black z-10">NUEVO</div>
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Heavy metal industrial grinder 4 parts" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD33ZICct9NjARSsI7bEKgFrSQHwkmZAzOwBtF-QE9JUBlnCUGyu5x6ROpgeKsfrqpfIcP1gnsKF4Cref21ld2R8Dz43_DQW_PB4J7vVipt7-Ym-qXJEjpL_khfuKA0XpKErE6Xkww35suhxzxFk8WNf94TILLRTPk6x3LaLNVkpAQuUAVzyjU4sFeXsM_Yqec10aVsu3GWhKWy34_8HWcdOZV1DUR4UJWwrhqQHvg3KIH30qqcLH2CAJYyKjaMWZaMi_ewhVrGqk0"/>
+</div>
+<div class="p-4">
+<p class="text-xs font-black uppercase text-accent-green mb-1">Grinders</p>
+<h3 class="font-black text-lg leading-tight mb-2">GRINDER METÁLICO "INDUSTRIAL" 4P</h3>
+<div class="flex justify-between items-center mt-4">
+<span class="text-xl font-black text-primary">$12.000</span>
+<button class="bg-black text-white px-4 py-2 font-black text-xs uppercase hover:bg-primary transition-colors">Añadir</button>
+</div>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="bg-white border-3 border-black retro-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all">
+<div class="aspect-square bg-cream border-b-3 border-black relative overflow-hidden group">
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Retro silver lighter with vintage engraved details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFTI6uPrjdzC2nSF7HwMcKlwjkPLSIYtbwinU581y1ZSLvxoAqqHsTop8iv7hMwkbmWZlaBiOuzEur68ATjqtX9wKDbrM9yON3cyn4cMjU-835tM5HVN6LdM78NwdHVhZxTKk0r4dmpffthjOw84pmdIDpmjgGmMCOB3uJfgrQLm2GvuZp-Iv7xAL8ghbjVKj6oNJ5y8WduRN0mb8bcfmu85iJjIPltDU4m8XoveT1VnvPzrlEQAs3hGcq08MRc4Eb2if6nPsrv-U"/>
+</div>
+<div class="p-4">
+<p class="text-xs font-black uppercase text-accent-green mb-1">Encendedores</p>
+<h3 class="font-black text-lg leading-tight mb-2">ENCENDEDOR DE PLATA RECARGABLE</h3>
+<div class="flex justify-between items-center mt-4">
+<span class="text-xl font-black text-primary">$35.500</span>
+<button class="bg-black text-white px-4 py-2 font-black text-xs uppercase hover:bg-primary transition-colors">Añadir</button>
+</div>
+</div>
+</div>
+<!-- Product Card 5 -->
+<div class="bg-white border-3 border-black retro-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all">
+<div class="aspect-square bg-cream border-b-3 border-black relative overflow-hidden group">
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Artistic metal rolling tray vintage illustration" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHtjlXDdt8MWlgnqO0t-Y28YNyFzRbGzsPcMeAoDFkebJwKCDYYsW5wP0e4e5uttEbu9RueBW3sTADxfnuWW6_KhSaPCv7o5j614hS1b9vi4MJ94n-YAQv09g_0_N5E02JU7EuzPClczW581ums0TjNq4lV4sbGw9b9rlhaeYc78BTJKdcegg69TlYlcsUiJ2gvnm6gWx1VMu3MrCli2NUisrRoWeXWPhinSLQOY40PG5IRIKHgtvzNjrUpqd7RO4Jmblilee0DnA"/>
+</div>
+<div class="p-4">
+<p class="text-xs font-black uppercase text-accent-green mb-1">Bandejas</p>
+<h3 class="font-black text-lg leading-tight mb-2">BANDEJA DE ENROLLADO "RETRO ART"</h3>
+<div class="flex justify-between items-center mt-4">
+<span class="text-xl font-black text-primary">$9.900</span>
+<button class="bg-black text-white px-4 py-2 font-black text-xs uppercase hover:bg-primary transition-colors">Añadir</button>
+</div>
+</div>
+</div>
+<!-- Product Card 6 -->
+<div class="bg-white border-3 border-black retro-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all">
+<div class="aspect-square bg-cream border-b-3 border-black relative overflow-hidden group">
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Unbleached pre-rolled tips pack" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8Uo8S8bNsDJWJramX_iUIkWDoVD7AOkh3JD0A7tVJmRwgU82jbwqhp7FwEJPY3HywHX6D9H0XgMTa9HZXfJPNLtSnqcAFT6HwLF1ue7s63x7dyJnJ6mUI234jeKlP6AUGMERxrAt3tNSsedENwXkzc4_ltAG2wURl-enzLuzN4vT8s0lnvrVMHtiVbvTWfLyt8LEcp8IDGvoS1pNHUY9OrTUzPoLRibLP96HFWyziGo0vrhy3sS4sNRyvPNQU_IDkVtt0o-GcmYw"/>
+</div>
+<div class="p-4">
+<p class="text-xs font-black uppercase text-accent-green mb-1">Accesorios</p>
+<h3 class="font-black text-lg leading-tight mb-2">TIPS DE CARTÓN SIN BLANQUEAR</h3>
+<div class="flex justify-between items-center mt-4">
+<span class="text-xl font-black text-primary">$1.200</span>
+<button class="bg-black text-white px-4 py-2 font-black text-xs uppercase hover:bg-primary transition-colors">Añadir</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-16 flex justify-center gap-2">
+<button class="w-10 h-10 border-2 border-black font-black flex items-center justify-center hover:bg-primary hover:text-white transition-colors">1</button>
+<button class="w-10 h-10 border-2 border-black font-black flex items-center justify-center bg-black text-white">2</button>
+<button class="w-10 h-10 border-2 border-black font-black flex items-center justify-center hover:bg-primary hover:text-white transition-colors">3</button>
+<button class="w-10 h-10 border-2 border-black font-black flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Vintage Newsletter Section -->
+<section class="bg-accent-green border-t-3 border-black mt-20 py-16 px-4">
+<div class="max-w-3xl mx-auto text-center">
+<h2 class="text-4xl font-black text-white uppercase tracking-tighter mb-4 italic">¡Únete al Club RYO!</h2>
+<p class="text-cream font-bold mb-8">Recibe ofertas exclusivas y novedades directamente en tu buzón.</p>
+<form class="flex flex-col sm:flex-row gap-0 retro-shadow">
+<input class="flex-1 p-4 border-3 border-black border-r-0 focus:ring-0 focus:outline-none font-bold uppercase" placeholder="TU EMAIL AQUÍ..." type="email"/>
+<button class="bg-primary text-white font-black uppercase px-8 py-4 border-3 border-black hover:bg-red-700 transition-colors" type="submit">Suscribirse</button>
+</form>
+</div>
+</section>
+<footer class="bg-cream border-t-3 border-black py-10 px-4">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+<div class="md:col-span-2">
+<img alt="footer-logo" class="h-10 w-auto mb-4" data-alt="RYO Secondary Logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFcOHfz1g3lxuqI2zdbLegWCW8PN1xpDA_Gc8p6mqqg6ZHOEuEOvqzz_1JNJIhYPtEi59jCE6FAK-V8uzoJ2vfR79AQrCCe78D7LiKOiYORrxxvXFgzM4jHlLNSwAcVufdyTKy9PN1qIEym4XhE5ZOJqj7VengYkR_-AOP_piN6a0sdd0mRW1v_xOCjpKGGpCg3pWRtAX7FqJfZyqHNRonhLkM-zvbVSxTpH9JN_-ZwMiMiJODh6I85keqh2By2yyMYv7kH4ykYm0"/>
+<p class="font-bold text-sm max-w-sm text-slate-700">Expertos en el arte de enrollar desde 1998. Solo para mayores de 18 años. Disfruta con responsabilidad.</p>
+</div>
+<div>
+<h5 class="font-black uppercase mb-4 text-primary">Navegación</h5>
+<ul class="space-y-2 font-bold text-sm">
+<li><a class="hover:text-primary" href="#">Tienda</a></li>
+<li><a class="hover:text-primary" href="#">Blog</a></li>
+<li><a class="hover:text-primary" href="#">Sobre Nosotros</a></li>
+<li><a class="hover:text-primary" href="#">Contacto</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-black uppercase mb-4 text-primary">Legales</h5>
+<ul class="space-y-2 font-bold text-sm">
+<li><a class="hover:text-primary" href="#">Términos y Condiciones</a></li>
+<li><a class="hover:text-primary" href="#">Privacidad</a></li>
+<li><a class="hover:text-primary" href="#">Envíos</a></li>
+</ul>
+</div>
+</div>
+<div class="max-w-7xl mx-auto border-t-2 border-black/10 mt-10 pt-6 text-center text-xs font-black uppercase text-slate-500">
+            © 2024 RYO ROLL YOUR OWN - TODOS LOS DERECHOS RESERVADOS.
+        </div>
+</footer>
+</body></html>

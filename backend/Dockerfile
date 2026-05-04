@@ -15,9 +15,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG NODE_OPTIONS=--max-old-space-size=2048
 ENV NODE_OPTIONS=${NODE_OPTIONS}
-RUN npm run build && cd .medusa/server && npm install --omit=dev --prefer-offline --no-audit --no-fund
+RUN npm run build && \
+  test -f .medusa/server/public/admin/index.html || (echo "Admin build failed - run medusa build" && exit 1) && \
+  cd .medusa/server && npm install --omit=dev --prefer-offline --no-audit --no-fund --legacy-peer-deps
 
-# Production: sin admin embebido (usar admin externo en Vercel)
+# Production: admin embebido en api.enrola.shop/app
 FROM base AS runner
 ENV NODE_ENV=production
 WORKDIR /app

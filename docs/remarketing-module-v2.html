@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Módulo de Remarketing v2 — Enrola</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  * { box-sizing: border-box; }
+  html, body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif; color: #1a1a1a; line-height: 1.55; font-size: 10.5pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; padding: 0; }
+  h1 { font-size: 22pt; font-weight: 800; margin: 0 0 6pt; color: #0a0a0a; letter-spacing: -0.5px; page-break-before: always; }
+  h1:first-of-type { page-break-before: avoid; }
+  h2 { font-size: 16pt; font-weight: 700; margin: 24pt 0 8pt; color: #111; border-bottom: 2pt solid #2563eb; padding-bottom: 4pt; }
+  h3 { font-size: 13pt; font-weight: 700; margin: 18pt 0 6pt; color: #1f2937; }
+  h4 { font-size: 11pt; font-weight: 700; margin: 12pt 0 4pt; color: #374151; }
+  p { margin: 0 0 8pt; }
+  code { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 9pt; background: #f3f4f6; padding: 1pt 5pt; border-radius: 3pt; color: #1f2937; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 10pt 12pt; border-radius: 5pt; font-size: 8.5pt; line-height: 1.45; overflow-x: auto; margin: 8pt 0; page-break-inside: avoid; }
+  pre code { background: transparent; color: inherit; padding: 0; font-size: 8.5pt; }
+  table { width: 100%; border-collapse: collapse; margin: 8pt 0 12pt; font-size: 9.5pt; page-break-inside: avoid; }
+  th { background: #1e293b; color: white; text-align: left; padding: 5pt 7pt; font-weight: 600; }
+  td { padding: 5pt 7pt; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+  tr:nth-child(even) td { background: #f9fafb; }
+  ul, ol { margin: 4pt 0 8pt; padding-left: 22pt; }
+  li { margin: 2pt 0; }
+  blockquote { border-left: 3pt solid #2563eb; padding: 6pt 12pt; margin: 8pt 0; background: #eff6ff; color: #1e3a8a; }
+  .cover { page-break-after: always; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30pt; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%); color: white; margin: -18mm -16mm; }
+  .cover h1 { font-size: 36pt; color: white; border: none; padding: 0; margin: 0 0 14pt; letter-spacing: -1.5px; }
+  .cover .subtitle { font-size: 16pt; opacity: 0.9; margin-bottom: 30pt; font-weight: 300; }
+  .cover .meta { font-size: 11pt; opacity: 0.8; margin-top: 50pt; line-height: 1.7; }
+  .cover .badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 4pt 12pt; border-radius: 16pt; font-size: 10pt; margin: 4pt; }
+  .badge { display: inline-block; padding: 1pt 7pt; border-radius: 9pt; font-size: 8.5pt; font-weight: 600; vertical-align: middle; }
+  .badge-green { background: #d1fae5; color: #065f46; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-orange { background: #ffedd5; color: #9a3412; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-grey { background: #e5e7eb; color: #374151; }
+  .badge-purple { background: #f3e8ff; color: #6b21a8; }
+  .toc { padding: 12pt 16pt; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6pt; }
+  .toc h3 { margin-top: 0; }
+  .toc ul { list-style: none; padding-left: 0; }
+  .toc ul li { padding: 2pt 0; border-bottom: 1px dotted #d1d5db; }
+  .toc ul li:last-child { border-bottom: none; }
+  .toc ul ul { padding-left: 16pt; margin-top: 2pt; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; margin: 8pt 0; }
+  .card { background: #f9fafb; border: 1px solid #e5e7eb; border-left: 4pt solid #2563eb; padding: 8pt 12pt; border-radius: 4pt; page-break-inside: avoid; }
+  .card.synergy { border-left-color: #10b981; }
+  .card.warning { border-left-color: #f59e0b; }
+  .card.danger { border-left-color: #ef4444; }
+  .card h4 { margin-top: 0; }
+  .small { font-size: 9pt; color: #6b7280; }
+  .right { text-align: right; }
+  .center { text-align: center; }
+  .nowrap { white-space: nowrap; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 14pt 0; }
+  .ascii-diagram { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 8pt; line-height: 1.3; background: #fafafa; padding: 8pt; border: 1px solid #e5e7eb; border-radius: 4pt; white-space: pre; overflow-x: auto; }
+  .footer { font-size: 8pt; color: #6b7280; text-align: center; margin-top: 24pt; padding-top: 8pt; border-top: 1px solid #e5e7eb; }
+</style>
+</head>
+<body>
+
+<!-- ─── COVER ─────────────────────────────────────────────────── -->
+<div class="cover">
+  <h1>Módulo de Remarketing v2</h1>
+  <div class="subtitle">Sistema de retención automatizado · enrola.shop</div>
+  <div>
+    <span class="badge cover-badge">16 reglas activas</span>
+    <span class="badge cover-badge">15 detectores de signals</span>
+    <span class="badge cover-badge">5 canales</span>
+    <span class="badge cover-badge">A/B + geo overrides</span>
+  </div>
+  <div class="meta">
+    Documento técnico y operacional<br>
+    Generado: abril 2026<br>
+    Stack: Medusa v2 · PostHog · PostgreSQL · Resend · WhatsApp · Telegram
+  </div>
+</div>
+
+<!-- ─── TABLE OF CONTENTS ─────────────────────────────────────── -->
+<h1 style="page-break-before: avoid;">Tabla de contenidos</h1>
+<div class="toc">
+  <ul>
+    <li>1. Resumen ejecutivo</li>
+    <li>2. Arquitectura del sistema
+      <ul>
+        <li>2.1 Diagrama de flujo end-to-end</li>
+        <li>2.2 Stack tecnológico</li>
+        <li>2.3 Componentes principales</li>
+      </ul>
+    </li>
+    <li>3. Esquema de base de datos
+      <ul>
+        <li>3.1 Tabla <code>remarketing_rule</code></li>
+        <li>3.2 Tabla <code>remarketing_fire</code></li>
+        <li>3.3 Tabla legacy <code>remarketing_log</code> (mantenida)</li>
+      </ul>
+    </li>
+    <li>4. Catálogo de detectores de signals (15)</li>
+    <li>5. Catálogo de reglas (16)</li>
+    <li>6. Sistemas transversales
+      <ul>
+        <li>6.1 Dedup unificado cross-tabla</li>
+        <li>6.2 A/B testing con variants</li>
+        <li>6.3 Geo overrides por ciudad</li>
+        <li>6.4 Atribución de conversión last-touch</li>
+        <li>6.5 Captura PostHog server-side</li>
+      </ul>
+    </li>
+    <li>7. Canales de dispatch (5)</li>
+    <li>8. UI de administración (4 sub-pestañas)</li>
+    <li>9. Operación y monitoreo</li>
+    <li>10. Pendientes de instrumentación storefront</li>
+    <li>11. Apéndices
+      <ul>
+        <li>A. Cron jobs activos</li>
+        <li>B. Variables de entorno</li>
+        <li>C. Endpoints API admin</li>
+        <li>D. Mapeo legacy ↔ v2</li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<!-- ─── 1. RESUMEN EJECUTIVO ─────────────────────────────────── -->
+<h1>1. Resumen ejecutivo</h1>
+
+<p><strong>El Módulo de Remarketing v2</strong> es un sistema de retención automatizado que detecta señales de comportamiento, intención y ciclo del cliente, y dispara mensajes personalizados (email, WhatsApp o alerta interna a Telegram) con guardas estrictas de cooldown, capacidad diaria y horarios silencio.</p>
+
+<p>Reemplaza al sistema viejo basado en jobs por campaña (que sigue corriendo en paralelo para casos específicos) por un <strong>motor de reglas</strong> que toma decisiones por usuario individual a partir de:</p>
+
+<ul>
+  <li>Datos transaccionales de Medusa (órdenes, customer, ciudad)</li>
+  <li>Eventos de comportamiento de PostHog (carrito, checkout, búsquedas, scroll)</li>
+  <li>Estado del catálogo (productos nuevos, recién restockeados)</li>
+  <li>Datos de loyalty (puntos acumulados)</li>
+</ul>
+
+<h3>Métricas clave del sistema</h3>
+<table>
+  <tr><th>Componente</th><th>Cantidad</th><th>Estado</th></tr>
+  <tr><td>Detectores de signals</td><td>15</td><td><span class="badge badge-green">producción</span></td></tr>
+  <tr><td>Reglas activas</td><td>7 (de 16)</td><td><span class="badge badge-green">producción</span></td></tr>
+  <tr><td>Reglas dormant</td><td>9</td><td><span class="badge badge-blue">listas para activar</span></td></tr>
+  <tr><td>Canales de dispatch</td><td>5</td><td>email, WA, auto, team_alert, manual</td></tr>
+  <tr><td>Cron principal</td><td>cada 15 min</td><td><span class="badge badge-green">activo</span></td></tr>
+  <tr><td>Dedup cross-tabla</td><td>UNION old + new</td><td><span class="badge badge-green">activo</span></td></tr>
+  <tr><td>Cooldown por regla</td><td>48h–720h</td><td>configurable</td></tr>
+  <tr><td>Quiet hours VE</td><td>22-9 hr</td><td>configurable</td></tr>
+</table>
+
+<h3>Ventajas frente al sistema viejo</h3>
+<ul>
+  <li><strong>Personalización por usuario</strong>, no por cohort masivo</li>
+  <li><strong>Cooldown granular por regla</strong> + dedup cross-tabla automático</li>
+  <li><strong>Atribución de revenue</strong> por last-touch entre engine y jobs legacy</li>
+  <li><strong>A/B testing</strong> nativo con hash determinístico</li>
+  <li><strong>Localización</strong> por ciudad (3 ciudades configuradas + extensible)</li>
+  <li><strong>Auditabilidad completa</strong>: cada fire registra context, severity, variant, ciudad</li>
+  <li><strong>Compatibilidad bidireccional</strong> con el sistema viejo (no hay duplicación de envíos)</li>
+</ul>
+
+<!-- ─── 2. ARQUITECTURA ─────────────────────────────────── -->
+<h1>2. Arquitectura del sistema</h1>
+
+<h2>2.1 Flujo end-to-end</h2>
+
+<div class="ascii-diagram">
+  CLIENTE                    INSTRUMENTACIÓN                 BACKEND ENGINE                   DISPATCH                ATRIBUCIÓN
+  ─────                      ───────────────                 ──────────────                   ────────                ──────────
+  navega tienda  ──→         eventos PostHog
+  carrito                    (add_to_cart, etc.)
+  checkout                   ↓
+                             ↓
+                                                            cron 15min:
+                                                            1. discoverCandidates
+                                                              (PostHog 72h + Medusa 180d)
+                                                            2. catalog enrichment
+                                                              (new_products + restocked)
+                                                            3. para cada candidato:
+                                                              buildUserContext
+                                                              (Medusa + PostHog +
+                                                               loyalty + city)
+                                                            4. computeSignals (15 detectores)
+                                                            5. matchRules (16 rules
+                                                              ordered by priority)
+                                                            6. guards:
+                                                              · cooldown rule
+                                                              · cooldown legacy (UNION)
+                                                              · daily_cap
+                                                              · quiet_hours
+                                                              · channel reachability
+                                                            7. resolve template:
+                                                              variant > geo > rule > fallback
+                                                            8. dispatch ─────────────────────→  email (Resend)
+                                                                                                WhatsApp
+                                                                                                team_alert (Telegram)
+                                                                                                manual (sólo log)
+                                                            9. logFire +
+                                                              mirror remarketing_log +
+                                                              PostHog "remarketing_fired"
+
+  compra ──────────────────────────────────────────────→     order.placed event
+                                                            subscriber attribution:
+                                                            · busca último sent en
+                                                              fire + log (cross-table)
+                                                            · last-touch wins
+                                                            · markFireConverted +
+                                                              markLogConverted ──────────────────────────────────────→ revenue atribuido
+                                                            · PostHog "remarketing_converted"
+
+  navega admin ─────────────────────────→ UI (4 sub-tabs)
+                                          · Campañas (legacy + linked badges)
+                                          · Users 360 (signals + fire history)
+                                          · Patrones (8 KPIs + funnel + experimentos)
+                                          · Motor de reglas (16 rules + variants + feed)
+</div>
+
+<h2>2.2 Stack tecnológico</h2>
+
+<table>
+  <tr><th>Capa</th><th>Tecnología</th><th>Rol</th></tr>
+  <tr><td>Backend framework</td><td>Medusa v2.13</td><td>Server, jobs, subscribers, admin extensions</td></tr>
+  <tr><td>Storefront</td><td>Next.js 16 App Router</td><td>Captura de eventos cliente</td></tr>
+  <tr><td>Base de datos</td><td>PostgreSQL 16</td><td><code>remarketing_rule</code>, <code>remarketing_fire</code>, <code>remarketing_log</code></td></tr>
+  <tr><td>Behavior analytics</td><td>PostHog Cloud (US)</td><td>Eventos, persons, HogQL queries</td></tr>
+  <tr><td>Email</td><td>Resend API</td><td>Despacho transaccional</td></tr>
+  <tr><td>WhatsApp</td><td>Meta Cloud API + bot custom</td><td>Despacho personalizado</td></tr>
+  <tr><td>Team alerts</td><td>Telegram Bot API</td><td>Notificaciones internas</td></tr>
+  <tr><td>Hosting</td><td>VPS Hostinger 72.60.114.242</td><td>Docker Compose</td></tr>
+  <tr><td>Cron</td><td>Medusa scheduled jobs</td><td>Engine cada 15 min + jobs legacy</td></tr>
+</table>
+
+<h2>2.3 Componentes principales</h2>
+
+<div class="grid-2">
+  <div class="card">
+    <h4>Engine (<code>remarketing-engine.ts</code>)</h4>
+    Orquesta candidates → context → signals → rules → guards → dispatch. Cron <code>*/15 * * * *</code>.
+  </div>
+  <div class="card">
+    <h4>Detectores (<code>remarketing-signals.ts</code>)</h4>
+    15 funciones puras (UserContext → Signal[]). Cada una identifica una oportunidad específica.
+  </div>
+  <div class="card">
+    <h4>UserContext builder (<code>remarketing-user-context.ts</code>)</h4>
+    Une Medusa customer/orders + PostHog person/events/behavior + loyalty + city.
+  </div>
+  <div class="card">
+    <h4>Rules DB layer (<code>remarketing-rules-db.ts</code>)</h4>
+    CRUD reglas + fires + stats por regla y por variant. Cooldown SQL queries.
+  </div>
+  <div class="card">
+    <h4>Patterns (<code>remarketing-patterns.ts</code>)</h4>
+    Agregación cross-usuario para vista bird's-eye. Funnel + experiments + friction.
+  </div>
+  <div class="card synergy">
+    <h4>Dedup unificado (<code>remarketing-db.ts</code>)</h4>
+    <code>alreadyNotified()</code> hace UNION sobre log + fire. Single source of truth para "ya le mandamos algo".
+  </div>
+  <div class="card">
+    <h4>Attribution subscriber (<code>remarketing-attribution.ts</code>)</h4>
+    Listener de <code>order.placed</code>. Cross-table last-touch.
+  </div>
+  <div class="card">
+    <h4>Team alert (<code>team-alert.ts</code>)</h4>
+    Helper Telegram para canal <code>team_alert</code>.
+  </div>
+</div>
+
+<!-- ─── 3. SCHEMA ───────────────────────────────────────── -->
+<h1>3. Esquema de base de datos</h1>
+
+<h2>3.1 Tabla <code>remarketing_rule</code></h2>
+<p>Una fila por regla del engine. Toda la configuración runtime está aquí.</p>
+
+<table>
+  <tr><th>Columna</th><th>Tipo</th><th>Propósito</th></tr>
+  <tr><td><code>key</code></td><td>VARCHAR(120) PK</td><td>Identificador estable (ej. <code>cart_abandoned_v2</code>)</td></tr>
+  <tr><td><code>name</code></td><td>VARCHAR(255)</td><td>Etiqueta humana</td></tr>
+  <tr><td><code>description</code></td><td>TEXT</td><td>Documentación visible al operador</td></tr>
+  <tr><td><code>enabled</code></td><td>BOOLEAN</td><td>Toggle on/off</td></tr>
+  <tr><td><code>priority</code></td><td>INT</td><td>Mayor prioridad ejecuta primero (anti-dupe interno)</td></tr>
+  <tr><td><code>cooldown_hours</code></td><td>INT</td><td>Mínimo entre fires de esta regla a un usuario</td></tr>
+  <tr><td><code>channel</code></td><td>VARCHAR(20)</td><td>email · whatsapp · auto · team_alert · manual</td></tr>
+  <tr><td><code>match_signal_id</code></td><td>VARCHAR(120)</td><td>Match exacto del signal.id</td></tr>
+  <tr><td><code>match_signal_prefix</code></td><td>VARCHAR(120)</td><td>Match por prefijo (ej. <code>multi_view_no_cart:</code>)</td></tr>
+  <tr><td><code>min_severity</code></td><td>VARCHAR(20)</td><td>Umbral de severity: high/medium/low/info</td></tr>
+  <tr><td><code>email_subject_template</code></td><td>TEXT</td><td>Subject con placeholders <code>{first_name}</code>, etc.</td></tr>
+  <tr><td><code>email_html_template</code></td><td>TEXT</td><td>HTML body opcional</td></tr>
+  <tr><td><code>whatsapp_template</code></td><td>TEXT</td><td>Texto WA</td></tr>
+  <tr><td><code>quiet_hours_start</code> / <code>quiet_hours_end</code></td><td>INT (0-23)</td><td>Ventana de silencio en hora VE</td></tr>
+  <tr><td><code>daily_cap</code></td><td>INT</td><td>Tope de fires por día por regla</td></tr>
+  <tr><td><code>variants</code></td><td>JSONB</td><td>A/B variants — array <code>{key, weight, templates}</code></td></tr>
+  <tr><td><code>geo_overrides</code></td><td>JSONB</td><td>Overrides por ciudad <code>{ city: { templates }}</code></td></tr>
+  <tr><td><code>created_at</code> / <code>updated_at</code></td><td>TIMESTAMPTZ</td><td>Auditoría</td></tr>
+</table>
+
+<h2>3.2 Tabla <code>remarketing_fire</code></h2>
+<p>Auditoría completa: una fila por cada (regla × usuario × intento de dispatch). Retiene historial 60+ días para análisis y atribución.</p>
+
+<table>
+  <tr><th>Columna</th><th>Tipo</th><th>Propósito</th></tr>
+  <tr><td><code>id</code></td><td>UUID PK</td><td>Identificador del fire</td></tr>
+  <tr><td><code>rule_key</code></td><td>VARCHAR(120)</td><td>FK lógica a <code>remarketing_rule.key</code></td></tr>
+  <tr><td><code>customer_id</code> · <code>email</code> · <code>phone</code> · <code>distinct_id</code></td><td>VARCHAR</td><td>Identificadores del usuario</td></tr>
+  <tr><td><code>signal_id</code></td><td>VARCHAR(255)</td><td>El signal específico que disparó (puede contener <code>:product_id</code>)</td></tr>
+  <tr><td><code>signal_severity</code></td><td>VARCHAR(20)</td><td>Severidad capturada al fire</td></tr>
+  <tr><td><code>channel</code></td><td>VARCHAR(20)</td><td>Canal resuelto al momento</td></tr>
+  <tr><td><code>status</code></td><td>VARCHAR(40)</td><td>pending · sent · failed · skipped_cooldown · skipped_quiet_hours · skipped_cap · skipped_no_channel · dry_run · converted</td></tr>
+  <tr><td><code>subject</code> / <code>body</code></td><td>TEXT</td><td>Mensaje renderizado (post-template substitution)</td></tr>
+  <tr><td><code>error_message</code></td><td>TEXT</td><td>Razón de fallo si aplica</td></tr>
+  <tr><td><code>fired_at</code></td><td>TIMESTAMPTZ</td><td>Momento del intento</td></tr>
+  <tr><td><code>converted_order_id</code></td><td>VARCHAR(120)</td><td>Set por subscriber attribution</td></tr>
+  <tr><td><code>converted_at</code></td><td>TIMESTAMPTZ</td><td>Momento de la conversión atribuida</td></tr>
+  <tr><td><code>context</code></td><td>JSONB</td><td>signal_context, rendered, variant, city, geo_override_applied, legacy_type</td></tr>
+</table>
+
+<h4>Índices</h4>
+<ul>
+  <li><code>idx_fire_rule_email_time</code> (rule_key, email, fired_at DESC) — cooldown lookups</li>
+  <li><code>idx_fire_rule_customer_time</code> (rule_key, customer_id, fired_at DESC)</li>
+  <li><code>idx_fire_status_time</code> (status, fired_at DESC) — feed listings</li>
+  <li><code>idx_fire_fired_at</code> (fired_at DESC) — pagination</li>
+</ul>
+
+<h2>3.3 Tabla legacy <code>remarketing_log</code> (mantenida)</h2>
+<p>Tabla del sistema viejo. Sigue siendo escrita por jobs legacy <strong>y también por el engine</strong> (mirror) para que la timeline sea única y el dedup funcione cross-sistema.</p>
+
+<table>
+  <tr><th>Columna</th><th>Tipo</th><th>Propósito</th></tr>
+  <tr><td><code>id</code></td><td>SERIAL PK</td><td>Auto-increment</td></tr>
+  <tr><td><code>type</code></td><td>VARCHAR</td><td>abandoned_cart, birthday, win_back, restock, post_purchase, friction, multi_view_no_cart, fulfillment_delay, ...</td></tr>
+  <tr><td><code>recipient_email</code></td><td>VARCHAR</td><td>Destinatario</td></tr>
+  <tr><td><code>reference_id</code></td><td>VARCHAR</td><td>cart_id u order_id según el caso</td></tr>
+  <tr><td><code>subject</code></td><td>TEXT</td><td>Asunto enviado</td></tr>
+  <tr><td><code>metadata</code></td><td>JSONB</td><td>cedula, fire_id (mirror), source='engine'|'legacy', converted_order_id (post-attr)</td></tr>
+  <tr><td><code>sent_at</code></td><td>TIMESTAMPTZ</td><td>Momento del envío</td></tr>
+</table>
+
+<!-- ─── 4. DETECTORES ───────────────────────────────── -->
+<h1>4. Catálogo de detectores de signals</h1>
+
+<p>Cada detector es una función pura <code>(ctx: UserContext) =&gt; Signal[]</code>. No hace I/O, no escribe DB. <code>computeSignals()</code> los corre todos y devuelve la lista ordenada por severity.</p>
+
+<table>
+  <tr>
+    <th>#</th><th>ID del signal</th><th>Severity</th><th>Disparador</th><th>Canal sugerido</th>
+  </tr>
+  <tr><td>1</td><td><code>abandoned_checkout</code></td><td><span class="badge badge-red">high</span></td><td><code>checkout_started</code> 1-72h sin <code>order_placed</code> + email identificado</td><td>WA si mobile+IG, email</td></tr>
+  <tr><td>2</td><td><code>cart_abandoned</code></td><td><span class="badge badge-orange">medium</span></td><td><code>add_to_cart</code> 2-168h sin <code>order_placed</code></td><td>email</td></tr>
+  <tr><td>3</td><td><code>multi_view_no_cart:&lt;pid&gt;</code></td><td><span class="badge badge-orange">medium</span></td><td>3+ <code>product_viewed</code> en 14d sin <code>add_to_cart</code> de ese producto</td><td>email</td></tr>
+  <tr><td>4</td><td><code>restock_due:&lt;pid&gt;</code></td><td><span class="badge badge-blue">low/medium</span></td><td>2+ órdenes del mismo producto + ciclo medio cumplido (±3d gracia)</td><td>email</td></tr>
+  <tr><td>5</td><td><code>high_engagement_no_convert</code></td><td><span class="badge badge-red">high</span></td><td>3+ sesiones, 15+ pageviews, 0 órdenes</td><td>manual</td></tr>
+  <tr><td>6</td><td><code>win_back</code></td><td><span class="badge badge-orange">medium/high</span></td><td>Sin orden 60+ días</td><td>WA si visitó &lt;14d, email si no</td></tr>
+  <tr><td>7</td><td><code>vip</code></td><td><span class="badge badge-grey">info</span></td><td>LTV ≥ $100 (signal informativo)</td><td>email</td></tr>
+  <tr><td>8</td><td><code>coupon_failed_no_purchase</code></td><td><span class="badge badge-red">high</span></td><td><code>coupon_failed</code> 30min-24h sin <code>order_placed</code></td><td>WA si mobile+phone, email</td></tr>
+  <tr><td>9</td><td><code>multiple_abandoned_checkouts</code></td><td><span class="badge badge-red">high</span></td><td>2-20 <code>checkout_started</code> en 14d sin <code>order_placed</code></td><td>manual → team_alert</td></tr>
+  <tr><td>10</td><td><code>vip_early_access</code></td><td><span class="badge badge-orange">medium</span></td><td>VIP + <code>catalog.new_products</code> last 7d</td><td>email</td></tr>
+  <tr><td>11</td><td><code>loyalty_redemption_nudge</code></td><td><span class="badge badge-blue">low</span></td><td>Loyalty balance ≥ 500 + sin orden 30d</td><td>email</td></tr>
+  <tr><td>12</td><td><code>out_of_stock_back:&lt;pid&gt;</code></td><td><span class="badge badge-red">high</span></td><td><code>out_of_stock_view</code> 30d + producto en <code>catalog.recently_restocked</code></td><td>email</td></tr>
+  <tr><td>13</td><td><code>variant_explorer:&lt;pid&gt;</code></td><td><span class="badge badge-orange">medium</span></td><td>5+ <code>variant_selected</code> mismo producto en 24h sin <code>add_to_cart</code></td><td>WhatsApp humano</td></tr>
+  <tr><td>14</td><td><code>search_no_result_followup</code></td><td><span class="badge badge-orange">medium</span></td><td>2+ <code>search_performed</code> sin click ni cart en 30min, 7d window</td><td>email</td></tr>
+  <tr><td>15</td><td><code>cart_value_decreased</code></td><td><span class="badge badge-blue">low</span></td><td><code>product_removed_from_cart</code> 1-48h sin <code>add_to_cart</code> recovery</td><td>email gentil</td></tr>
+  <tr><td>F1</td><td><code>weekly_visitor_dropped</code></td><td><span class="badge badge-blue">low</span></td><td>4+ sesiones, age ≥28d, ahora 14-60d sin visita</td><td>email gentil</td></tr>
+  <tr><td>F2</td><td><code>post_discount_review:&lt;oid&gt;</code></td><td><span class="badge badge-blue">low</span></td><td>Orden con discount_code + 7-14d después</td><td>email</td></tr>
+  <tr><td>F3</td><td><code>geo_cluster:&lt;city&gt;</code></td><td><span class="badge badge-grey">info</span></td><td>Customer en ciudad activa (informativo, no fire)</td><td>manual / batch</td></tr>
+  <tr><td>F5</td><td><code>repurchase_referral</code></td><td><span class="badge badge-blue">low</span></td><td>3+ órdenes + última hace 5-15d</td><td>email</td></tr>
+</table>
+
+<blockquote>
+<strong>Composición de signals:</strong> el mismo usuario puede emitir múltiples signals en un mismo tick. El engine procesa todas en orden de severity, pero impone <code>firedRuleKeys</code> para evitar que la misma regla dispare dos veces. <code>vip</code> + <code>birthday</code> componen vía sinergia D3 en el job legacy.
+</blockquote>
+
+<!-- ─── 5. CATÁLOGO DE REGLAS ───────────────────────── -->
+<h1>5. Catálogo de reglas</h1>
+
+<p>16 reglas configuradas. Cada una mapea uno o más signals a un canal y un mensaje. Las marcadas <span class="badge badge-green">activa</span> ya están corriendo en el cron de 15 min; las <span class="badge badge-grey">dormant</span> esperan que el operador las active desde el panel.</p>
+
+<table>
+  <tr><th>Regla</th><th>Estado</th><th>Canal</th><th>Pri</th><th>Cooldown</th><th>Cap/día</th><th>Match signal</th></tr>
+  <tr><td><strong>abandoned_checkout_v2</strong></td><td><span class="badge badge-green">activa</span></td><td>auto</td><td>100</td><td>48h</td><td>40</td><td><code>abandoned_checkout</code></td></tr>
+  <tr><td><strong>coupon_failed_no_purchase</strong></td><td><span class="badge badge-green">activa</span></td><td>auto</td><td>95</td><td>168h</td><td>30</td><td><code>coupon_failed_no_purchase</code></td></tr>
+  <tr><td><strong>multiple_abandoned_checkouts</strong></td><td><span class="badge badge-green">activa</span></td><td>team_alert</td><td>90</td><td>336h</td><td>10</td><td><code>multiple_abandoned_checkouts</code></td></tr>
+  <tr><td><strong>out_of_stock_waitlist</strong></td><td><span class="badge badge-grey">dormant</span></td><td>email</td><td>85</td><td>720h</td><td>100</td><td>prefix <code>out_of_stock_back:</code></td></tr>
+  <tr><td><strong>cart_abandoned_v2</strong></td><td><span class="badge badge-green">activa</span></td><td>email</td><td>80</td><td>72h</td><td>30</td><td><code>cart_abandoned</code></td></tr>
+  <tr><td><strong>vip_early_access</strong></td><td><span class="badge badge-grey">dormant</span></td><td>email</td><td>70</td><td>720h</td><td>50</td><td><code>vip_early_access</code></td></tr>
+  <tr><td><strong>variant_explorer_indecision</strong></td><td><span class="badge badge-grey">dormant</span></td><td>whatsapp</td><td>65</td><td>168h</td><td>15</td><td>prefix <code>variant_explorer:</code></td></tr>
+  <tr><td><strong>restock_due_v2</strong></td><td><span class="badge badge-green">activa</span></td><td>email</td><td>60</td><td>168h</td><td>50</td><td>prefix <code>restock_due:</code></td></tr>
+  <tr><td><strong>multi_view_no_cart_v2</strong></td><td><span class="badge badge-green">activa</span></td><td>email</td><td>50</td><td>168h</td><td>20</td><td>prefix <code>multi_view_no_cart:</code></td></tr>
+  <tr><td><strong>search_no_result_followup</strong></td><td><span class="badge badge-grey">dormant</span></td><td>email</td><td>45</td><td>336h</td><td>20</td><td><code>search_no_result_followup</code></td></tr>
+  <tr><td><strong>win_back_v2</strong></td><td><span class="badge badge-green">activa</span></td><td>auto</td><td>40</td><td>720h</td><td>15</td><td><code>win_back</code></td></tr>
+  <tr><td><strong>repurchase_referral</strong></td><td><span class="badge badge-grey">dormant</span></td><td>email</td><td>35</td><td>720h</td><td>15</td><td><code>repurchase_referral</code></td></tr>
+  <tr><td><strong>loyalty_redemption_nudge</strong></td><td><span class="badge badge-grey">dormant</span></td><td>email</td><td>30</td><td>720h</td><td>20</td><td><code>loyalty_redemption_nudge</code></td></tr>
+  <tr><td><strong>post_discount_review</strong></td><td><span class="badge badge-grey">dormant</span></td><td>email</td><td>30</td><td>720h</td><td>20</td><td>prefix <code>post_discount_review:</code></td></tr>
+  <tr><td><strong>weekly_visitor_dropped</strong></td><td><span class="badge badge-grey">dormant</span></td><td>email</td><td>25</td><td>720h</td><td>15</td><td><code>weekly_visitor_dropped</code></td></tr>
+  <tr><td><strong>cart_value_decreased</strong></td><td><span class="badge badge-grey">dormant</span></td><td>email</td><td>20</td><td>168h</td><td>20</td><td><code>cart_value_decreased</code></td></tr>
+</table>
+
+<!-- ─── 6. SISTEMAS TRANSVERSALES ───────────────────── -->
+<h1>6. Sistemas transversales</h1>
+
+<h2>6.1 Dedup unificado cross-tabla</h2>
+
+<p>El gran cambio operacional del Batch C1: <strong>el sistema viejo y el nuevo nunca se pisan</strong>.</p>
+
+<p>Antes había riesgo de doble disparo:</p>
+<ul>
+  <li>Cron viejo <code>abandoned-cart</code> (cada 2h) escribía en <code>remarketing_log</code></li>
+  <li>Cron nuevo <code>remarketing-engine</code> (cada 15min) escribía en <code>remarketing_fire</code></li>
+  <li>Ninguno consultaba la otra tabla → mismo usuario podía recibir 2 emails en minutos</li>
+</ul>
+
+<p>Después de C1, <code>alreadyNotified()</code> en <code>remarketing-db.ts</code> hace UNION:</p>
+
+<pre><code>// Source 1: remarketing_log (legacy)
+SELECT 1 FROM remarketing_log
+WHERE type = $1
+  AND sent_at &gt; NOW() - INTERVAL '1 hour' * $2
+  AND (lower(recipient_email) = $email OR metadata-&gt;&gt;'cedula' = $cedula)
+
+UNION ALL
+
+// Source 2: remarketing_fire (engine)
+SELECT 1 FROM remarketing_fire
+WHERE rule_key = ANY($mapped_rule_keys)
+  AND status IN ('sent', 'pending', 'converted')
+  AND fired_at &gt; NOW() - INTERVAL '1 hour' * $2
+  AND (lower(email) = $email OR customer_id = $customerId)
+</code></pre>
+
+<p>Y al revés, cada send exitoso del engine se <strong>espeja</strong> a <code>remarketing_log</code> para que jobs legacy lo vean inmediatamente.</p>
+
+<h3>Mapping de reglas → buckets legacy</h3>
+<table>
+  <tr><th>rule_key (engine)</th><th>legacy_type bucket</th></tr>
+  <tr><td><code>cart_abandoned_v2</code></td><td rowspan="3"><code>abandoned_cart</code></td></tr>
+  <tr><td><code>abandoned_checkout_v2</code></td></tr>
+  <tr><td><code>coupon_failed_no_purchase</code></td></tr>
+  <tr><td><code>win_back_v2</code></td><td><code>win_back</code></td></tr>
+  <tr><td><code>restock_due_v2</code></td><td><code>restock</code></td></tr>
+  <tr><td><code>multi_view_no_cart_v2</code></td><td><code>multi_view_no_cart</code></td></tr>
+  <tr><td><code>friction_*</code></td><td><code>friction</code></td></tr>
+</table>
+
+<h2>6.2 A/B testing con variants</h2>
+
+<p>Cada regla puede definir un campo <code>variants</code> JSONB con N variantes. El engine elige cuál usar por usuario con un hash determinístico (mismo usuario siempre cae en la misma variante dentro de la regla).</p>
+
+<h4>Schema de variants</h4>
+<pre><code>[
+  {
+    "key": "A",
+    "weight": 50,
+    "whatsapp_template": "Hola {first_name}, te ayudo?"
+  },
+  {
+    "key": "B",
+    "weight": 50,
+    "whatsapp_template": "🔥 Hey {first_name}! Tu {product} te espera."
+  }
+]</code></pre>
+
+<h4>Picker (DJB2 hash)</h4>
+<pre><code>function pickVariant(variants, identity) {
+  const totalWeight = variants.reduce((s, v) =&gt; s + v.weight, 0)
+  const bucket = djb2Hash(`${rule.key}:${identity}`) % totalWeight
+  let cum = 0
+  for (const v of variants) {
+    cum += v.weight
+    if (bucket &lt; cum) return v
+  }
+}</code></pre>
+
+<h4>Stats por variante (30d)</h4>
+<p>Vista en sub-tab Patrones → "🧪 Experimentos A/B activos". Calcula:</p>
+<ul>
+  <li>Fires por variante</li>
+  <li>Sent / converted / conversion rate por variante</li>
+  <li>Líder (variant con mayor conv_rate)</li>
+  <li>Lift relativo (líder vs runner-up)</li>
+  <li>Significancia básica (≥30 sent + lift ≥20%)</li>
+</ul>
+
+<h2>6.3 Geo overrides por ciudad</h2>
+
+<p>Cada regla puede definir overrides de templates por ciudad de envío. La ciudad se resuelve en <code>buildUserContext</code> consultando la última dirección de envío del cliente.</p>
+
+<h4>Schema</h4>
+<pre><code>{
+  "cumaná":   { "whatsapp_template": "🌴 Cumaná: ..." },
+  "caracas":  { "whatsapp_template": "🏙 Caracas: MRW al estudio" },
+  "maracaibo":{ "whatsapp_template": "☀️ Maracaibo: Zoom Express" }
+}</code></pre>
+
+<h4>Precedencia de templates</h4>
+<blockquote><strong>variant > geo override > rule template > signal fallback</strong></blockquote>
+
+<p>Variants son la capa <strong>experimental</strong> (A/B). Geo es la capa de <strong>localización</strong>. Si una variante define template, gana — así un A/B test no se contamina por la ciudad.</p>
+
+<h2>6.4 Atribución de conversión last-touch</h2>
+
+<p>Subscriber <code>order.placed</code> ejecuta dos queries paralelas:</p>
+
+<ol>
+  <li>Última fila <code>remarketing_fire</code> con status='sent' del usuario (30d)</li>
+  <li>Última fila <code>remarketing_log</code> NO mirroreada (metadata.source ≠ 'engine') del usuario (30d)</li>
+</ol>
+
+<p>Compara timestamps, atribuye al más reciente (last-touch). Si fire side gana, llama <code>markFireConverted</code>. Si log side gana, llama <code>markLogConverted</code> (estampa metadata.converted_order_id en la fila legacy).</p>
+
+<p>Filtro crítico: <code>remarketing_log</code> excluye entries que el engine espejó (esos ya están atribuibles via fire). Evita doble counting.</p>
+
+<h2>6.5 Captura PostHog server-side</h2>
+
+<p>Dos eventos custom server-side se capturan:</p>
+
+<table>
+  <tr><th>Evento</th><th>Cuándo</th><th>Propiedades</th></tr>
+  <tr><td><code>remarketing_fired</code></td><td>Cada send exitoso del engine</td><td>rule_key, signal_id, signal_severity, channel, variant, fire_id, has_email, has_phone, legacy_type</td></tr>
+  <tr><td><code>remarketing_converted</code></td><td>Cada atribución del subscriber</td><td>rule_key, signal_id, channel, variant, fire_id, order_id, hours_to_convert, attributed_via</td></tr>
+</table>
+
+<p>Permite construir funnels en PostHog que correlacionan signal → fire → conversión sin tocar la base de datos local.</p>
+
+<!-- ─── 7. CANALES ─────────────────────────────────────── -->
+<h1>7. Canales de dispatch</h1>
+
+<table>
+  <tr><th>Canal</th><th>Implementación</th><th>Uso típico</th></tr>
+  <tr><td><code>email</code></td><td><code>sendEmail()</code> via Resend API</td><td>Mensajes formales, broad reach</td></tr>
+  <tr><td><code>whatsapp</code></td><td><code>sendRemarketingWhatsApp()</code> via Meta Cloud API</td><td>Alta intención + mobile + IG, rescates</td></tr>
+  <tr><td><code>auto</code></td><td>Resolver: WA si hay phone + signal sugiere WA, email en otro caso</td><td>Default razonable para la mayoría de reglas</td></tr>
+  <tr><td><code>team_alert</code></td><td><code>sendTeamAlert()</code> via Telegram Bot</td><td>Lead caliente que requiere humano (no spam al cliente)</td></tr>
+  <tr><td><code>manual</code></td><td>Sólo log, ningún dispatch</td><td>Marcar visualmente sin enviar (signal informativo)</td></tr>
+</table>
+
+<h3>Reglas de resolución (channel = "auto")</h3>
+<ol>
+  <li>Si <code>signal.suggested_channel === "whatsapp"</code> AND tiene phone → <strong>whatsapp</strong></li>
+  <li>Si tiene email → <strong>email</strong></li>
+  <li>Si tiene phone (sin email) → <strong>whatsapp</strong></li>
+  <li>Sin phone ni email → <strong>skip dispatch</strong> (status = skipped_no_channel)</li>
+</ol>
+
+<h3>Anti-spam por canal</h3>
+<ul>
+  <li><strong>WhatsApp</strong>: requiere phone válido, sigue el rate limit del bot Meta + cooldown rule + dedup cross-tabla</li>
+  <li><strong>Email</strong>: Resend API + rate limit del dominio + cooldown rule + dedup cross-tabla</li>
+  <li><strong>Team alert</strong>: cooldown más amplio (336h–720h) — el equipo no quiere ruido</li>
+  <li>Todos respetan <strong>quiet hours</strong> (default 22-9 hora VE, configurable por regla)</li>
+</ul>
+
+<!-- ─── 8. UI ADMIN ─────────────────────────────────── -->
+<h1>8. UI de administración</h1>
+
+<p>4 sub-pestañas dentro de <strong>📧 Remarketing</strong> en el admin Medusa:</p>
+
+<h2>8.1 📊 Campañas (legacy)</h2>
+<ul>
+  <li>Cards de campañas viejas: welcome, abandoned_cart, birthday, win_back, post_purchase, restock, pending_payment, stockout_alert, graduation</li>
+  <li>Toggle on/off + edición de discount_code, hours_delay, geo_overrides legacy</li>
+  <li><strong>Badge de vinculación</strong>: muestra qué reglas v2 mapean a esta campaña + estado de cada una</li>
+  <li>Botón "Editar →" salta a sub-tab Motor de reglas</li>
+  <li>Texto explicativo: "Apagar esta campaña no apaga las reglas v2"</li>
+</ul>
+
+<h2>8.2 👤 Users 360</h2>
+<ul>
+  <li>Buscador por email / customer_id / distinct_id (autodetecta)</li>
+  <li>Header del usuario: nombre, email, phone, ciudad, fecha desde, botones rápidos (WA, email, PostHog ↗, Clarity ↗)</li>
+  <li><strong>🚨 Señales activas</strong>: cards con severity coloreada + mensaje sugerido + botón "Enviar WA / Email" con texto pre-cargado</li>
+  <li><strong>Grid 8 KPIs</strong>: órdenes, LTV, AOV, días desde última, sesiones, pageviews, vistas de producto, add-to-carts</li>
+  <li><strong>Top productos vistos</strong> y <strong>top páginas</strong></li>
+  <li><strong>📨 Historial de remarketing</strong>: lista de fires con status badges + count enviados/convertidos. Click expande mensaje completo + error + atribución</li>
+  <li><strong>📦 Órdenes recientes</strong> con items + monto + fecha</li>
+  <li><strong>⏱ Timeline de eventos</strong> (últimos 50 PostHog events)</li>
+</ul>
+
+<h2>8.3 🔍 Patrones (agregado)</h2>
+<ul>
+  <li><strong>8 KPIs activos</strong>: checkouts/carritos/multi-view/restock-due/win-back-elegibles/VIPs/usuarios 72h/ingresos atribuidos</li>
+  <li><strong>📊 Funnel 7d</strong>: candidatos → señales → fires → enviados → convertidos + conversion rate badge</li>
+  <li><strong>📡 Mix de canales 7d</strong>: barras email vs WhatsApp vs manual</li>
+  <li><strong>⏱ Actividad 7d</strong>: barras verticales por día con tooltip (sent/conv/failed/skipped)</li>
+  <li><strong>🔥 Productos con fricción</strong>: top 10 productos vistos 3+ veces sin add_to_cart + botón "+ Regla" (crea regla auto-generada para ese producto específico)</li>
+  <li><strong>🔁 Productos con clientes en ventana de reorden</strong>: ciclo medio detectado + count de clientes en ventana</li>
+  <li><strong>🧪 Experimentos A/B activos</strong>: por cada regla con variants, barras horizontales con conv_rate, badge líder + lift% + significancia</li>
+  <li><strong>⚙️ Rendimiento por regla 30d</strong>: tabla con fires, enviados, convertidos, conv%, ingresos atribuidos</li>
+</ul>
+
+<h2>8.4 ⚡ Motor de reglas</h2>
+<ul>
+  <li><strong>Panel superior</strong>: contador "X/Y reglas activas · cron 15 min" + botones <strong>🧪 Dry-run</strong> y <strong>▶️ Ejecutar ahora</strong></li>
+  <li><strong>Lista de 16 reglas</strong> como cards expandibles:
+    <ul>
+      <li>Header: switch on/off, nombre, badge match_signal, badge canal, badge prioridad, <strong>🔗 Campaña vinculada (estado)</strong></li>
+      <li>Stats inline: cooldown, cap, fires 30d, conv%, ingresos atrib.</li>
+      <li>Click "Editar" expande formulario completo:
+        <ul>
+          <li>Nombre, descripción</li>
+          <li>Canal (5 opciones)</li>
+          <li>Severidad mínima, prioridad, cooldown, daily_cap</li>
+          <li>Quiet hours start/end</li>
+          <li>Templates email subject + email HTML + WhatsApp con placeholders</li>
+          <li><strong>🧪 A/B Variants</strong>: textarea JSON con validación en vivo + tabla de stats por variant</li>
+          <li><strong>🌍 Geo overrides</strong>: textarea JSON por ciudad con validación de campos permitidos</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>📡 Feed de dispatches 7d</strong>: tabla filtrable por regla y status (9 estados). Cada fila clickeable expande detalle (asunto, mensaje completo, error, atribución, severity, identificadores)</li>
+</ul>
+
+<!-- ─── 9. OPERACIÓN ────────────────────────────────── -->
+<h1>9. Operación y monitoreo</h1>
+
+<h2>9.1 Cómo activar una regla dormant</h2>
+<ol>
+  <li>Admin → 📧 Remarketing → ⚡ Motor de reglas</li>
+  <li>Ubica la regla (las dormant tienen switch off)</li>
+  <li>Click <strong>Editar</strong> y revisa templates, cooldown, daily_cap</li>
+  <li>Click <strong>Guardar cambios</strong> si modificaste algo</li>
+  <li>Activa el switch on/off — toast confirmará</li>
+  <li>Próximo tick del cron (≤ 15 min) la regla empieza a evaluar candidatos</li>
+</ol>
+
+<h2>9.2 Cómo verificar que una regla dispara correctamente</h2>
+<ol>
+  <li>Click <strong>🧪 Dry-run</strong> en el panel superior</li>
+  <li>Toast muestra: candidatos, signals, sent (en dry-run no envía pero cuenta), skipped, failed</li>
+  <li>Click <strong>▶️ Ejecutar ahora</strong> para forzar un tick real (sin esperar 15 min)</li>
+  <li>Baja al feed → debería aparecer la fila correspondiente</li>
+  <li>Click la fila → revisa subject, body, status final</li>
+</ol>
+
+<h2>9.3 Cómo investigar un usuario específico</h2>
+<ol>
+  <li>Admin → 📧 Remarketing → 👤 Users 360</li>
+  <li>Busca por email o customer_id o distinct_id</li>
+  <li>Revisa <strong>Señales activas</strong> para ver qué oportunidades hay</li>
+  <li>Revisa <strong>Historial de remarketing</strong> para ver qué se le envió y si convirtió</li>
+  <li>Click un fire para ver el mensaje exacto y la atribución</li>
+</ol>
+
+<h2>9.4 Cómo crear una regla A/B</h2>
+<ol>
+  <li>Edita una regla existente (o crea una nueva)</li>
+  <li>En el campo <strong>🧪 A/B Variants</strong>, pega JSON array con 2+ variantes</li>
+  <li>Cada variante necesita <code>key</code> y <code>weight</code>; opcionalmente sus templates</li>
+  <li>Validación en vivo te dice si el JSON está bien</li>
+  <li>Guarda → próximos fires se reparten por hash determinístico</li>
+  <li>En 1-2 semanas con tráfico real, mira la tabla de "📊 Rendimiento por variante" en el editor o el widget Experimentos en Patrones</li>
+</ol>
+
+<h2>9.5 Estados posibles de un fire</h2>
+<table>
+  <tr><th>Status</th><th>Significado</th></tr>
+  <tr><td><span class="badge badge-orange">pending</span></td><td>Logueado, aún sin dispatch resolver — transitorio</td></tr>
+  <tr><td><span class="badge badge-green">sent</span></td><td>Dispatch exitoso (email/WA/team_alert OK)</td></tr>
+  <tr><td><span class="badge badge-red">failed</span></td><td>Dispatch falló — ver error_message</td></tr>
+  <tr><td><span class="badge badge-grey">skipped_cooldown</span></td><td>Regla o cross-table dedup activo</td></tr>
+  <tr><td><span class="badge badge-grey">skipped_quiet_hours</span></td><td>Hora local en ventana de silencio</td></tr>
+  <tr><td><span class="badge badge-orange">skipped_cap</span></td><td>Daily cap alcanzado para hoy</td></tr>
+  <tr><td><span class="badge badge-grey">skipped_no_channel</span></td><td>Canal incompatible con datos del usuario</td></tr>
+  <tr><td><span class="badge badge-blue">dry_run</span></td><td>Modo dry-run, no se envió</td></tr>
+  <tr><td><span class="badge badge-green">converted</span></td><td>Subscriber attribution lo marcó tras una orden</td></tr>
+</table>
+
+<!-- ─── 10. PENDIENTES ──────────────────────────────── -->
+<h1>10. Pendientes de instrumentación</h1>
+
+<p>Reglas dormant que esperan una pequeña adición en el storefront para activarse con datos reales:</p>
+
+<table>
+  <tr><th>Regla</th><th>Falta</th><th>Donde</th></tr>
+  <tr><td><code>out_of_stock_waitlist</code></td><td>Llamar <code>trackOutOfStockView({product_id, title, handle})</code> cuando PDP carga con stock=0</td><td><code>storefront/src/app/productos/[handle]/...</code></td></tr>
+</table>
+
+<p>Eventos que ya están instrumentados y no requieren trabajo adicional:</p>
+<ul>
+  <li><code>coupon_failed</code> — checkout page ✅</li>
+  <li><code>variant_selected</code> — ProductActions ✅</li>
+  <li><code>search_performed</code> — SearchBar ✅</li>
+  <li><code>product_removed_from_cart</code> — CartDrawer + carrito page ✅</li>
+  <li><code>add_to_cart</code>, <code>checkout_started</code>, <code>order_placed</code>, <code>product_viewed</code>, <code>$pageview</code> ✅</li>
+</ul>
+
+<!-- ─── 11. APÉNDICES ──────────────────────────────── -->
+<h1>11. Apéndices</h1>
+
+<h2>A. Cron jobs activos</h2>
+<table>
+  <tr><th>Job</th><th>Schedule</th><th>Sistema</th><th>Función</th></tr>
+  <tr><td><code>remarketing-engine</code></td><td><code>*/15 * * * *</code></td><td>v2</td><td>Engine principal: candidates → signals → rules</td></tr>
+  <tr><td><code>abandoned-cart</code></td><td><code>0 */2 * * *</code></td><td>legacy</td><td>Recovery basado en Medusa cart entity (mantenido)</td></tr>
+  <tr><td><code>birthday-emails</code></td><td><code>0 9 * * *</code></td><td>legacy + sinergia D3</td><td>Cumpleaños + VIP boost via signals</td></tr>
+  <tr><td><code>post-purchase</code></td><td><code>0 11 * * *</code></td><td>legacy</td><td>Email N días post-compra</td></tr>
+  <tr><td><code>restock</code></td><td><code>0 12 * * *</code></td><td>legacy</td><td>Productos configurados con días explícitos</td></tr>
+  <tr><td><code>pending-payment</code></td><td><code>0 * * * *</code></td><td>legacy</td><td>Recordatorio de pago</td></tr>
+  <tr><td><code>stockout-alert</code></td><td><code>30 9 * * *</code></td><td>legacy</td><td>Alerta admin de stock bajo</td></tr>
+  <tr><td><code>graduation</code></td><td><code>0 10 * * *</code></td><td>legacy</td><td>Manual sale → web (cedula match)</td></tr>
+  <tr><td><code>fulfillment-delay</code></td><td><code>0 */2 * * *</code></td><td>v2</td><td>E4: apología proactiva 24h+ pendiente</td></tr>
+  <tr><td><code>win-back</code></td><td><code>0 10 * * 1</code></td><td><span class="badge badge-grey">deprecated</span></td><td>Reemplazado por <code>win_back_v2</code> (settings disabled)</td></tr>
+</table>
+
+<h2>B. Variables de entorno relevantes</h2>
+<table>
+  <tr><th>Variable</th><th>Uso</th></tr>
+  <tr><td><code>DATABASE_URL</code></td><td>Conexión PostgreSQL (compartida)</td></tr>
+  <tr><td><code>POSTHOG_HOST</code></td><td>https://us.i.posthog.com</td></tr>
+  <tr><td><code>POSTHOG_PROJECT_ID</code></td><td>ID del proyecto PostHog</td></tr>
+  <tr><td><code>POSTHOG_PERSONAL_API_KEY</code></td><td>Personal API key (server-side queries HogQL)</td></tr>
+  <tr><td><code>POSTHOG_PROJECT_API_KEY</code></td><td>Public project key (server-side captures)</td></tr>
+  <tr><td><code>RESEND_API_KEY</code></td><td>Email dispatch</td></tr>
+  <tr><td><code>RESEND_FROM</code></td><td>Sender de emails</td></tr>
+  <tr><td><code>STORE_URL</code></td><td>URL del storefront para CTAs en emails</td></tr>
+  <tr><td><code>ADMIN_URL</code></td><td>URL del admin para deeplinks en team_alert</td></tr>
+</table>
+
+<h2>C. Endpoints API admin</h2>
+<table>
+  <tr><th>Método</th><th>Path</th><th>Función</th></tr>
+  <tr><td>GET</td><td><code>/admin/remarketing</code></td><td>Stats legacy + settings + products</td></tr>
+  <tr><td>POST</td><td><code>/admin/remarketing</code></td><td>Update setting / save crosssell / save restock rules / test email</td></tr>
+  <tr><td>GET</td><td><code>/admin/remarketing/rules</code></td><td>Lista reglas con stats + variant_stats</td></tr>
+  <tr><td>POST</td><td><code>/admin/remarketing/rules</code></td><td>Upsert regla</td></tr>
+  <tr><td>POST</td><td><code>/admin/remarketing/rules?action=toggle</code></td><td>On/off de una regla</td></tr>
+  <tr><td>POST</td><td><code>/admin/remarketing/rules?action=delete</code></td><td>Eliminar regla</td></tr>
+  <tr><td>GET</td><td><code>/admin/remarketing/fires</code></td><td>Feed paginado con filtros</td></tr>
+  <tr><td>POST</td><td><code>/admin/remarketing/engine/run</code></td><td>Trigger manual (dry_run o real)</td></tr>
+  <tr><td>GET</td><td><code>/admin/remarketing/patterns</code></td><td>Resumen agregado para sub-tab Patrones</td></tr>
+  <tr><td>GET</td><td><code>/admin/remarketing/user360</code></td><td>Vista 360° por email/customer_id/distinct_id</td></tr>
+</table>
+
+<h2>D. Mapeo legacy ↔ v2 (resumen)</h2>
+<table>
+  <tr><th>Campaña legacy</th><th>Reglas v2 vinculadas</th><th>Política</th></tr>
+  <tr><td><code>abandoned_cart</code></td><td><code>cart_abandoned_v2</code>, <code>abandoned_checkout_v2</code>, <code>coupon_failed_no_purchase</code></td><td>Dual-stack con dedup cross-table (C1)</td></tr>
+  <tr><td><code>birthday</code></td><td>(sin regla v2)</td><td>Job legacy enriquecido con signals (sinergia D3 — VIP boost)</td></tr>
+  <tr><td><code>win_back</code></td><td><code>win_back_v2</code></td><td>Legacy <span class="badge badge-grey">deprecated</span>, v2 lo reemplaza</td></tr>
+  <tr><td><code>restock</code></td><td><code>restock_due_v2</code></td><td>Complementarios: legacy = productos configurados, v2 = ciclo detectado por usuario</td></tr>
+  <tr><td><code>post_purchase</code></td><td>(sin regla v2)</td><td>Job legacy mantenido</td></tr>
+  <tr><td><code>welcome</code> · <code>pending_payment</code> · <code>stockout_alert</code> · <code>graduation</code></td><td>(sin regla v2)</td><td>Jobs legacy mantenidos sin overlap</td></tr>
+</table>
+
+<div class="footer">
+  Módulo de Remarketing v2 · enrola.shop · documento técnico-operacional · abril 2026<br>
+  Generado a partir del estado real del sistema en producción
+</div>
+
+</body>
+</html>
