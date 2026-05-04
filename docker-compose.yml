@@ -128,6 +128,40 @@ services:
     networks:
       - n8n_default
 
+  # Operator panel (panel.enrola.shop) — custom Next.js admin used by the
+  # warehouse + customer-service team (separate from the Medusa admin).
+  # Speaks to medusa over the docker network on port 9000.
+  panel:
+    build:
+      context: ./panel
+      dockerfile: Dockerfile
+    image: ryo-store-panel
+    restart: unless-stopped
+    environment:
+      MEDUSA_ADMIN_URL: http://medusa:9000
+      # Cookie session — generated with `openssl rand -base64 48`,
+      # stored in /root/ryo-store/.env on the VPS. Distinct from Medusa's
+      # JWT_SECRET so the two can rotate independently.
+      PANEL_SESSION_SECRET: ${PANEL_SESSION_SECRET}
+      PANEL_COOKIE_DOMAIN: panel.enrola.shop
+      PANEL_COOKIE_SECURE: "true"
+      # Resend — needed by /webmail and the "Email cliente" button on
+      # order detail. Optional; the panel works without it (those screens
+      # show "no configurado").
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_ADDRESS: ${RESEND_FROM_ADDRESS:-Enrola <hola@enrola.shop>}
+    depends_on:
+      - medusa
+    networks:
+      - n8n_default
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.panel.rule=Host(`panel.enrola.shop`)
+      - traefik.http.routers.panel.tls=true
+      - traefik.http.routers.panel.entrypoints=websecure
+      - traefik.http.routers.panel.tls.certresolver=mytlschallenge
+      - traefik.http.services.panel.loadbalancer.server.port=3001
+
   listmonk:
     image: listmonk/listmonk:latest
     restart: unless-stopped
