@@ -1,5 +1,21 @@
 import { useState } from "react"
 
+// Admin is served from enrola.shop but /static/* lives on api.enrola.shop.
+// Resolve relative URLs to absolute so media actually loads from the backend.
+const ASSET_BASE = "https://api.enrola.shop"
+// Cache-bust token — bumped when we re-render media in place. Prevents the
+// browser from serving a stale disk-cache copy when bytes change but the
+// filename stays the same.
+const MEDIA_VERSION = "20260425c"
+
+const abs = (u: string | null | undefined): string | undefined => {
+  if (!u) return undefined
+  if (u.startsWith("http://") || u.startsWith("https://") || u.startsWith("data:")) return u
+  const full = `${ASSET_BASE}${u.startsWith("/") ? "" : "/"}${u}`
+  const sep = full.includes("?") ? "&" : "?"
+  return `${full}${sep}v=${MEDIA_VERSION}`
+}
+
 /**
  * Renders post media:
  *  - Single image → <img>
@@ -26,8 +42,8 @@ export function MediaPreview({
     return (
       <div className={`w-full ${aspectClass} bg-ui-bg-base overflow-hidden rounded-md border border-ui-border-base`}>
         <video
-          src={first}
-          poster={cover ?? undefined}
+          src={abs(first)}
+          poster={abs(cover) ?? undefined}
           controls
           preload="metadata"
           playsInline
@@ -40,7 +56,7 @@ export function MediaPreview({
   if (urls.length === 1) {
     return (
       <div className={`w-full ${aspectClass} bg-ui-bg-base overflow-hidden rounded-md border border-ui-border-base`}>
-        <img src={first} alt="" className="w-full h-full object-contain" loading="lazy" />
+        <img src={abs(first)} alt="" className="w-full h-full object-contain" loading="lazy" />
       </div>
     )
   }
@@ -49,7 +65,7 @@ export function MediaPreview({
   return (
     <div className="w-full flex flex-col gap-2">
       <div className={`w-full ${aspectClass} bg-ui-bg-base overflow-hidden rounded-md border border-ui-border-base relative`}>
-        <img src={urls[idx]} alt="" className="w-full h-full object-contain" loading="lazy" />
+        <img src={abs(urls[idx])} alt="" className="w-full h-full object-contain" loading="lazy" />
         <div className="absolute top-2 right-2 text-xs bg-black/70 text-white rounded px-2 py-0.5 font-mono">
           {idx + 1} / {urls.length}
         </div>
