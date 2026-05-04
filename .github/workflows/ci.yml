@@ -1,0 +1,64 @@
+name: CI
+
+# Quality gates that run on every PR to main and every push to main.
+#
+# Goal: catch build failures BEFORE the deploy job ever fires. The deploy
+# workflow assumes the code that lands on main builds; this workflow
+# enforces that.
+#
+# We run `medusa build` (the same command the deploy uses) instead of just
+# `tsc --noEmit` because:
+# - the admin SDK injects globals (Cog6Tooth icons, BACKEND_URL define) that
+#   strict tsc doesn't see, causing false positives
+# - `medusa build` already covers backend type-check + admin bundle + admin
+#   output verification in one step
+# - if this passes, the deploy on main will pass too — which is the only
+#   guarantee that matters
+#
+# Kept under 6 minutes by relying on npm cache.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel earlier runs of the same PR/branch — only the newest commit's
+# results matter. Saves Actions minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-build:
+    name: Backend build (medusa build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --legacy-peer-deps
+
+      - name: medusa build
+        # This is the same build the VPS deploy runs. Catching failures
+        # here means the deploy step never burns time on something that
+        # was always going to fail.
+        run: npx medusa build
+
+      - name: Verify admin bundle was generated
+        run: |
+          test -f .medusa/server/public/admin/index.html
+          echo "✓ admin index.html generated"
+          ls -la .medusa/server/public/admin/assets/ | head -5
