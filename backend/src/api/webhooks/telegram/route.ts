@@ -26,6 +26,7 @@ import { sendWhatsApp, sendWhatsAppImage } from "../../../lib/whatsapp-sender"
 import { logTelegramCommand, classifyVentaError } from "../../../lib/telegram-log"
 import { getFxRates, convertEur } from "../../../lib/fx-rates"
 import { sendEmail } from "../../../lib/email-service"
+import { resolveCustomerCedula } from "../../../lib/remarketing-db"
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
@@ -166,7 +167,7 @@ async function resolveOrderId(displayIdStr: string): Promise<string> {
 
 async function getOrderDetails(orderId: string) {
   const r = await pool.query(
-    `SELECT o.id, o.display_id, o.email, o.status, o.metadata,
+    `SELECT o.id, o.display_id, o.email, o.status, o.metadata, o.customer_id,
             COALESCE((os.totals->>'original_order_total')::numeric, 0) as total,
             COALESCE((os.totals->>'original_order_total')::numeric, 0) as original_total,
             COALESCE((os.totals->>'current_order_total')::numeric, 0)  as current_total,
@@ -307,7 +308,28 @@ async function buildOrderDetailBlock(
         (meta.mrw_office_address ? ` — ${meta.mrw_office_address}` : "")
       : ""
 
-  return `\n<b>Artículos:</b>\n${itemLines}\n\n${totalsLines.join("\n")}\n\n👤 ${order.first_name || ""} ${order.last_name || ""}\n📧 ${order.email}${phoneLine}\n🏠 ${addressParts || "Sin dirección"}${mapsLine}${mrwOfficeLine}${proofLine}`
+  // Cédula — required field for VE shipping (MRW won't accept packages
+  // without it on the receiving end). We render it ALWAYS so the operator
+  // sees gaps explicitly: present → "🪪 V-12345678", missing → loud
+  // warning. Never silently omit, so an operator can't miss it.
+  //
+  // Resolution order (matches resolveCustomerCedula):
+  //   1. order.metadata.cedula  (storefront checkout writes here, also
+  //      the WhatsApp/Telegram manual-sale flows)
+  //   2. customer.metadata.cedula  (canonical store)
+  //   3. fallback to most recent order.metadata.cedula for the customer
+  let cedula: string | null = (typeof meta.cedula === "string" && meta.cedula.trim()) || null
+  if (!cedula) {
+    cedula = await resolveCustomerCedula(
+      (order.customer_id as string | null) ?? null,
+      (order.email as string | null) ?? null
+    )
+  }
+  const cedulaLine = cedula
+    ? `\n🪪 ${cedula}`
+    : `\n⚠️ <b>Sin cédula registrada</b> — pedirla al cliente antes de despachar`
+
+  return `\n<b>Artículos:</b>\n${itemLines}\n\n${totalsLines.join("\n")}\n\n👤 ${order.first_name || ""} ${order.last_name || ""}\n📧 ${order.email}${phoneLine}${cedulaLine}\n🏠 ${addressParts || "Sin dirección"}${mapsLine}${mrwOfficeLine}${proofLine}`
 }
 
 async function getStockLocations() {
