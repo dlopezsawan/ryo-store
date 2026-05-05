@@ -47,7 +47,12 @@ export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
   await fin.reverseEntriesBySource("conversion_out", id)
   await fin.reverseEntriesBySource("conversion_in", id)
   await fin.deleteFinanzasConversions(id)
-  await fin.recomputePagoMovilConversionStatus(conversion.pago_movil_id)
+  // Only recompute when the conversion was linked to a pago_movil.
+  // Standalone conversions (pago_movil_id IS NULL) have nothing to
+  // recompute on the parent.
+  if (conversion.pago_movil_id) {
+    await fin.recomputePagoMovilConversionStatus(conversion.pago_movil_id)
+  }
   await fin.recordAudit({
     entity_type: "conversion",
     entity_id: id,
