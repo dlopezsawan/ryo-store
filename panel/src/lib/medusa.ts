@@ -2032,8 +2032,51 @@ export async function createFinanzasConversion(body: {
   spread_pct?: number
   reference?: string
   notes?: string
+  // When omitted, the backend falls back to the first active wallet
+  // matching the currency (sort_order ASC). That default put every
+  // standalone conversion into Leo's USDT wallet regardless of who
+  // actually received the funds — the panel now lets the operator
+  // pick the destination explicitly.
+  source_wallet_id?: string
+  dest_wallet_id?: string
 }) {
   return medusaFetch<{ conversion: FinanzasConversion }>("POST", "/finanzas/conversions", { body })
+}
+
+// ─── Custom: Finanzas Transfers (wallet → wallet) ────────────────────
+
+export interface FinanzasTransfer {
+  id: string
+  from_wallet_id: string
+  to_wallet_id: string
+  amount: number
+  currency: string
+  rate: number | null
+  amount_received: number
+  note: string | null
+  transferred_at: string
+  created_at: string
+}
+
+export async function listFinanzasTransfers(args?: { wallet_id?: string }) {
+  return medusaFetch<{ transfers: FinanzasTransfer[] }>("GET", "/finanzas/transfers", {
+    query: args?.wallet_id ? { wallet_id: args.wallet_id } : undefined,
+  })
+}
+
+export async function createFinanzasTransfer(body: {
+  from_wallet_id: string
+  to_wallet_id: string
+  amount: number
+  // Cross-currency only: the receiving wallet credits this amount in
+  // its own currency. For same-currency transfers (Bs → Bs, USDT → USDT)
+  // omit and the backend mirrors `amount`.
+  amount_received?: number
+  rate?: number
+  note?: string
+  transferred_at?: string
+}) {
+  return medusaFetch<{ transfer: FinanzasTransfer }>("POST", "/finanzas/transfers", { body })
 }
 
 // ─── Custom: Loyalty ──────────────────────────────────────────────────

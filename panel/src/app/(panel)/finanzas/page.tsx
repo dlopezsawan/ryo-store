@@ -201,7 +201,7 @@ export default async function FinanzasPage({ searchParams }: { searchParams: Pro
         actions={
           <div className="flex items-center gap-2 flex-wrap">
             <MonthSelector month={monthToShow ?? new Date().toISOString().slice(0, 7)} />
-            <FinanzasHeaderActions />
+            <FinanzasHeaderActions wallets={summary?.wallets ?? []} />
           </div>
         }
       />
