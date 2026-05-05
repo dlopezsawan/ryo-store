@@ -54,27 +54,22 @@ services:
       - traefik.http.routers.medusa.entrypoints=websecure
       - traefik.http.routers.medusa.tls.certresolver=mytlschallenge
       - traefik.http.services.medusa.loadbalancer.server.port=9000
-      # Admin dashboard at enrola.shop/dashboard
-      - traefik.http.routers.medusa-dashboard.rule=Host(`enrola.shop`) && PathPrefix(`/dashboard`)
-      - traefik.http.routers.medusa-dashboard.tls=true
-      - traefik.http.routers.medusa-dashboard.entrypoints=websecure
-      - traefik.http.routers.medusa-dashboard.tls.certresolver=mytlschallenge
-      - traefik.http.routers.medusa-dashboard.service=medusa
-      - traefik.http.routers.medusa-dashboard.priority=200
-      # Admin API calls from the dashboard SPA (relative URLs need routing)
-      - traefik.http.routers.medusa-admin-api.rule=Host(`enrola.shop`) && PathPrefix(`/admin`)
-      - traefik.http.routers.medusa-admin-api.tls=true
-      - traefik.http.routers.medusa-admin-api.entrypoints=websecure
-      - traefik.http.routers.medusa-admin-api.tls.certresolver=mytlschallenge
-      - traefik.http.routers.medusa-admin-api.service=medusa
-      - traefik.http.routers.medusa-admin-api.priority=300
-      # Auth endpoints used by admin
-      - traefik.http.routers.medusa-auth.rule=Host(`enrola.shop`) && PathPrefix(`/auth`)
-      - traefik.http.routers.medusa-auth.tls=true
-      - traefik.http.routers.medusa-auth.entrypoints=websecure
-      - traefik.http.routers.medusa-auth.tls.certresolver=mytlschallenge
-      - traefik.http.routers.medusa-auth.service=medusa
-      - traefik.http.routers.medusa-auth.priority=300
+      # NOTE: previously two extra Traefik routers exposed the Medusa admin
+      # SPA + admin API on the public storefront domain
+      # (`enrola.shop/dashboard` and `enrola.shop/admin/*`). Removed because:
+      # - Surfacing admin assets on the customer-facing domain is a
+      #   needless attack surface (login page, JS bundle, version disclosure)
+      # - The admin already lives at `api.enrola.shop` (the canonical host
+      #   for everything operator-facing) — this duplicate exposure was
+      #   never the source of truth, only a leftover convenience
+      # - SEO leak: the bundle name + assets were crawlable
+      # If the admin needs a non-api.* shortcut in the future, expose it on
+      # a dedicated subdomain (e.g. `admin.enrola.shop`) — never on the
+      # public storefront host.
+      # (medusa-auth router also removed for the same reasons — its only
+      # purpose was supporting login flow for the admin SPA exposed at
+      # enrola.shop/dashboard. The storefront's own auth lives under
+      # /api/auth/* via NextAuth and is unaffected.)
     networks:
       - n8n_default
 
