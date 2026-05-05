@@ -12,14 +12,18 @@ services:
       POSTGRES_DB: medusa
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    # postgres + redis live on the project-scoped `ryo_internal` network
+    # only — they're never reached by Traefik or by other tenants on the
+    # shared `n8n_default` network. This shrinks the blast radius if a
+    # neighbouring stack on the same VPS gets compromised.
     networks:
-      - n8n_default
+      - ryo_internal
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     networks:
-      - n8n_default
+      - ryo_internal
 
   medusa:
     build:
@@ -98,6 +102,11 @@ services:
       # enrola.shop/dashboard. The storefront's own auth lives under
       # /api/auth/* via NextAuth and is unaffected.)
     networks:
+      # `ryo_internal` carries inter-service traffic (postgres, redis,
+      # panel→medusa, storefront→medusa). `n8n_default` is required so
+      # the n8n-traefik-1 reverse proxy can reach this container for
+      # the api.enrola.shop route, and for medusa→listmonk.
+      - ryo_internal
       - n8n_default
 
   storefront:
@@ -148,6 +157,9 @@ services:
     volumes:
       - payment_proofs:/app/public/uploads
     networks:
+      # `ryo_internal` for the storefront→medusa hop; `n8n_default` so
+      # Traefik can route enrola.shop to this container.
+      - ryo_internal
       - n8n_default
 
   # Operator panel (panel.enrola.shop) — custom Next.js admin used by the
@@ -160,7 +172,7 @@ services:
     image: ryo-store-panel
     restart: unless-stopped
     environment:
-      MEDUSA_ADMIN_URL: http://medusa:9000
+      MEDUSA_ADMIN_URL: http://ryo-store-medusa-1:9000
       # Cookie session — generated with `openssl rand -base64 48`,
       # stored in /root/ryo-store/.env on the VPS. Distinct from Medusa's
       # JWT_SECRET so the two can rotate independently.
@@ -175,6 +187,9 @@ services:
     depends_on:
       - medusa
     networks:
+      # `ryo_internal` for the panel→medusa hop; `n8n_default` so Traefik
+      # can route panel.enrola.shop to this container.
+      - ryo_internal
       - n8n_default
     labels:
       - traefik.enable=true
@@ -211,6 +226,9 @@ services:
       - traefik.http.routers.listmonk.tls.certresolver=mytlschallenge
       - traefik.http.services.listmonk.loadbalancer.server.port=9000
     networks:
+      # `ryo_internal` so it can reach postgres (its DB lives there);
+      # `n8n_default` so Traefik can serve newsletter.enrola.shop.
+      - ryo_internal
       - n8n_default
 
 volumes:
@@ -219,5 +237,14 @@ volumes:
   medusa_uploads:
 
 networks:
+  # Project-scoped network for inter-service traffic. Postgres + Redis
+  # live ONLY here so they can't be reached by other tenants on the
+  # shared `n8n_default` network. App containers (medusa, panel,
+  # storefront, listmonk) attach to both: `ryo_internal` for backend
+  # comms, `n8n_default` for Traefik to reach them with the public TLS
+  # routes. Auto-managed by compose (not external) — created on first
+  # `docker compose up`, deleted only with `docker compose down`.
+  ryo_internal:
+    name: ryo_internal
   n8n_default:
     external: true
