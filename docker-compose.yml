@@ -45,6 +45,33 @@ services:
       GOOGLE_BRIDGE_SECRET: ${GOOGLE_BRIDGE_SECRET}
       RESEND_API_KEY: ${RESEND_API_KEY}
       CONTACT_EMAIL: ${CONTACT_EMAIL:-hola@enrola.shop}
+      # Webmail IMAP/SMTP passwords — one per mailbox. Read from VPS .env;
+      # accessed by /admin/webmail/accounts to determine which mailboxes
+      # the operator can open. If the variable is missing or empty, the
+      # backend marks `available: false` and the panel renders "Sin
+      # password configurada".
+      #
+      # Empty default ":-" so the container starts even if the user's
+      # .env hasn't set them yet (the panel will show the warning state
+      # rather than crash).
+      WEBMAIL_PASS_HOLA_ENROLA_SHOP: ${WEBMAIL_PASS_HOLA_ENROLA_SHOP:-}
+      WEBMAIL_PASS_DANIEL_ENROLA_SHOP: ${WEBMAIL_PASS_DANIEL_ENROLA_SHOP:-}
+      WEBMAIL_PASS_LEO_ENROLA_SHOP: ${WEBMAIL_PASS_LEO_ENROLA_SHOP:-}
+      WEBMAIL_PASS_ADMIN_ENROLA_SHOP: ${WEBMAIL_PASS_ADMIN_ENROLA_SHOP:-}
+      WEBMAIL_PASS_PEDIDOS_ENROLA_SHOP: ${WEBMAIL_PASS_PEDIDOS_ENROLA_SHOP:-}
+      # Optional: override the default admin-email → mailboxes mapping
+      # via JSON. Empty default; backend falls back to DEFAULT_ACCESS_MAP
+      # when not set. See /admin/webmail/accounts/route.ts for the shape.
+      WEBMAIL_ACCOUNT_ACCESS: ${WEBMAIL_ACCOUNT_ACCESS:-}
+      # IMAP/SMTP host the backend connects to. Defaults already match the
+      # mailserver container hostname on the docker network, so these are
+      # only needed if the operator wants to point at an external mail
+      # provider (Mailgun, Resend SMTP, etc.). Names match what
+      # mail-service.ts actually reads (MAIL_*, not WEBMAIL_*).
+      MAIL_IMAP_HOST: ${MAIL_IMAP_HOST:-mailserver}
+      MAIL_IMAP_PORT: ${MAIL_IMAP_PORT:-143}
+      MAIL_SMTP_HOST: ${MAIL_SMTP_HOST:-mailserver}
+      MAIL_SMTP_PORT: ${MAIL_SMTP_PORT:-587}
     volumes:
       - medusa_uploads:/app/static
     labels:
