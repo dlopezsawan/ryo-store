@@ -221,7 +221,7 @@ const TOOLS = [
     type: "function" as const,
     function: {
       name: "set_delivery_zone",
-      description: "Marca la zona de envío del cliente: 'valencia' (envío inmediato local), 'nacional' (resto de Venezuela, debe usar la web), o 'unknown'. Llama esto en cuanto el cliente diga su ubicación o cuando le preguntes y responda. Si zone='nacional', NO sigas armando carrito por chat — redirige a la web.",
+      description: "Marca la zona de envío del cliente: 'valencia' (envío inmediato local), 'nacional' (resto de Venezuela, checkout en la web), o 'unknown'. CRÍTICO: pregunta esto TEMPRANO en cuanto el cliente muestre intención de pedir, ANTES de armar carrito completo. Si zone='nacional', SEGUÍ armando carrito normalmente — los items se acumulan en el cart real y view_order_summary devuelve un link directo al cart en la web. NO le pidas al cliente que rearme nada.",
       parameters: {
         type: "object",
         properties: {
@@ -737,6 +737,16 @@ async function toolViewOrderSummary(phone: string): Promise<string> {
   summary += `\n💰 TOTAL: €${total.toFixed(2)}`
   if (totalBs > 0) summary += ` = Bs ${totalBs.toFixed(2)}`
 
+  // For nacional zone we close the loop in the web — surface the
+  // handoff URL right in the summary so Dana can paste it. Valencia
+  // continues fully in chat (no link needed).
+  if (od.delivery_zone === "nacional") {
+    const cartUrl = buildCartUrl(od.items, od.cart_id)
+    summary += `\n\n🔗 LINK PARA CHECKOUT (zona nacional): ${cartUrl}`
+    summary += `\n   (envío MRW a toda Venezuela — solo agrega cédula + dirección y paga)`
+    return summary
+  }
+
   const missing: string[] = []
   if (!od.customer_name) missing.push("nombre")
   if (!od.address_1) missing.push("dirección")
@@ -1159,11 +1169,38 @@ async function toolSetDeliveryZone(phone: string, args: Record<string, string>):
   }
   if (zone === "nacional") {
     await logFunnelEvent(phone, "redirected_to_web", { reason: "nacional" })
+
+    // Two sub-flows depending on whether we already built a cart:
+    //
+    //   A. Cart already exists (items + cart_id materialized): generate
+    //      a handoff URL the customer can open to land directly in
+    //      /carrito with their items pre-loaded. Zero rebuild work.
+    //
+    //   B. No cart yet (zone asked early, before any add_to_order):
+    //      keep helping in chat; we can still search + add items, and
+    //      send the handoff link once the cart materializes.
+    //
+    // The previous behavior — telling the customer to "armar el pedido
+    // en la web" after they already built it over chat — was the
+    // friction point reported on 2026-05-05.
+    const hasCart = !!od.cart_id && od.items.length > 0
+    if (hasCart) {
+      const cartUrl = buildCartUrl(od.items, od.cart_id)
+      return `📍 Zona marcada: nacional (fuera de Valencia).
+
+INSTRUCCIÓN: El cliente ya tiene productos en el cart. NO le pidas que rearme nada. Mándale el LINK DIRECTO con SU carrito pre-cargado y un mensaje breve en voz Dana:
+
+"Listo 🌸 te dejo tu carrito armado para que termines en la web — entrega por MRW a toda Venezuela:
+${cartUrl}
+
+Solo agregás cédula + dirección y pagás. ¡Cualquier cosa avísame! 💁‍♀️"
+
+NO llames submit_order para pedidos nacionales — el checkout completa en la web.`
+    }
+
     return `📍 Zona marcada: nacional (fuera de Valencia).
 
-INSTRUCCIÓN: NO sigas armando carrito por chat. Redirige al cliente a la web con un mensaje breve y playful en voz Dana:
-"Para envío fuera de Valencia, lo más rápido es que hagas el pedido en ${STORE_URL} — envío MRW a toda Venezuela 💁‍♀️"
-Si tiene productos en mente, sugiérele que los agregue allí. NO llames submit_order para pedidos nacionales.`
+INSTRUCCIÓN: El cliente todavía no tiene carrito armado. Continúa ayudando en el chat con search_products + add_to_order — los items se acumulan en un cart real. Cuando confirme los productos, llama view_order_summary y después devuélvele el link directo a su carrito (la URL viene en el resumen). El checkout final lo completa en la web (envío MRW), pero NO le pidas que rearme nada — el cart ya queda listo.`
   }
   return `Zona desconocida.`
 }
@@ -1529,15 +1566,39 @@ FLUJO DE PEDIDO:
         - "¿Buscas accesorios para armar (papers, conos, filtros) o un grinder/pipa?"
      → Tras la respuesta, search_products con la categoría correcta.
 
-   Caso C — Cliente NO ha dicho su zona en el chat:
-     → Pregunta UNA vez en turno 2 o 3 (no en saludo): "¿Eres de Valencia o te enviamos al interior? 💁‍♀️"
+   Caso C — PREGUNTA DE ORO: la zona se pregunta TEMPRANO, no al final.
+     → CUÁNDO: en el turno EN QUE el cliente muestre intención de pedir.
+        Señales típicas: "quiero hacer un pedido", "quiero comprar X",
+        "necesito Y", "dame Z", o cuando ya nombró un producto concreto.
+        ANTES de buscar productos, ANTES de armar carrito.
+     → CÓMO: una sola línea breve, en voz Dana:
+        "¡Genial! 🌸 ¿es para Valencia (entrega inmediata) o te enviamos al interior?"
      → Cuando responda, llama set_delivery_zone(zone='valencia' | 'nacional').
-     → Si dice Caracas, Maracaibo, "fuera de Valencia", "interior", etc → set_delivery_zone('nacional').
+     → Si dice Caracas, Maracaibo, "fuera de Valencia", "interior", "afuera",
+       cualquier ciudad que no sea Valencia → set_delivery_zone('nacional').
      → Si dice Valencia, "aquí mismo", "en la ciudad" → set_delivery_zone('valencia').
+     → Si ya nombraron una ciudad mientras pedían (ej. "quiero conos para
+       Caracas"), llama set_delivery_zone INMEDIATAMENTE sin preguntar.
+     → ❌ NO esperes al turno 2 o 3. NO armes carrito completo y después preguntes.
+       Eso es la fricción que tuvimos con +584243354235 — armó el carrito
+       entero y al decir "Caracas" le pidieron que lo rearmara en la web.
 
-   CASO NACIONAL — REGLA INVIOLABLE: Si delivery_zone='nacional', NO sigas armando carrito por chat. Redirige inmediatamente:
-     "Para envío nacional, lo más rápido es que armes el pedido en ${STORE_URL} 🌸 envío MRW a toda Venezuela. Si quieres, te paso los productos que vimos para que los agregues allí."
-     NO llames submit_order para zona nacional.
+   CASO NACIONAL — flow nuevo (NO le pidas que rearme nada):
+     → Tras set_delivery_zone('nacional'), seguís ayudando en el chat
+       igual que con Valencia: search_products + add_to_order acumulan
+       items en un cart real de Medusa.
+     → NO pidas datos de envío (nombre/dirección/cédula) en el chat —
+       esos se completan en el checkout web.
+     → Cuando el cliente confirme los productos, llama view_order_summary.
+       El resumen incluye automáticamente un LINK al cart pre-cargado
+       (formato ${STORE_URL}/cart/handoff?cart_id=...).
+     → Mándale el link junto a un mensaje breve estilo:
+        "Listo 🌸 te dejo tu carrito armado para que termines en la web —
+         entrega por MRW a toda Venezuela:
+         <link>
+         Solo agregás cédula + dirección y pagás. ¡Cualquier cosa avísame! 💁‍♀️"
+     → NO llames submit_order para zona nacional — el checkout completa
+       en la web. Tu trabajo termina cuando le mandaste el link.
 
 1. PRODUCTOS: Cliente pide → search_products → muestra opciones reales → confirma → add_to_order
 2. DATOS PARA ENVÍO: Una vez que el cliente confirme sus productos (y zona='valencia' confirmada), pide los 3 datos juntos en UN SOLO mensaje:
@@ -1837,10 +1898,28 @@ export function buildGreeting(): string {
 
 // ─── Build cart URL for web continuation ─────────────────────────────────────
 
-function buildCartUrl(items: OrderData["items"]): string {
-  // Generate a URL that pre-loads products for the user to continue on web
+/**
+ * Returns a URL the customer can open to continue checkout on the web with
+ * the SAME cart they already built over chat with Dana.
+ *
+ * Three cases:
+ *   - Has a cart_id: deep link via /cart/handoff?cart_id=XXX, which writes
+ *     the cart to the storefront's localStorage and redirects to /carrito.
+ *     The customer sees their items already loaded — zero rebuild work.
+ *   - Has items but no cart_id (rare; cart wasn't materialized yet): fall
+ *     back to the first product page so they at least land in context.
+ *   - Empty: just the home page.
+ *
+ * Used when zone='nacional' so we don't have to make the customer rebuild
+ * by hand. Reported friction case: Maria Alvarado +584243354235 on
+ * 2026-05-05 — Dana asked zone too late, then sent her to the home page
+ * to "armar el pedido" again. Iron-tight version always preserves work.
+ */
+function buildCartUrl(items: OrderData["items"], cartId?: string | null): string {
+  if (cartId && /^cart_[A-Za-z0-9]+$/.test(cartId)) {
+    return `${STORE_URL}/cart/handoff?cart_id=${encodeURIComponent(cartId)}`
+  }
   if (items.length === 0) return STORE_URL
-  // Link to the first product as starting point
   return `${STORE_URL}/productos/${items[0].handle}`
 }
 
