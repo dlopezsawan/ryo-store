@@ -15,7 +15,11 @@ export function FinanzasHeaderActions() {
   const [pending, startTransition] = useTransition()
   const [toast, setToast] = useState<Toast>(null)
 
-  // Conversion form (NOTA: backend requiere pago_movil_id — sólo registra notas no afecta ledger)
+  // Standalone conversion form. Backend POST /admin/finanzas/conversions
+  // accepts pago_movil_id as optional — when omitted, it records a
+  // manual Bs→USDT swap from the business wallet without linking to a
+  // specific customer payment. Twin ledger entries are still written so
+  // wallet balances stay accurate.
   const [conv, setConv] = useState({
     date: new Date().toISOString().slice(0, 10),
     amount_bs: 0,
