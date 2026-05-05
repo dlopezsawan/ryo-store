@@ -5,7 +5,20 @@
  * affinity in product_affinity. Used by Dana to make data-driven cross-sell
  * suggestions instead of the static CROSS_SELL category map.
  *
- * Cron: monthly (1st of month at 03:00 UTC).
+ * Cron: weekly (Monday 03:00 UTC).
+ *
+ * NOTE: this used to be monthly (`0 3 1 * *`) but Medusa's in-process cron
+ * runner schedules the next firing via setTimeout, and Node's setTimeout
+ * overflows above ~24.8 days (Number.MAX_INT32 ms ≈ 2,147,483,647). The
+ * monthly delay computed (~2.59 × 10^9 ms) was over the limit, Node
+ * silently clamped it to 1ms, and the job re-fired every ~3 seconds
+ * causing log spam + DB load. Symptom in production was thousands of
+ * "[cross-sell] Rebuilding affinity map..." lines per minute.
+ *
+ * Weekly (~6.05 × 10^8 ms) is well under the int32 ceiling and is fine
+ * for this workload — the affinity map evolves slowly (only changes when
+ * new completed orders include new product combinations) and weekly is
+ * actually a better cadence than monthly: bot recommendations stay fresh.
  *
  * The bot reads this table; when there's not enough data (low confidence) it
  * falls back to the static map. The threshold is enforced at read time, not here.
@@ -72,5 +85,7 @@ export default async function rebuildCrossSell() {
 
 export const config = {
   name: "whatsapp-cross-sell-rebuild",
-  schedule: "0 3 1 * *", // 1st of month, 03:00 UTC
+  // Monday 03:00 UTC. Avoid schedules with > 24-day gaps until Medusa
+  // fixes the setTimeout int32 overflow in its cron runner.
+  schedule: "0 3 * * 1",
 }
