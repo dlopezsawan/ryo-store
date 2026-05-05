@@ -114,7 +114,14 @@ services:
     depends_on:
       - medusa
     environment:
-      MEDUSA_BACKEND_URL: http://medusa:9000
+      # Use the explicit container name instead of the `medusa` alias.
+      # The shared `n8n_default` network hosts other projects (e.g.
+      # palosanto-store) whose own medusa container also registers as
+      # `medusa` — Docker DNS then round-robins between them, so ~50%
+      # of requests landed on a stranger DB and returned 401. Pinning
+      # to the container name makes DNS deterministic. See PR fixing
+      # the panel "Sesión expirada / credenciales incorrectas" loop.
+      MEDUSA_BACKEND_URL: http://ryo-store-medusa-1:9000
       NEXT_PUBLIC_MEDUSA_BACKEND_URL: https://api.enrola.shop
       NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY}
       NEXT_PUBLIC_STORE_NAME: RYO Store
@@ -152,7 +159,13 @@ services:
 
   # Operator panel (panel.enrola.shop) — custom Next.js admin used by the
   # warehouse + customer-service team (separate from the Medusa admin).
-  # Speaks to medusa over the docker network on port 9000.
+  # Speaks to medusa over the docker network on port 9000. Uses the
+  # explicit container name (ryo-store-medusa-1) instead of the `medusa`
+  # alias because the shared `n8n_default` network hosts other projects
+  # whose containers also register as `medusa` — Docker DNS would then
+  # round-robin between them and the panel hit a stranger DB ~50% of
+  # the time, surfacing as random 401s ("Sesión expirada", "credenciales
+  # incorrectas"). Pinning to the container name makes DNS deterministic.
   panel:
     build:
       context: ./panel
@@ -160,7 +173,7 @@ services:
     image: ryo-store-panel
     restart: unless-stopped
     environment:
-      MEDUSA_ADMIN_URL: http://medusa:9000
+      MEDUSA_ADMIN_URL: http://ryo-store-medusa-1:9000
       # Cookie session — generated with `openssl rand -base64 48`,
       # stored in /root/ryo-store/.env on the VPS. Distinct from Medusa's
       # JWT_SECRET so the two can rotate independently.
