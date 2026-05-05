@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root { --primary: #BB3B2E; --orange: #FF3B27; --secondary: #4D5431; --cream: #F5F2E8; --dark: #1A1A1A; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 1080px; height: 1920px; overflow: hidden; }
+    body {
+      font-family: 'Kanit', system-ui, sans-serif;
+      background: var(--cream); color: var(--dark);
+      -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision;
+    }
+
+    .reel {
+      width: 1080px; height: 1920px;
+      padding: 240px 80px 440px 64px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      row-gap: 40px;
+    }
+
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .brand { font-weight: 900; font-size: 30px; letter-spacing: 0.28em; text-transform: uppercase; display: flex; align-items: center; gap: 16px; }
+    .brand .dot { width: 16px; height: 16px; background: var(--orange); border: 3px solid var(--dark); }
+    .badge {
+      font-weight: 900; font-size: 24px; letter-spacing: 0.22em;
+      text-transform: uppercase; padding: 12px 22px;
+      background: var(--primary); color: var(--cream);
+      border: 4px solid var(--dark); box-shadow: 6px 6px 0 0 var(--dark);
+    }
+
+    .hero { }
+    .eyebrow {
+      font-weight: 700; font-size: 32px; letter-spacing: 0.32em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 18px;
+    }
+    .h1 {
+      font-weight: 900; font-size: 168px; line-height: 0.86;
+      letter-spacing: -0.05em; text-transform: uppercase;
+    }
+    .h1 .em { color: var(--orange); }
+    .h1 .strike { text-decoration: line-through; text-decoration-thickness: 14px; text-decoration-color: var(--orange); color: var(--dark); }
+
+    .compare {
+      display: flex; flex-direction: column; justify-content: center;
+      gap: 24px;
+    }
+    .panel {
+      display: grid; grid-template-columns: 280px 1fr auto; align-items: center;
+      padding: 28px 36px;
+      border: 5px solid var(--dark);
+      box-shadow: 10px 10px 0 0 var(--dark);
+      gap: 28px;
+    }
+    .panel.bad { background: #FFFFFF; }
+    .panel.good { background: #C8B07A; color: var(--dark); }
+    .panel-photo {
+      width: 280px; height: 140px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .panel-photo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .panel.bad .panel-photo {
+      background: repeating-linear-gradient(45deg, #F5F5F5 0 12px, #E8E8E8 12px 24px);
+      border: 3px dashed rgba(26,26,26,0.25);
+    }
+    .panel-name { font-weight: 900; font-size: 56px; line-height: 1; letter-spacing: -0.03em; text-transform: uppercase; }
+    .panel-trait { font-weight: 700; font-size: 22px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(26,26,26,0.6); margin-top: 8px; }
+    .panel-tag {
+      flex: 0 0 auto; padding: 14px 22px;
+      font-weight: 900; font-size: 26px; letter-spacing: 0.14em; text-transform: uppercase;
+      border: 4px solid var(--dark);
+    }
+    .panel.bad .panel-tag { background: var(--dark); color: var(--cream); }
+    .panel.good .panel-tag { background: var(--orange); color: var(--cream); }
+
+    .verdict { text-align: center; font-weight: 700; font-size: 34px; letter-spacing: 0.04em; line-height: 1.2; color: var(--secondary); text-transform: uppercase; }
+    .verdict .em { color: var(--primary); font-weight: 900; }
+
+    .cta { text-align: center; }
+    .cta .label { font-weight: 700; font-size: 30px; letter-spacing: 0.04em; line-height: 1.2; }
+    .cta .em { color: var(--primary); font-weight: 900; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="reel">
+    <div class="header">
+      <div class="brand"><span class="dot"></span>Enrola · Shop</div>
+    </div>
+
+    <div class="hero">
+      <div class="eyebrow">Dato curioso</div>
+      <div class="h1">Tu papel<br/><span class="strike">blanco</span><br/><span class="em">miente.</span></div>
+    </div>
+
+    <div class="compare">
+      <div class="panel bad">
+        <div class="panel-photo"></div>
+        <div>
+          <div class="panel-name">Blanqueado</div>
+          <div class="panel-trait">Cloro · Industrial</div>
+        </div>
+        <div class="panel-tag">Evita</div>
+      </div>
+      <div class="panel good">
+        <div class="panel-photo"><img src="../../assets/products/papers-marron.webp" alt="Marrón Unbleached"/></div>
+        <div>
+          <div class="panel-name">Unbleached</div>
+          <div class="panel-trait">Marrón · Sin químicos</div>
+        </div>
+        <div class="panel-tag">Mejor</div>
+      </div>
+    </div>
+
+    <div class="cta">
+      <div class="label">Conos <span class="em">Celulosa</span> · enrola.shop</div>
+    </div>
+  </div>
+</body>
+</html>

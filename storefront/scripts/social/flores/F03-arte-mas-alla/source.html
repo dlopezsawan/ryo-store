@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="../../lib/shared.css">
+<style>
+  .frame { background: var(--cream); }
+
+  .manifesto {
+    position: absolute; left: 80px; right: 80px;
+    top: 50%; transform: translateY(-50%);
+    z-index: 2;
+    display: flex; flex-direction: column; gap: 28px;
+  }
+  .eyebrow {
+    font-weight: 700; font-size: 22px; letter-spacing: 0.32em;
+    text-transform: uppercase; color: var(--primary);
+  }
+  .h1 {
+    font-weight: 900; font-size: 114px; line-height: 0.92;
+    letter-spacing: -0.04em; text-transform: uppercase;
+    color: var(--dark);
+  }
+  .h1 .em { color: var(--primary); }
+
+  .body-text {
+    font-weight: 500; font-size: 22px; line-height: 1.65;
+    color: var(--dark); max-width: 720px;
+  }
+  .body-text p { margin-bottom: 14px; }
+  .body-text .em {
+    color: var(--primary); font-weight: 900;
+  }
+  .body-text .bold-line {
+    font-weight: 700;
+    margin-top: 10px;
+  }
+
+  .flowers {
+    display: flex; gap: 22px; align-items: center; margin-top: 6px;
+  }
+  .flower-icon {
+    width: 56px; height: 56px;
+    border: 3px solid var(--dark);
+    background: var(--cream);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+  }
+  .flower-icon.em {
+    background: var(--orange); color: var(--cream);
+  }
+
+  .closing {
+    font-weight: 900; font-size: 42px; line-height: 1;
+    text-transform: uppercase; letter-spacing: -0.01em;
+    color: var(--dark);
+    margin-top: 6px;
+  }
+  .closing .em { color: var(--primary); }
+</style></head>
+<body>
+  <div class="frame">
+    <div class="top">
+      <div class="brand"><span class="dot"></span> Enrola Shop</div>
+      <div class="slide-num">Manifiesto</div>
+    </div>
+
+    <div class="manifesto">
+      <div class="eyebrow">Manifiesto</div>
+      <div class="h1">El arte va<br/><span class="em">más allá</span><br/>del tabaco.</div>
+      <div class="body-text">
+        <p>Enrola no es solo para tabaco.</p>
+        <p>Es para <span class="em">manzanilla</span> en tardes lentas.</p>
+        <p>Es para <span class="em">jazmín</span> en noches de lectura.</p>
+        <p>Es para <span class="em">rosas</span> cuando el día fue demasiado.</p>
+        <p class="bold-line">Todo lo que se enrola con intención.<br/>Todo lo que es legal.<br/>Todo lo que te hace bien.</p>
+      </div>
+      <div class="flowers">
+        <div class="flower-icon">🌼</div>
+        <div class="flower-icon em">🌸</div>
+        <div class="flower-icon">🌹</div>
+      </div>
+      <div class="closing">El arte de <span class="em">armar.</span></div>
+    </div>
+
+    <div class="bottom">
+      <div class="handle"><span class="at">@</span>enrola.shop</div>
+      <div class="meta">Tienda<br/><span class="accent">enrola.shop</span></div>
+    </div>
+  </div>
+</body></html>

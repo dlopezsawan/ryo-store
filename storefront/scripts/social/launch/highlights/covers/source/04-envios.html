@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="../../../../lib/shared.css">
+<style>
+  .frame.reel { background: var(--cream); }
+  .center-stack {
+    position: absolute; left: 0; right: 0;
+    top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 60px;
+    z-index: 2;
+  }
+  .tile {
+    width: 520px; height: 520px;
+    background: var(--cream);
+    border: 8px solid var(--dark);
+    box-shadow: 22px 22px 0 0 var(--orange);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tile svg { width: 400px; height: 400px; }
+  .label {
+    font-weight: 900; font-size: 92px; letter-spacing: -0.02em;
+    text-transform: uppercase; color: var(--dark); line-height: 1;
+  }
+  .brand-tag {
+    position: absolute; left: 0; right: 0; top: 80px;
+    text-align: center;
+    font-weight: 900; font-size: 24px; letter-spacing: 0.32em;
+    color: var(--secondary); text-transform: uppercase;
+  }
+  .brand-tag .dot { display: inline-block; width: 10px; height: 10px;
+    background: var(--primary); border: 2px solid var(--dark);
+    vertical-align: middle; margin: 0 14px 4px;
+  }
+</style></head>
+<body>
+  <div class="frame reel">
+    <div class="brand-tag">Enrola<span class="dot"></span>Shop</div>
+    <div class="center-stack">
+      <div class="tile">
+        <svg viewBox="0 0 220 200" fill="none" stroke="#1A1A1A" stroke-width="9" stroke-linejoin="round" stroke-linecap="round">
+          <!-- speed lines -->
+          <line x1="4"  y1="90"  x2="26" y2="90"  stroke="#1A1A1A" stroke-width="7"/>
+          <line x1="4"  y1="108" x2="32" y2="108" stroke="#1A1A1A" stroke-width="7"/>
+          <line x1="4"  y1="126" x2="22" y2="126" stroke="#1A1A1A" stroke-width="7"/>
+
+          <!-- delivery top-box on rear -->
+          <rect x="20" y="58" width="64" height="54" fill="#F5F2E8" stroke="#1A1A1A" stroke-width="9"/>
+          <line x1="20" y1="82" x2="84" y2="82" stroke="#1A1A1A" stroke-width="5"/>
+
+          <!-- scooter body (red) -->
+          <path d="M 42 112 L 108 112 L 150 112 L 168 138 L 48 138 Z" fill="#FF3B27" stroke="#1A1A1A" stroke-width="9" stroke-linejoin="round"/>
+
+          <!-- seat -->
+          <path d="M 92 112 L 140 112 L 144 102 L 96 102 Z" fill="#1A1A1A"/>
+
+          <!-- handlebar riser + grips -->
+          <path d="M 150 112 L 180 68" stroke="#1A1A1A" stroke-width="9" stroke-linecap="round"/>
+          <path d="M 170 64 L 200 64" stroke="#1A1A1A" stroke-width="11" stroke-linecap="round"/>
+
+          <!-- front headlight -->
+          <circle cx="175" cy="98" r="11" fill="#FF3B27" stroke="#1A1A1A" stroke-width="6"/>
+
+          <!-- ground line -->
+          <line x1="30" y1="168" x2="200" y2="168" stroke="#1A1A1A" stroke-width="6" opacity="0.25"/>
+
+          <!-- rear wheel -->
+          <circle cx="66" cy="160" r="22" fill="#1A1A1A"/>
+          <circle cx="66" cy="160" r="8"  fill="#F5F2E8" stroke="#1A1A1A" stroke-width="5"/>
+          <!-- front wheel -->
+          <circle cx="164" cy="160" r="22" fill="#1A1A1A"/>
+          <circle cx="164" cy="160" r="8"  fill="#F5F2E8" stroke="#1A1A1A" stroke-width="5"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</body></html>

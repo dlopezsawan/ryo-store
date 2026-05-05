@@ -1,0 +1,14 @@
+[Escena 1 · Hook · 0.0 – 2.5s]
+No necesitas cupón.
+
+[Escena 2 · Tiers · 2.5 – 9.0s]
+Tres items, diez por ciento. Cinco items, quince por ciento. Diez items, veinte por ciento.
+
+[Escena 3 · Carrito · 9.0 – 13.0s]
+Mezcla lo que quieras. Papers, conos, filtros, grinders. El descuento se aplica automático.
+
+[Escena 4 · Envío · 13.0 – 15.5s]
+Y con diez euros, el envío en Valencia va gratis.
+
+[Escena 5 · CTA · 15.5 – 17.0s]
+Enrola. El arte de armar.

@@ -1,0 +1,1183 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <title>Enrola Shop · Shot List Campaign 10 días</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    @page { size: A4; margin: 14mm 14mm 16mm 14mm; }
+    :root {
+      --primary: #BB3B2E; --orange: #FF3B27; --secondary: #4D5431;
+      --cream: #F5F2E8; --dark: #1A1A1A; --muted: #6B6B6B; --line: #D5CFBF;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { font-family: 'Kanit', system-ui, sans-serif; color: var(--dark); background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-size: 10.5pt; line-height: 1.45; }
+
+    .page-break { page-break-before: always; }
+    .avoid-break { page-break-inside: avoid; }
+
+    /* ── Cover ─────────────────────────────────── */
+    .cover { padding: 28mm 6mm 0 6mm; min-height: 240mm; display: flex; flex-direction: column; gap: 14mm; }
+    .cover .brand-bar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 6mm; border-bottom: 4px solid var(--dark); }
+    .cover .brand { font-weight: 900; font-size: 12pt; letter-spacing: 0.28em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+    .cover .brand .dot { width: 10px; height: 10px; background: var(--orange); border: 2px solid var(--dark); }
+    .cover .meta-tag { font-weight: 700; font-size: 9pt; letter-spacing: 0.16em; text-transform: uppercase; padding: 4px 10px; background: var(--dark); color: var(--cream); }
+
+    .cover h1 { font-weight: 900; font-size: 56pt; line-height: 0.9; letter-spacing: -0.04em; text-transform: uppercase; }
+    .cover h1 .em { color: var(--orange); }
+    .cover .subtitle { font-weight: 600; font-size: 14pt; color: var(--secondary); line-height: 1.3; max-width: 140mm; }
+
+    .cover .meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8mm; padding: 10mm 0; border-top: 2px solid var(--line); border-bottom: 2px solid var(--line); }
+    .cover .meta-item .label { font-weight: 700; font-size: 8pt; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .cover .meta-item .value { font-weight: 900; font-size: 12pt; line-height: 1.1; }
+
+    .cover .toc { font-size: 10pt; }
+    .cover .toc h3 { font-weight: 900; font-size: 11pt; letter-spacing: 0.18em; text-transform: uppercase; color: var(--primary); margin-bottom: 4mm; }
+    .cover .toc ol { padding-left: 18px; }
+    .cover .toc ol li { margin-bottom: 3px; }
+
+    /* ── Section header ─────────────────────────── */
+    .section-header { padding: 4mm 0 4mm 0; margin-top: 4mm; border-bottom: 3px solid var(--dark); margin-bottom: 5mm; }
+    .section-header .eyebrow { font-weight: 700; font-size: 9pt; letter-spacing: 0.22em; text-transform: uppercase; color: var(--primary); }
+    .section-header h2 { font-weight: 900; font-size: 24pt; letter-spacing: -0.02em; text-transform: uppercase; line-height: 1; margin-top: 2px; }
+
+    /* ── Subsection ─────────────────────────────── */
+    h3.subhead { font-weight: 900; font-size: 13pt; letter-spacing: 0.04em; text-transform: uppercase; margin: 8mm 0 3mm 0; padding-left: 6px; border-left: 4px solid var(--orange); }
+    h4 { font-weight: 700; font-size: 11pt; margin: 4mm 0 2mm 0; color: var(--primary); }
+
+    p { margin: 2mm 0; }
+    ul, ol { margin: 2mm 0 2mm 18px; }
+    ul li, ol li { margin-bottom: 1.5mm; }
+
+    /* ── Shot card ─────────────────────────────── */
+    .shot {
+      page-break-inside: avoid;
+      border: 1.5px solid var(--dark);
+      border-left: 6px solid var(--orange);
+      padding: 4mm 5mm;
+      margin: 4mm 0;
+      background: #FBFAF5;
+    }
+    .shot.dark-card { background: var(--dark); color: var(--cream); border-color: var(--cream); border-left-color: var(--orange); }
+    .shot-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 6mm; margin-bottom: 3mm; padding-bottom: 2mm; border-bottom: 1px solid var(--line); }
+    .shot.dark-card .shot-head { border-bottom-color: rgba(245,242,232,0.25); }
+    .shot-id { font-weight: 900; font-size: 14pt; letter-spacing: -0.02em; line-height: 1; }
+    .shot-id .reel-tag { display: inline-block; padding: 3px 8px; background: var(--primary); color: var(--cream); font-size: 9pt; letter-spacing: 0.14em; margin-right: 6px; vertical-align: middle; font-weight: 900; }
+    .shot.dark-card .reel-tag { background: var(--orange); }
+    .shot-dur { font-weight: 900; font-size: 12pt; color: var(--orange); white-space: nowrap; }
+
+    .shot-grid { display: grid; grid-template-columns: 28% 72%; gap: 4mm; font-size: 9.5pt; }
+    .shot-grid dt { font-weight: 700; font-size: 8pt; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding-top: 1.5mm; }
+    .shot.dark-card .shot-grid dt { color: rgba(245,242,232,0.55); }
+    .shot-grid dd { padding-bottom: 1.5mm; }
+
+    .shot-notes { margin-top: 3mm; padding: 2mm 3mm; background: rgba(255,59,39,0.08); border-left: 3px solid var(--orange); font-size: 9pt; font-weight: 600; }
+    .shot.dark-card .shot-notes { background: rgba(255,59,39,0.18); }
+
+    /* ── Tables ─────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 3mm 0; }
+    table th, table td { padding: 5px 8px; text-align: left; border: 1px solid var(--line); }
+    table th { background: var(--dark); color: var(--cream); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 8.5pt; }
+    table tr:nth-child(even) td { background: #FBFAF5; }
+
+    /* ── Callout ────────────────────────────────── */
+    .callout { padding: 4mm 5mm; margin: 4mm 0; border: 2px solid var(--dark); background: var(--cream); page-break-inside: avoid; }
+    .callout.warn { border-color: var(--primary); background: #FFEFE8; }
+    .callout.warn .label { color: var(--primary); }
+    .callout .label { font-weight: 900; font-size: 9pt; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 2mm; }
+    .callout p { margin: 1mm 0; font-size: 10pt; }
+
+    /* ── Checklist ──────────────────────────────── */
+    .checklist { list-style: none; padding-left: 0; margin: 2mm 0; }
+    .checklist li { padding-left: 22px; position: relative; margin-bottom: 1.5mm; font-size: 10pt; }
+    .checklist li::before { content: ""; position: absolute; left: 0; top: 4px; width: 14px; height: 14px; border: 2px solid var(--dark); }
+
+    /* ── Pill ───────────────────────────────────── */
+    .pill { display: inline-block; padding: 2px 8px; font-weight: 700; font-size: 8pt; letter-spacing: 0.10em; text-transform: uppercase; border: 1.5px solid var(--dark); margin-right: 3px; vertical-align: middle; }
+    .pill.macro { background: var(--orange); color: var(--cream); border-color: var(--orange); }
+    .pill.cenital { background: var(--secondary); color: var(--cream); border-color: var(--secondary); }
+    .pill.pov { background: var(--primary); color: var(--cream); border-color: var(--primary); }
+    .pill.wide { background: var(--cream); color: var(--dark); }
+    .pill.slowmo { background: #2A2A2A; color: var(--orange); border-color: #2A2A2A; }
+    .pill.audio { background: var(--dark); color: var(--cream); border-color: var(--dark); }
+
+    /* ── Footer ─────────────────────────────────── */
+    .footer-note { margin-top: 8mm; padding-top: 4mm; border-top: 1px solid var(--line); font-size: 8.5pt; color: var(--muted); text-align: center; }
+
+    .lead { font-size: 11.5pt; line-height: 1.5; max-width: 175mm; }
+
+    .ref-img-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4mm; margin: 4mm 0; }
+    .ref-img { border: 2px solid var(--dark); padding: 4mm; background: var(--cream); }
+    .ref-img .ref-label { font-weight: 900; font-size: 9pt; letter-spacing: 0.14em; text-transform: uppercase; color: var(--primary); margin-bottom: 2mm; }
+    .ref-img .ref-list { font-size: 9pt; }
+  </style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- COVER                                        -->
+<!-- ============================================ -->
+<div class="cover">
+  <div class="brand-bar">
+    <div class="brand"><span class="dot"></span>Enrola · Shop</div>
+    <div class="meta-tag">Shot List · Realizador Audiovisual</div>
+  </div>
+
+  <div>
+    <h1>Campaign<br/><span class="em">10 días.</span></h1>
+    <p class="subtitle" style="margin-top: 8mm;">14 reels · 60 shots · 3 sesiones de filmación. Brief técnico completo para producción audiovisual.</p>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-item">
+      <div class="label">Total reels</div>
+      <div class="value">14</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Total shots</div>
+      <div class="value">~60</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Sesiones estimadas</div>
+      <div class="value">3 (~7h)</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Formato output</div>
+      <div class="value">9:16 · 1080×1920</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">FPS captura</div>
+      <div class="value">30 / 60 (slow-mo)</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Audiencia</div>
+      <div class="value">VE · 18-35</div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <h3>Contenido</h3>
+    <ol>
+      <li>Resumen de producción y compliance</li>
+      <li>Equipo necesario</li>
+      <li>Plan de sesiones (logística)</li>
+      <li>Shot list detallado · Papers (15 shots)</li>
+      <li>Shot list detallado · Conos (7 shots)</li>
+      <li>Shot list detallado · Filtros (5 shots)</li>
+      <li>Shot list detallado · Grinders (4 shots)</li>
+      <li>Shot list detallado · Tutoriales y demos de errores (9 shots)</li>
+      <li>Shot list detallado · Lifestyle ritual mañana (5 shots)</li>
+      <li>Shot list detallado · Edición limitada D10.2</li>
+      <li>Notas finales y referencias visuales</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 1 · RESUMEN PRODUCCIÓN                       -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="section-header">
+  <div class="eyebrow">Sección 1</div>
+  <h2>Resumen de producción</h2>
+</div>
+
+<p class="lead">Este documento es la guía técnica completa para filmar los assets B-roll del campaign 10 días de Enrola Shop. Cada shot tiene especificación de encuadre, lente, iluminación, audio, duración, talent y notas de compliance.</p>
+
+<h3 class="subhead">Compliance · CRÍTICO</h3>
+<div class="callout warn">
+  <div class="label">⚠ Compliance Instagram + legal Venezuela</div>
+  <p><strong>NO filmar consumo real.</strong> Bajo ninguna circunstancia se muestra encendido, fumar, o el acto de consumo. Todos los joints/conos terminados se filman como objeto/producto, nunca en uso.</p>
+  <p><strong>Material de relleno = orégano seco / té rooibos / romero.</strong> Cualquier hierba neutra que se vea visualmente parecida a tabaco. Se confirma en cámara que NO es cannabis.</p>
+  <p><strong>NO mostrar marcas competidoras.</strong> Si una toma incluye un paper "competencia" (ej. en D1 o D4), el logo va blureado o se elige un ángulo donde no se vea.</p>
+  <p><strong>Talent = solo manos.</strong> No rostros ni perfiles reconocibles. Manos limpias, uñas cortas/presentables, sin anillos llamativos. Tatuajes sutiles aceptables.</p>
+</div>
+
+<h3 class="subhead">Output requerido por shot</h3>
+<table>
+  <thead><tr><th>Item</th><th>Especificación</th></tr></thead>
+  <tbody>
+    <tr><td>Resolución</td><td>4K (3840×2160) o 1080p mínimo · vertical 9:16 nativo si se puede</td></tr>
+    <tr><td>FPS captura</td><td>30 fps default · 60 fps en shots marcados con <span class="pill slowmo">SLOW-MO</span></td></tr>
+    <tr><td>Codec</td><td>H.264 o ProRes 422 · sin compresión agresiva</td></tr>
+    <tr><td>Audio</td><td>Solo cuando esté marcado <span class="pill audio">AUDIO ON</span> (especialmente D5.2 ASMR). Resto: cámara silenciada.</td></tr>
+    <tr><td>Color</td><td>Filmar en perfil neutro / log si la cámara soporta. Color grade en post.</td></tr>
+    <tr><td>Entrega</td><td>Carpeta por sesión, archivos nombrados <code>D[reel]-[shot]-[take].mp4</code></td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================ -->
+<!-- 2 · EQUIPO                                   -->
+<!-- ============================================ -->
+<div class="section-header">
+  <div class="eyebrow">Sección 2</div>
+  <h2>Equipo necesario</h2>
+</div>
+
+<h3 class="subhead">Cámara y soporte</h3>
+<ul class="checklist">
+  <li>Cámara mirrorless (Sony A6400, Fuji X-T30, Canon R50) o iPhone 13 Pro+ con app filmadora pro</li>
+  <li>Lente macro o lente con función macro (50mm f/1.8 + extension tubes funciona)</li>
+  <li>Tripod resistente con cabeza fluida</li>
+  <li><strong>Brazo cenital o tripod horizontal</strong> — crítico para todos los shots de armado y flat-lay</li>
+  <li>Slider opcional (para pull-back en D7.1)</li>
+</ul>
+
+<h3 class="subhead">Iluminación</h3>
+<ul class="checklist">
+  <li>1 softbox LED 60×60 cm o panel LED key light</li>
+  <li>1 reflector blanco/dorado (rebote)</li>
+  <li>1 LED panel pequeño para backlight (D9.2 papel transparente, D5.2 grinder)</li>
+  <li>Difusor (tela blanca, papel pergamino) para suavizar key light</li>
+  <li><strong>Acceso a ventana grande con luz natural</strong> — D9.1 ritual mañana es 100% luz natural</li>
+</ul>
+
+<h3 class="subhead">Audio</h3>
+<ul class="checklist">
+  <li><strong>Mic externo</strong> — Røde VideoMicro / Røde NT-USB / lavalier cualquiera. CRÍTICO para D5.2 ASMR.</li>
+  <li>Audio sincronizado al body de cámara o grabador externo (Zoom H1n)</li>
+  <li>Cuarto silencioso para D5.2 (apartar nevera, AC, ventiladores)</li>
+</ul>
+
+<h3 class="subhead">Superficies y backdrops</h3>
+<ul class="checklist">
+  <li><strong>Mesa de madera oscura</strong> (caoba, walnut, o tablón rústico) — base para D7.1, D9.1, varios macros</li>
+  <li><strong>Mármol negro o cuero oscuro</strong> — moody surface para D5.2 ASMR</li>
+  <li><strong>Cartulina/papel cream uniforme</strong> (color #F5F2E8 referencia) — backdrop limpio para producto</li>
+  <li>Cartulina blanca pura — para D4 escena 2 (paper blanqueado)</li>
+</ul>
+
+<h3 class="subhead">Productos a tener en mano (todos suministrados por Enrola)</h3>
+<ul class="checklist">
+  <li>Rolling Paper Alien Puff King Size (sabores varios)</li>
+  <li>Rolling Paper Alien Puff Glass (celulosa transparente)</li>
+  <li>Rolling Paper ROLL Marrón Unbleached</li>
+  <li>Rolling Paper "competencia" 1¼ (cualquier marca tamaño slim — solo para D1, sin mostrar logo)</li>
+  <li>Conos Hemp Natural 12 uds</li>
+  <li>Conos Celulosa Alien Puff 12 uds</li>
+  <li>Filtros Carbón Activo Alien Puff 10 uds</li>
+  <li>Filtros Cartón Puff Man (alternativa)</li>
+  <li>Grinder Plástico Básico (verde — el de la foto referencia)</li>
+  <li>Grinder Rellenador con Portaconos (alternativa)</li>
+  <li><strong>Material de relleno:</strong> orégano seco · té rooibos · romero (cualquiera o todos)</li>
+</ul>
+
+<h3 class="subhead">Otros materiales</h3>
+<ul class="checklist">
+  <li>Frasco hermético / caja zip-lock (D7.2)</li>
+  <li>Cajón vacío (D7.2)</li>
+  <li>Taza cerámica + café molido + cafetera (D9.1)</li>
+  <li>Botellín de agua / spray (D8 error 5 — tabaco mojado)</li>
+  <li>Encendedor o cualquier objeto reconocible para D9.2 (ver a través del paper celulosa)</li>
+</ul>
+
+<!-- ============================================ -->
+<!-- 3 · PLAN DE SESIONES                         -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="section-header">
+  <div class="eyebrow">Sección 3</div>
+  <h2>Plan de sesiones</h2>
+</div>
+
+<p class="lead">3 sesiones estimadas. La separación es por <strong>logística de iluminación + setup</strong>, no por urgencia. Si batches bien, todo en 6-7 horas reales de cámara.</p>
+
+<h3 class="subhead">Sesión 1 · Macros y flat-lays de producto · ~3 horas</h3>
+<p><strong>Setup:</strong> Tripod cenital + brazo. Softbox 45° + reflector. Backdrop cream + madera oscura intercambiables.</p>
+<p><strong>Shots cubiertos:</strong> Todos los macros estáticos de productos individuales. Flat-lays. Beauty shots 360°. Comparativas lado a lado.</p>
+<table>
+  <thead><tr><th>Reel</th><th>Shots de esta sesión</th><th>Tiempo est.</th></tr></thead>
+  <tbody>
+    <tr><td>D1</td><td>Macros Alien Puff KS + competencia 1¼</td><td>20 min</td></tr>
+    <tr><td>D4</td><td>Macros paper blanco genérico + ROLL marrón</td><td>20 min</td></tr>
+    <tr><td>D5.1</td><td>Cenital 12 conos grid 4×3 + beauty pack</td><td>15 min</td></tr>
+    <tr><td>D6</td><td>Macro filtro carbón rotación 360°</td><td>15 min</td></tr>
+    <tr><td>D7.1</td><td>Flat-lay 3 productos cayendo (papers, filtros, grinder)</td><td>30 min</td></tr>
+    <tr><td>D7.2</td><td>4 escenarios storage (humedad, hermético, oscuro, sol)</td><td>25 min</td></tr>
+    <tr><td>D8</td><td>Cono pre-armado 360° + pack 12</td><td>15 min</td></tr>
+    <tr><td>D9.2</td><td>Macro paper celulosa contra backlight + comparativa</td><td>30 min</td></tr>
+    <tr><td>D10.1</td><td>Macro filtro carbón rotación 360°</td><td>10 min</td></tr>
+  </tbody>
+</table>
+
+<h3 class="subhead">Sesión 2 · Demos de armado, tutoriales, errores · ~3 horas</h3>
+<p><strong>Setup:</strong> Tripod cenital fijo (no se mueve), POV cenital cerrado. Iluminación cálida suave. Manos talent listas.</p>
+<p><strong>Shots cubiertos:</strong> Tutorial D3 (4 pasos) · D2 fino vs ancho · D5.1 demos rellenado · D8 errores · D5.2 ASMR (audio crítico).</p>
+<table>
+  <thead><tr><th>Reel</th><th>Shots de esta sesión</th><th>Tiempo est.</th></tr></thead>
+  <tbody>
+    <tr><td>D2</td><td>Manos armando fino + ancho + comparativa</td><td>25 min</td></tr>
+    <tr><td>D3</td><td>Tutorial 4 pasos (papel+filtro, distribuir, sello, terminado)</td><td>40 min</td></tr>
+    <tr><td>D5.1</td><td>Cono pre-armado rellenado + armado a mano timelapse + comparativa manos limpias/sucias</td><td>30 min</td></tr>
+    <tr><td>D5.2</td><td>Grinder ASMR — fade-in, rotación 60fps, apertura con material cayendo (audio CRUDO)</td><td>30 min</td></tr>
+    <tr><td>D8</td><td>5 demos de error (papel sobrellenado, filtro al revés, sello flojo, papel arrugado, tabaco mojado)</td><td>25 min</td></tr>
+  </tbody>
+</table>
+
+<h3 class="subhead">Sesión 3 · Lifestyle ritual mañana D9.1 · ~1 hora</h3>
+<p><strong>Setup:</strong> 100% luz natural. Filmar entre 7am-9am. SIN lights artificiales. Mesa de madera junto a ventana grande.</p>
+<p><strong>Crítico:</strong> Esta sesión NO se puede programar el mismo día que las otras. Requiere amanecer real. Idealmente día despejado con luz dorada.</p>
+<table>
+  <thead><tr><th>Reel</th><th>Shots de esta sesión</th><th>Tiempo est.</th></tr></thead>
+  <tbody>
+    <tr><td>D9.1</td><td>Sol amaneciendo · café vertido slow-mo · paquete papers · armado pausado · joint terminado junto al café</td><td>60 min</td></tr>
+  </tbody>
+</table>
+
+<h3 class="subhead">Sesión opcional · D10.2 edición limitada</h3>
+<p>Solo si la colab con artista local existe al momento del filming. Si es teaser, este reel se monta con mockup digital (lo armo yo en post).</p>
+
+<!-- ============================================ -->
+<!-- 4 · SHOT LIST · PAPERS                       -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="section-header">
+  <div class="eyebrow">Sección 4</div>
+  <h2>Shot list · Papers</h2>
+</div>
+<p class="lead">15 shots de producto papers — hero del catálogo Enrola. Macros para destacar textura, tamaño, packaging.</p>
+
+<!-- D1 -->
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D1 · 01</span>Macro Alien Puff King Size</div>
+    <div class="shot-dur">4–5 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> producto estático con rotación lenta o pan</dd>
+    <dt>Encuadre</dt><dd>Plano cerrado del paquete completo · ángulo 30° (no totalmente cenital, levemente inclinado para dar dimensión)</dd>
+    <dt>Backdrop</dt><dd>Cream uniforme (#F5F2E8) o madera oscura. Filmar ambas opciones.</dd>
+    <dt>Lente</dt><dd>50mm o macro · f/2.8-4 (DOF medio para que el paquete entero esté nítido)</dd>
+    <dt>Iluminación</dt><dd>Key 45° + reflector. Sin sombras duras. La etiqueta del paquete debe leerse claro.</dd>
+    <dt>Producto</dt><dd>Alien Puff King Size · cualquier sabor (watermelon / blueberry / mint)</dd>
+    <dt>Audio</dt><dd>Sin audio relevante (cámara silenciada)</dd>
+    <dt>Notas</dt><dd>El paquete debe verse premium. Si tiene relieve o textura, la luz debe destacarlo.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D1 · 02</span>Macro paper "competencia" 1¼</div>
+    <div class="shot-dur">4 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> producto estático mismo tratamiento que D1·01</dd>
+    <dt>Encuadre</dt><dd>Plano cerrado · ángulo 30° · MISMO encuadre/lighting que D1·01 para que el split en post sea simétrico</dd>
+    <dt>Backdrop</dt><dd>Cream uniforme (mismo que D1·01)</dd>
+    <dt>Producto</dt><dd>Cualquier paper tamaño 1¼ que NO sea Alien Puff. Marca puede ser cualquiera (RAW, Smoking, Elements, OCB...) <strong>siempre que el logo NO se vea o esté blureable en post</strong>.</dd>
+    <dt>Iluminación</dt><dd>Idéntica a D1·01</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd><strong>CRÍTICO:</strong> Si el logo aparece, lo blurean en post. Mejor encuadrar en ángulo donde el logo no se vea. Filmar varios takes con distintos ángulos.</dd>
+  </dl>
+</div>
+
+<!-- D2 -->
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D2 · 01</span>Manos armando fino slim</div>
+    <div class="shot-dur">4 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill cenital">CENITAL</span> POV cenital cerrado · manos protagonistas</dd>
+    <dt>Encuadre</dt><dd>Cenital sobre las manos. Plano cerrado: manos + paper + filtro visibles, antebrazos opcionales. NO mostrar más allá de la muñeca para mantener anonimato.</dd>
+    <dt>Backdrop</dt><dd>Madera oscura o mesa cream</dd>
+    <dt>Producto</dt><dd>Paper marrón ROLL 1¼ (slim) + filtro de cartón Puff Man</dd>
+    <dt>Iluminación</dt><dd>Suave difusa cenital + 1 light side-fill cálido. Sin sombras duras sobre el papel.</dd>
+    <dt>Talent</dt><dd>Manos limpias, uñas cortas, sin anillos llamativos. Movimiento ágil y preciso (personalidad "fino").</dd>
+    <dt>Material relleno</dt><dd>Orégano seco / té rooibos · NO cannabis</dd>
+    <dt>Audio</dt><dd>Sin audio (música en post)</dd>
+    <dt>Notas</dt><dd><strong>Misma cámara/encuadre/luz que D2·02</strong> — se va a usar en split-screen vertical, simetría es crítica.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D2 · 02</span>Manos armando ancho king size</div>
+    <div class="shot-dur">4 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill cenital">CENITAL</span> POV cenital cerrado</dd>
+    <dt>Encuadre</dt><dd>IDÉNTICO a D2·01 (mismo ángulo, distancia, framing)</dd>
+    <dt>Backdrop</dt><dd>IDÉNTICO a D2·01</dd>
+    <dt>Producto</dt><dd>Paper Alien Puff King Size + filtro Carbón Activo</dd>
+    <dt>Iluminación</dt><dd>IDÉNTICA a D2·01 — no mover lights entre takes</dd>
+    <dt>Talent</dt><dd>Mismas manos. Movimiento generoso, relajado, sin apuro (personalidad "ancho").</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Filmar inmediatamente después de D2·01 sin tocar el setup.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D2 · 03</span>Both terminados lado a lado</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill cenital">CENITAL</span> beauty shot estático</dd>
+    <dt>Encuadre</dt><dd>Cenital con los dos joints terminados (uno fino, uno ancho) lado a lado, paralelos</dd>
+    <dt>Backdrop</dt><dd>Mismo que D2·01 y D2·02</dd>
+    <dt>Iluminación</dt><dd>Misma — quizás un poco más cálida en este shot final</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Ambos joints deben verse perfectos (no flojos, no torcidos). Si el primer take no salió bien, rearmarlos.</dd>
+  </dl>
+</div>
+
+<!-- D4 -->
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D4 · 01</span>Macro paper blanco genérico</div>
+    <div class="shot-dur">4 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> estático con leve pan</dd>
+    <dt>Encuadre</dt><dd>Macro extremo · sólo papel blanco visible · no mostrar marca</dd>
+    <dt>Backdrop</dt><dd>Cartulina blanca pura (contraste alto papel/fondo en post)</dd>
+    <dt>Producto</dt><dd>Cualquier paper blanqueado genérico (sin marca visible) — el blanco más blanco que tengas</dd>
+    <dt>Iluminación</dt><dd>Key + fill suaves. La idea es que en post se aplique color grade frío/azul para sugerir "industrial".</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>En post se overlay animación química "Cl₂" sobre este shot. El paper debe verse pristine, casi "sospechosamente blanco".</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D4 · 02</span>Macro ROLL marrón unbleached</div>
+    <div class="shot-dur">5 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> beauty shot 360° rotación lenta</dd>
+    <dt>Encuadre</dt><dd>Macro paquete completo + detalle de la textura del papel marrón</dd>
+    <dt>Backdrop</dt><dd>Cream natural · color cálido orgánico</dd>
+    <dt>Producto</dt><dd>Rolling Paper ROLL Marrón Unbleached (el que aparece en `papers-marron.webp`)</dd>
+    <dt>Iluminación</dt><dd>Cálida · key 45° con difusor · acentuar tonos marrones del producto</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Este shot es el HÉROE de D4. Beauty shot premium. La textura marrón debe verse natural y deseable, contraste con el "industrial" de D4·01.</dd>
+  </dl>
+</div>
+
+<!-- D7.2 -->
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D7.2 · 01</span>Paper en zona húmeda</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> con bg desenfocado</dd>
+    <dt>Encuadre</dt><dd>Paper en primer plano · al fondo desenfocado se intuye baño/cocina (azulejo, lavamanos)</dd>
+    <dt>Backdrop</dt><dd>Lugar real con azulejos visibles desenfocados</dd>
+    <dt>Iluminación</dt><dd>Suave estándar · ambiente "doméstico"</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>En post se overlay un "✗" rojo brutalist sobre el escenario.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D7.2 · 02</span>Paper en frasco hermético</div>
+    <div class="shot-dur">4 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> beauty shot</dd>
+    <dt>Encuadre</dt><dd>Frasco de vidrio o caja zip-lock con papers organizados dentro · plano levemente angulado para ver tapa cerrada</dd>
+    <dt>Backdrop</dt><dd>Cream o madera</dd>
+    <dt>Iluminación</dt><dd>Highlight en el vidrio · que se vea "bien organizado"</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>En post overlay "✓" verde brutalist.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D7.2 · 03</span>Paper en cajón oscuro</div>
+    <div class="shot-dur">2 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd>POV manos abriendo cajón</dd>
+    <dt>Encuadre</dt><dd>POV de la persona abriendo un cajón y revelando los papers organizados adentro</dd>
+    <dt>Iluminación</dt><dd>Tenue · ambiente "noche" o "interior dim"</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Movimiento de apertura del cajón debe ser pausado, deliberado. 1.5-2s de duración total.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D7.2 · 04</span>Paper en mesa al sol</div>
+    <div class="shot-dur">2 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> luz dura</dd>
+    <dt>Encuadre</dt><dd>Paper sobre mesa con luz solar dura cayendo encima · sombras marcadas</dd>
+    <dt>Iluminación</dt><dd>Luz natural directa o flash con CTO · que se sienta "dañino"</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>En post overlay "✗" rojo. El shot debe sentirse "incomodo" — luz quemada, sin sombra.</dd>
+  </dl>
+</div>
+
+<!-- D9.1 -->
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D9.1 · 03</span>Manos abriendo paquete papers Enrola</div>
+    <div class="shot-dur">4 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> con luz lateral natural</dd>
+    <dt>Encuadre</dt><dd>Manos abriendo paquete sobre mesa de madera · luz lateral entrando por la ventana</dd>
+    <dt>Backdrop</dt><dd>Madera oscura</dd>
+    <dt>Iluminación</dt><dd>100% luz natural matutina (7-9am ideal) · sin lights artificiales</dd>
+    <dt>Producto</dt><dd>Paquete de papers Alien Puff (cualquier sabor)</dd>
+    <dt>Audio</dt><dd><span class="pill audio">AUDIO ON</span> — capturar el "crinkle" del paquete con mic externo</dd>
+    <dt>Notas</dt><dd>Movimiento pausado, ritualístico. El audio del paquete abriéndose es importante.</dd>
+  </dl>
+</div>
+
+<!-- D9.2 -->
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D9.2 · 01</span>Macro paper celulosa contra backlight</div>
+    <div class="shot-dur">5 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> con backlight fuerte · HOOK del reel</dd>
+    <dt>Encuadre</dt><dd>Plano cerrado del paper celulosa con LED panel detrás · objeto reconocible al fondo (libro, foto, encendedor) que se ve a través del paper</dd>
+    <dt>Backdrop</dt><dd>Fondo cualquiera con un objeto identificable colocado tras el paper</dd>
+    <dt>Iluminación</dt><dd><strong>Backlight CRÍTICO:</strong> LED panel o ventana fuerte detrás del paper. Sin backlight la transparencia no se aprecia.</dd>
+    <dt>Producto</dt><dd>Rolling Paper Alien Puff Glass (celulosa transparente)</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>El objeto detrás debe verse <strong>borroso pero reconocible</strong> a través del paper. Si se ve nítido perfectamente, es porque el paper no es del original Alien Puff Glass — usar el correcto.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D9.2 · 02</span>Mano levantando paper celulosa</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> con movimiento</dd>
+    <dt>Encuadre</dt><dd>Mano alzando el paper celulosa hacia la luz · backlight</dd>
+    <dt>Iluminación</dt><dd>Backlight (mismo setup que D9.2·01)</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Movimiento lento ascendente. Que se vea cómo la luz pasa a través.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D9.2 · 03</span>Comparativa celulosa + ROLL marrón</div>
+    <div class="shot-dur">5 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill cenital">CENITAL</span> beauty shot</dd>
+    <dt>Encuadre</dt><dd>Cenital con paper celulosa (izq) y ROLL marrón (der) lado a lado, mismo tamaño, paralelos</dd>
+    <dt>Backdrop</dt><dd>Cream uniforme</dd>
+    <dt>Iluminación</dt><dd>Frontal neutra · NO color filter · ambos productos deben verse exactamente como son</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Ambos productos perfectamente alineados. Composición simétrica.</dd>
+  </dl>
+</div>
+
+<!-- ============================================ -->
+<!-- 5 · CONOS                                    -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="section-header">
+  <div class="eyebrow">Sección 5</div>
+  <h2>Shot list · Conos</h2>
+</div>
+<p class="lead">7 shots de conos pre-armados — categoría "facilidad" del catálogo. Énfasis en velocidad y consistencia.</p>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D5.1 · 01</span>Cono pre-armado siendo rellenado rápido</div>
+    <div class="shot-dur">5 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill pov">POV</span> <span class="pill cenital">CENITAL</span> rápido</dd>
+    <dt>Encuadre</dt><dd>POV cenital cerrado de manos rellenando un cono pre-armado · velocidad real (5s, no slow-mo)</dd>
+    <dt>Backdrop</dt><dd>Madera oscura o cream</dd>
+    <dt>Iluminación</dt><dd>Difusa cenital · sin sombras duras</dd>
+    <dt>Producto</dt><dd>Conos Hemp Natural 12 uds — usar uno</dd>
+    <dt>Material relleno</dt><dd>Orégano / té rooibos</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Movimiento ágil, eficiente. No torpeza. Al final del shot el cono ya está rellenado y listo.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D5.1 · 02</span>Armado a mano timelapse</div>
+    <div class="shot-dur">5 seg (de 30s reales)</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd>Timelapse · <span class="pill cenital">CENITAL</span></dd>
+    <dt>Encuadre</dt><dd>POV cenital cerrado del proceso completo de armar a mano (papel + filtro + relleno + sello)</dd>
+    <dt>Captura</dt><dd>Filmar en tiempo real (~30 seg) y comprimir a 5 seg en post (factor 6×)</dd>
+    <dt>Iluminación</dt><dd>Misma que D5.1·01</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Que se vea torpe/lento en comparación con D5.1·01. Que demuestre por qué los pre-armados son una ventaja.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D5.1 · 03</span>Cenital de 12 conos en grid 4×3</div>
+    <div class="shot-dur">6 seg pan</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill cenital">CENITAL</span> beauty shot estático con leve pan</dd>
+    <dt>Encuadre</dt><dd>Cenital perfecto sobre 12 conos en grid 4 × 3 · todos perfectamente alineados, mismo ángulo</dd>
+    <dt>Backdrop</dt><dd>Cream uniforme</dd>
+    <dt>Iluminación</dt><dd>Suave uniforme — sin sombras laterales que rompan la simetría</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd><strong>Pausable shot:</strong> el espectador debe poder pausar y apreciar la consistencia. Tomate tiempo para alinear los 12 conos perfectos.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D5.1 · 04</span>Manos limpias rellenando cono</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> beauty shot</dd>
+    <dt>Encuadre</dt><dd>Macro de manos limpias (uñas cuidadas) rellenando un cono · acción precisa</dd>
+    <dt>Iluminación</dt><dd>Cálida suave</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Manos deben verse "premium". Sin nada manchado.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D5.1 · 05</span>Manos sucias armando a mano (contraste)</div>
+    <div class="shot-dur">2 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> contrast shot</dd>
+    <dt>Encuadre</dt><dd>Macro de manos con restos visibles de tabaco/relleno regados, intentando armar</dd>
+    <dt>Iluminación</dt><dd>Misma que D5.1·04</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Restos visibles pero no exagerados. Que comunique "esto es lo que pasa cuando armas a mano".</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D5.1 / D8 · 01</span>Pack 12 conos beauty shot</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> producto packaging</dd>
+    <dt>Encuadre</dt><dd>Pack de 12 conos completo · ángulo 30° · paquete cerrado</dd>
+    <dt>Backdrop</dt><dd>Cream</dd>
+    <dt>Iluminación</dt><dd>Frontal con highlight · que se lea bien la marca y "12 UDS"</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Este shot se reusa en D5.1 (cierre) y D8 (cierre con CTA). Filmar 1 vez bien.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D8 · 01</span>Cono pre-armado perfecto 360°</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> rotación 360°</dd>
+    <dt>Encuadre</dt><dd>Cono pre-armado terminado, rotando lento sobre eje · plano cerrado</dd>
+    <dt>Backdrop</dt><dd>Cream</dd>
+    <dt>Iluminación</dt><dd>Cálida con highlight</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Setup: cono apoyado en plataforma giratoria (motorized turntable), o filmar y rotar manualmente con mano fuera de cuadro.</dd>
+  </dl>
+</div>
+
+<!-- ============================================ -->
+<!-- 6 · FILTROS                                  -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="section-header">
+  <div class="eyebrow">Sección 6</div>
+  <h2>Shot list · Filtros</h2>
+</div>
+<p class="lead">5 shots de filtros — destacar estructura y función técnica del carbón activo.</p>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D3 · 01</span>Demo armado con filtro carbón en base</div>
+    <div class="shot-dur">6 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill cenital">CENITAL</span> demo paso 1 del tutorial</dd>
+    <dt>Encuadre</dt><dd>Cenital fijo de superficie de armado · manos colocando papel + insertando filtro carbón en la base</dd>
+    <dt>Backdrop</dt><dd>Madera oscura</dd>
+    <dt>Iluminación</dt><dd>Suave difusa · sin sombras duras</dd>
+    <dt>Producto</dt><dd>Filtro Carbón Activo Alien Puff (1 unidad) + paper Alien Puff KS</dd>
+    <dt>Audio</dt><dd>Sin audio (sólo música/SFX en post)</dd>
+    <dt>Notas</dt><dd>Movimiento PRECISO, no apurado. La cámara permanece FIJA — la animación del timer va en post.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D3 · 02</span>Pack 10 filtros Alien Puff</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> producto outro</dd>
+    <dt>Encuadre</dt><dd>Pack completo de 10 filtros Alien Puff · ángulo 30°</dd>
+    <dt>Backdrop</dt><dd>Cream</dd>
+    <dt>Iluminación</dt><dd>Frontal con highlight</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Sticker "€7 · 10 UDS" se monta en post.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D6 · 01</span>Macro filtro carbón rotación 360°</div>
+    <div class="shot-dur">5 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> rotación 360° lenta</dd>
+    <dt>Encuadre</dt><dd>Filtro individual rotando lento · debe verse claramente la sección del carbón activo (poros)</dd>
+    <dt>Backdrop</dt><dd>Cream o oscuro (probar ambos)</dd>
+    <dt>Iluminación</dt><dd>Highlight para destacar la textura porosa del carbón</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Setup: turntable o rotación manual fuera de cuadro. Que la rotación sea fluida (no jittery).</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D8 · 02</span>Demo filtro al revés vs bien</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> comparativa</dd>
+    <dt>Encuadre</dt><dd>Macro · 2 filtros lado a lado, uno mal orientado (punta plana hacia adentro), uno bien (punta plana hacia afuera)</dd>
+    <dt>Backdrop</dt><dd>Madera oscura o cream</dd>
+    <dt>Iluminación</dt><dd>Suave</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>En post se overlay sticker "MAL" rojo sobre el de la izquierda y "BIEN" verde sobre el de la derecha.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D10.1 · 01</span>Macro filtro carbón rotación 360°</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> rotación 360°</dd>
+    <dt>Encuadre</dt><dd>Mismo treatment que D6·01 pero más corto (3s) — beauty shot final</dd>
+    <dt>Notas</dt><dd>Si el shot de D6·01 quedó bien, se puede recortar a 3s y reutilizar.</dd>
+  </dl>
+</div>
+
+<!-- ============================================ -->
+<!-- 7 · GRINDERS                                 -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="section-header">
+  <div class="eyebrow">Sección 7</div>
+  <h2>Shot list · Grinders</h2>
+</div>
+<p class="lead">4 shots de grinder — categoría aesthetic. D5.2 es el más complejo (ASMR audio crítico).</p>
+
+<div class="shot dark-card">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D5.2 · 01</span>Grinder cerrado fade-in superficie oscura</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> estático con fade-in (post)</dd>
+    <dt>Encuadre</dt><dd>Macro del grinder cerrado · centro frame · ligero ángulo top-down</dd>
+    <dt>Backdrop</dt><dd>Mármol negro, cuero oscuro, o madera muy oscura · MOODY</dd>
+    <dt>Iluminación</dt><dd>Key light suave + rim light orange (subtle) detrás del grinder</dd>
+    <dt>Producto</dt><dd>Grinder Plástico Básico (verde, el de la foto referencia)</dd>
+    <dt>Audio</dt><dd>Capturar ambient room tone para post-mix</dd>
+    <dt>Notas</dt><dd>Color grade moody, sombras ricas. Reference: Kinfolk magazine.</dd>
+  </dl>
+</div>
+
+<div class="shot dark-card">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D5.2 · 02</span>Macro grinder rotando 60fps + AUDIO CRUDO</div>
+    <div class="shot-dur">4 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> <span class="pill slowmo">SLOW-MO</span> <span class="pill audio">AUDIO ON</span></dd>
+    <dt>Encuadre</dt><dd>Macro extremo · sólo grinder y mano · que se vean los dientes engranando al rotar</dd>
+    <dt>FPS captura</dt><dd><strong>60 fps</strong> (post se rampea a 30fps para slow-mo 2×)</dd>
+    <dt>Backdrop</dt><dd>Mismo que D5.2·01</dd>
+    <dt>Iluminación</dt><dd>Mismo + light rasante para destacar dientes</dd>
+    <dt>Audio</dt><dd><strong>CRÍTICO · capturar AUDIO CRUDO con mic externo a 10 cm del grinder.</strong> Cuarto silencioso (apartar AC, nevera, ventiladores). Lavalier o Røde VideoMicro.</dd>
+    <dt>Notas</dt><dd>El SONIDO del grinder es el protagonista del reel. Si el audio sale mal, este shot se desperdicia.</dd>
+  </dl>
+</div>
+
+<div class="shot dark-card">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D5.2 · 03</span>Apertura del grinder + material cayendo backlight</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> <span class="pill slowmo">SLOW-MO</span> <span class="pill audio">AUDIO ON</span></dd>
+    <dt>Encuadre</dt><dd>Macro grinder abriéndose, material molido cayendo en cámara lenta</dd>
+    <dt>FPS captura</dt><dd>60 fps</dd>
+    <dt>Iluminación</dt><dd><strong>BACKLIGHT clave:</strong> LED panel detrás-abajo del grinder, 45°. Sin esa luz, las partículas no se ven en el aire.</dd>
+    <dt>Material molido</dt><dd>Orégano seco / té rooibos / romero · NO cannabis</dd>
+    <dt>Audio</dt><dd>Capturar el "crinkle" de la apertura + sonido del material cayendo</dd>
+    <dt>Notas</dt><dd>Las partículas en el aire deben verse doradas/iluminadas. Si no se ven, ajustar backlight.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D7.1 · 01</span>Grinder cayendo desde arriba en flat-lay</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill cenital">CENITAL</span> con drop animation</dd>
+    <dt>Encuadre</dt><dd>Cenital sobre superficie cream · grinder entra desde fuera de cuadro arriba con bounce sutil al aterrizar</dd>
+    <dt>Backdrop</dt><dd>Cream</dd>
+    <dt>Iluminación</dt><dd>Cenital uniforme</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Drop puede ser real (filmar y cortar al impacto) o simulado en post (filmar el grinder estático y animar la entrada en post). Lo segundo es más controlable.</dd>
+  </dl>
+</div>
+
+<!-- ============================================ -->
+<!-- 8 · TUTORIALES Y ERRORES                     -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="section-header">
+  <div class="eyebrow">Sección 8</div>
+  <h2>Shot list · Tutoriales y demos de errores</h2>
+</div>
+<p class="lead">9 shots clave para D3 (tutorial 4 pasos) y D8 (5 errores). Setup cenital fijo en ambos casos.</p>
+
+<h3 class="subhead">D3 · Tutorial 4 pasos · TODOS con cámara cenital fija</h3>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D3 · 03</span>Paso 1 · Papel + filtro carbón</div>
+    <div class="shot-dur">6 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill cenital">CENITAL</span> fija</dd>
+    <dt>Encuadre</dt><dd>POV cenital cerrado · manos colocan papel sobre superficie + insertan filtro carbón en base</dd>
+    <dt>Backdrop</dt><dd>Madera oscura o mesa cream</dd>
+    <dt>Iluminación</dt><dd>Suave difusa · constante en los 4 pasos</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Cámara FIJA en tripod. No mover entre pasos. Si se mueve, los 4 shots no van a hacer match en post.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D3 · 04</span>Paso 2 · Distribuir tabaco parejo</div>
+    <div class="shot-dur">7 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill cenital">CENITAL</span> fija</dd>
+    <dt>Encuadre</dt><dd>Mismo que D3·03 — manos distribuyen relleno parejo a lo largo del papel</dd>
+    <dt>Material relleno</dt><dd>Orégano / té rooibos / romero</dd>
+    <dt>Notas</dt><dd>Distribución debe verse pareja, profesional. Movimiento de dedo deslizando.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D3 · 05</span>Paso 3 · Sellado preciso</div>
+    <div class="shot-dur">6 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill cenital">CENITAL</span> fija</dd>
+    <dt>Encuadre</dt><dd>Mismo · manos cierran el papel y enrollan con presión uniforme</dd>
+    <dt>Notas</dt><dd>Movimiento ágil pero deliberado. El joint debe quedar firme al final.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D3 · 06</span>Paso 4 · Joint terminado 360°</div>
+    <div class="shot-dur">4 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> rotación 360° beauty shot</dd>
+    <dt>Encuadre</dt><dd>Joint completo terminado, rotación lenta sobre eje</dd>
+    <dt>Backdrop</dt><dd>Cream uniforme</dd>
+    <dt>Iluminación</dt><dd>Cálida con highlight</dd>
+    <dt>Notas</dt><dd>El joint debe verse PERFECTO. Si quedó torcido en pasos previos, rearmar para este shot.</dd>
+  </dl>
+</div>
+
+<h3 class="subhead">D8 · 5 errores demo</h3>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D8 · 03</span>Error 1 · Papel sobrellenado revienta</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> demo</dd>
+    <dt>Encuadre</dt><dd>Macro de un papel sobrellenado deliberadamente · el papel se rompe o revienta al cerrar</dd>
+    <dt>Notas</dt><dd>Filmar varios takes con distintos niveles de sobrellenado para conseguir el "revienta" en cámara. Si no se rompe naturalmente, animar el "tear" en post.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D8 · 04</span>Error 3 · Sello flojo (papel desenrollándose)</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> demo</dd>
+    <dt>Encuadre</dt><dd>Joint mal sellado abriéndose solo · contenido cayendo</dd>
+    <dt>Notas</dt><dd>Hacer un sello deliberadamente flojo para que se desenrolle naturalmente.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D8 · 05</span>Error 4 · Papel arrugado</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> producto</dd>
+    <dt>Encuadre</dt><dd>Macro extremo de un paper visiblemente arrugado, marcado · evidente daño</dd>
+    <dt>Notas</dt><dd>Arrugar deliberadamente un paper para este shot.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D8 · 06</span>Error 5 · Tabaco mojado · gota de agua</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> demo</dd>
+    <dt>Encuadre</dt><dd>Macro extremo de relleno (orégano) con una gota de agua cayendo encima · cámara lenta · se ve la mezcla húmeda</dd>
+    <dt>FPS captura</dt><dd>60 fps para slow-mo de la gota</dd>
+    <dt>Iluminación</dt><dd>Highlight para que la gota brille</dd>
+    <dt>Notas</dt><dd>Filmar varios takes con distintos puntos de impacto de la gota.</dd>
+  </dl>
+</div>
+
+<!-- ============================================ -->
+<!-- 9 · D9.1 RITUAL MAÑANA                       -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="section-header">
+  <div class="eyebrow">Sección 9</div>
+  <h2>Shot list · Ritual mañana (D9.1)</h2>
+</div>
+
+<div class="callout">
+  <div class="label">📍 Sesión separada · luz natural única</div>
+  <p><strong>Filmar entre 7am-9am.</strong> 100% luz natural. Sin lights artificiales. Día despejado con luz dorada matutina ideal.</p>
+  <p>Color grade post: cálido, levemente desaturado. Reference: Joey Pecoraro album covers / A24 morning scenes.</p>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D9.1 · 01</span>Sol amaneciendo / luz dorada matutina</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill wide">WIDE</span> establishing shot</dd>
+    <dt>Encuadre</dt><dd>Footage de luz natural matutina entrando por ventana, o sol amaneciendo · lens flares orgánicos</dd>
+    <dt>Iluminación</dt><dd>Solo luz natural</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Puede ser footage tuyo de la ventana de tu casa con luz dorada. No necesita ser el sol literal.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D9.1 · 02</span>Café siendo vertido en taza cerámica · slow-mo vapor</div>
+    <div class="shot-dur">4 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> <span class="pill slowmo">SLOW-MO</span> <span class="pill audio">AUDIO ON</span></dd>
+    <dt>Encuadre</dt><dd>Macro de café siendo vertido · taza cerámica beige/cream · vapor visible subiendo</dd>
+    <dt>FPS captura</dt><dd>60 fps · slow-mo 2× en post</dd>
+    <dt>Backdrop</dt><dd>Madera oscura</dd>
+    <dt>Iluminación</dt><dd>Luz natural lateral fuerte (que el vapor sea visible · backlight + fill)</dd>
+    <dt>Audio</dt><dd>Capturar audio del vertido · ambient · mic externo</dd>
+    <dt>Notas</dt><dd>El vapor es CRÍTICO. Sin vapor visible, el shot pierde 80% de su impacto. Usar café muy caliente (recién hervido) para vapor abundante.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D9.1 · 04</span>Manos armando ritmo pausado</div>
+    <div class="shot-dur">4 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill cenital">CENITAL</span> o POV cerrado</dd>
+    <dt>Encuadre</dt><dd>Manos armando con movimiento PAUSADO, ritualístico</dd>
+    <dt>Iluminación</dt><dd>Luz natural lateral cálida</dd>
+    <dt>Audio</dt><dd>Capturar sonido del armado (rustle del paper)</dd>
+    <dt>Material relleno</dt><dd>Orégano / té rooibos</dd>
+    <dt>Notas</dt><dd>Diferencia con D3 (tutorial): aquí el ritmo es LENTO y casi meditativo. No tutorial, no eficiente — es ritual.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D9.1 · 05</span>Joint terminado junto al café · wide pull-back</div>
+    <div class="shot-dur">3 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill wide">WIDE</span> beauty shot final</dd>
+    <dt>Encuadre</dt><dd>Joint terminado descansando junto a la taza de café sobre la mesa de madera. Pull-back lento (zoom out 100% → 75% en 2s).</dd>
+    <dt>Iluminación</dt><dd>Luz natural matutina (misma que el resto)</dd>
+    <dt>Audio</dt><dd>Ambient room tone</dd>
+    <dt>Notas</dt><dd><strong>Composición clave:</strong> joint y taza alineados en el frame, mesa con textura visible. Reference: still life Vermeer minimalist.</dd>
+    <dt>Compliance</dt><dd>El joint NO está encendido. Se descansa. Plano cerrado al objeto.</dd>
+  </dl>
+</div>
+
+<!-- ============================================ -->
+<!-- 10 · D10.2 EDICIÓN LIMITADA                  -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="section-header">
+  <div class="eyebrow">Sección 10</div>
+  <h2>Shot list · Edición limitada (D10.2)</h2>
+</div>
+
+<div class="callout warn">
+  <div class="label">⚠ Decisión pendiente del cliente</div>
+  <p><strong>¿La colab con artista local existe al momento del filming?</strong> Esto define cómo se filma D10.2:</p>
+  <p><strong>Opción A — Existe:</strong> filmar producto físico real (3 shots).</p>
+  <p><strong>Opción B — Teaser:</strong> NO se filma. Se monta en post con mockup digital.</p>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D10.2 · 01</span>Producto edición limitada 360°</div>
+    <div class="shot-dur">5 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> rotación 360°</dd>
+    <dt>Encuadre</dt><dd>Producto completo (grinder o caja papers con estampado artista) en rotación lenta</dd>
+    <dt>Backdrop</dt><dd>Oscuro (negro o gris muy oscuro) · contrastado con el producto</dd>
+    <dt>Iluminación</dt><dd>Dramatic · key + rim · highlights saturados sobre el producto</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Reference: drops de Supreme / Off-White / Carhartt WIP. Hype + alta producción.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D10.2 · 02</span>Macro detalle del estampado</div>
+    <div class="shot-dur">4 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> extremo</dd>
+    <dt>Encuadre</dt><dd>Plano cerrado del estampado/ilustración del artista · que se aprecien colores y detalles</dd>
+    <dt>Iluminación</dt><dd>Misma dramatic + light rasante para textura</dd>
+    <dt>Audio</dt><dd>Sin audio</dd>
+    <dt>Notas</dt><dd>Si es estampado vinilo o impreso, light rasante revela la textura. Si es serigrafía, igual.</dd>
+  </dl>
+</div>
+
+<div class="shot">
+  <div class="shot-head">
+    <div class="shot-id"><span class="reel-tag">D10.2 · 03</span>Detalle firma artista</div>
+    <div class="shot-dur">2 seg</div>
+  </div>
+  <dl class="shot-grid">
+    <dt>Tipo</dt><dd><span class="pill macro">MACRO</span> extremo</dd>
+    <dt>Encuadre</dt><dd>Plano cerrado de firma del artista, número de edición ("1/5", "2/5"), o detalle de autenticidad</dd>
+    <dt>Notas</dt><dd>Refuerza la idea de "limited drop real". Importante.</dd>
+  </dl>
+</div>
+
+<!-- ============================================ -->
+<!-- 11 · NOTAS FINALES                           -->
+<!-- ============================================ -->
+<div class="page-break"></div>
+<div class="section-header">
+  <div class="eyebrow">Sección 11</div>
+  <h2>Notas finales y referencias</h2>
+</div>
+
+<h3 class="subhead">Identidad visual del campaign</h3>
+<p>Todo el campaign sigue una estética <strong>brutalist-editorial</strong>: tipografía Kanit black, colores del brand (cream, orange, primary, dark, secondary), bordes gruesos, box-shadows hard offset (5-12px), sin gradientes, sin filtros recargados.</p>
+
+<table>
+  <thead><tr><th>Color</th><th>HEX</th><th>Uso</th></tr></thead>
+  <tbody>
+    <tr><td>Cream</td><td>#F5F2E8</td><td>Backgrounds principales · superficies de producto</td></tr>
+    <tr><td>Orange</td><td>#FF3B27</td><td>Acentos · elementos hero · stickers</td></tr>
+    <tr><td>Primary</td><td>#BB3B2E</td><td>Tipografía énfasis · badges</td></tr>
+    <tr><td>Dark</td><td>#1A1A1A</td><td>Texto principal · backgrounds dramatic</td></tr>
+    <tr><td>Secondary</td><td>#4D5431</td><td>Olive · usado en stories y acentos</td></tr>
+  </tbody>
+</table>
+
+<h3 class="subhead">Referencias visuales por reel</h3>
+<div class="ref-img-grid">
+  <div class="ref-img">
+    <div class="ref-label">D1 / D4 · Comparativa</div>
+    <div class="ref-list">Tema: data dura. Reference editorial. Mood: confiado, no agresivo. Palette: cream + orange.</div>
+  </div>
+  <div class="ref-img">
+    <div class="ref-label">D2 · Personalidad split</div>
+    <div class="ref-list">Tema: quiz casual. Reference: "main character energy". Mood: juguetón. Audio: indie pop.</div>
+  </div>
+  <div class="ref-img">
+    <div class="ref-label">D3 · Tutorial</div>
+    <div class="ref-list">Tema: speedrun. Reference: cooking IG reels rápidos. Mood: punchy, ritmo alto.</div>
+  </div>
+  <div class="ref-img">
+    <div class="ref-label">D5.2 · ASMR Grinder</div>
+    <div class="ref-list">Tema: aesthetic dark. Reference: Kinfolk magazine, A24 dark ads. Mood: ritualístico, oscuro.</div>
+  </div>
+  <div class="ref-img">
+    <div class="ref-label">D8 · 5 errores</div>
+    <div class="ref-list">Tema: drill listicle. Reference: TikTok "5 mistakes" trends. Mood: directo, sin rodeos.</div>
+  </div>
+  <div class="ref-img">
+    <div class="ref-label">D9.1 · Ritual mañana</div>
+    <div class="ref-list">Tema: lifestyle aspiracional. Reference: Joey Pecoraro covers, A24 morning scenes. Mood: pausado, dorado.</div>
+  </div>
+  <div class="ref-img">
+    <div class="ref-label">D9.2 · Sleeper hit</div>
+    <div class="ref-list">Tema: discovery aesthetic. Reference: "things you didn't know" satisfying reveal. Mood: revelador chill.</div>
+  </div>
+  <div class="ref-img">
+    <div class="ref-label">D10.2 · Drop limitado</div>
+    <div class="ref-list">Tema: hype + scarcity. Reference: Supreme, Off-White drops. Mood: cinematic dark trap.</div>
+  </div>
+</div>
+
+<h3 class="subhead">Coordinación con post-producción</h3>
+<p>Después de filming entregar:</p>
+<ul>
+  <li>Carpeta organizada por reel (D1, D2, etc) con archivos nombrados <code>D[reel]-[shot]-[take].mp4</code></li>
+  <li>Notas si algún shot no salió (para reagendar o sustituir con animación HTML)</li>
+  <li>Audio ASMR de D5.2 como archivo separado WAV/AIFF (no comprimido)</li>
+</ul>
+
+<h3 class="subhead">Contacto y aprobaciones</h3>
+<p>Cualquier duda durante filming, contactar al equipo Enrola antes de filmar el shot. Especialmente:</p>
+<ul>
+  <li>Si surge la necesidad de mostrar marca competidora directamente (D1, D4)</li>
+  <li>Si se considera filmar consumo real (NO permitido bajo ningún caso)</li>
+  <li>Si el material de relleno se ve "sospechosamente parecido a cannabis" en cámara</li>
+  <li>Si la iluminación natural no funciona para D9.1 ritual mañana (reagendar)</li>
+</ul>
+
+<div class="footer-note">
+  <p>Enrola · Shop · Campaign 10 días · Shot list rev 1.0 · Documento técnico para producción audiovisual</p>
+</div>
+
+</body>
+</html>

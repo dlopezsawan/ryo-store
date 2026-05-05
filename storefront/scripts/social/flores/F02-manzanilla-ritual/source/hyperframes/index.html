@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --primary: #bb3b2e; --orange: #ff3b27; --secondary: #4d5431;
+        --cream: #f5f2e8; --dark: #1a1a1a; --bg-dark: #221610;
+        --chamomile: #F4D368;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px; height: 1920px; overflow: hidden;
+        font-family: "Kanit", system-ui, sans-serif;
+        background: #000;
+      }
+      .scene {
+        position: absolute; inset: 0;
+        width: 1080px; height: 1920px;
+        overflow: hidden; opacity: 0;
+        transform-origin: 50% 50%;
+      }
+      .scene.s1, .scene.s3, .scene.s5 {
+        background: radial-gradient(ellipse at 30% 30%, #F8EDD2 0%, #E8D8B0 55%, #D4BC88 100%);
+        color: var(--dark);
+      }
+      .scene.s2, .scene.s4 {
+        background: linear-gradient(180deg, #E8D8B0 0%, #B89552 100%);
+        color: var(--dark);
+      }
+      .scene::before {
+        content: ""; position: absolute; inset: 0; pointer-events: none;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.10  0 0 0 0 0.08  0 0 0 0 0.06  0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+        opacity: 0.55; mix-blend-mode: multiply; z-index: 0;
+      }
+      .top {
+        position: absolute; top: 240px; left: 64px; right: 64px;
+        display: flex; justify-content: space-between; align-items: center; z-index: 5;
+      }
+      .brand {
+        display: flex; align-items: center; gap: 14px;
+        font-weight: 900; font-size: 26px; letter-spacing: 0.18em; text-transform: uppercase;
+      }
+      .brand .dot { width: 14px; height: 14px; background: var(--primary); border: 3px solid currentColor; }
+      .slide-num {
+        font-weight: 700; font-size: 22px; letter-spacing: 0.22em;
+        text-transform: uppercase; padding: 10px 18px;
+        border: 3px solid currentColor; box-shadow: 4px 4px 0 0 currentColor;
+      }
+
+      /* SCENE 1: Hook */
+      .s1 .stack {
+        position: absolute; left: 64px; right: 64px;
+        top: 50%; transform: translateY(-50%); z-index: 2;
+        display: flex; flex-direction: column; align-items: center;
+        gap: 36px; text-align: center;
+      }
+      .s1 .eyebrow {
+        font-weight: 700; font-size: 30px; letter-spacing: 0.32em;
+        text-transform: uppercase; color: var(--primary);
+      }
+      .s1 .flower {
+        font-size: 280px; line-height: 1;
+      }
+      .s1 .h1 {
+        font-weight: 900; font-size: 150px; line-height: 0.9;
+        letter-spacing: -0.045em; text-transform: uppercase;
+      }
+      .s1 .h1 .em { color: var(--primary); }
+
+      /* SCENE 2: Preparación */
+      .s2 .stack {
+        position: absolute; left: 64px; right: 64px;
+        top: 50%; transform: translateY(-50%); z-index: 2;
+        display: flex; flex-direction: column; gap: 28px;
+      }
+      .s2 .eyebrow {
+        font-weight: 700; font-size: 30px; letter-spacing: 0.28em;
+        text-transform: uppercase; color: var(--primary);
+      }
+      .s2 .h1 {
+        font-weight: 900; font-size: 128px; line-height: 0.9;
+        letter-spacing: -0.04em; text-transform: uppercase;
+        color: var(--dark);
+      }
+      .s2 .h1 .em { color: var(--primary); }
+      .s2 .flowers-row {
+        display: flex; gap: 18px; justify-content: center; margin-top: 20px;
+      }
+      .s2 .flower-card {
+        width: 220px; height: 220px;
+        background: var(--cream); border: 5px solid var(--dark);
+        box-shadow: 12px 12px 0 0 var(--dark);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 120px; line-height: 1;
+      }
+      .s2 .flower-card:nth-child(1) { transform: rotate(-4deg); }
+      .s2 .flower-card:nth-child(2) { transform: rotate(2deg) scale(1.1); }
+      .s2 .flower-card:nth-child(3) { transform: rotate(5deg); }
+      .s2 .note {
+        text-align: center; margin-top: 16px;
+        font-weight: 700; font-size: 26px;
+        letter-spacing: 0.06em; color: var(--dark);
+      }
+
+      /* SCENE 3: Armado */
+      .s3 .stack {
+        position: absolute; left: 64px; right: 64px;
+        top: 50%; transform: translateY(-50%); z-index: 2;
+        display: flex; flex-direction: column; gap: 24px; align-items: center;
+      }
+      .s3 .eyebrow {
+        font-weight: 700; font-size: 28px; letter-spacing: 0.3em;
+        text-transform: uppercase; color: var(--primary);
+      }
+      .s3 .h1 {
+        font-weight: 900; font-size: 116px; line-height: 0.9;
+        letter-spacing: -0.04em; text-transform: uppercase; text-align: center;
+      }
+      .s3 .h1 .em { color: var(--primary); }
+      /* Rolling hands — sways during the scene to simulate rolling motion */
+      .s3 .hands-wrap {
+        position: relative;
+        width: 380px; height: 260px;
+        display: flex; align-items: center; justify-content: center;
+        margin-top: 4px;
+      }
+      .s3 .hands {
+        font-size: 220px; line-height: 1;
+        transform-origin: center 70%;
+        filter: drop-shadow(10px 14px 0 rgba(0,0,0,0.2));
+      }
+      /* floating elements around the hands */
+      .s3 .chip {
+        position: absolute;
+        font-size: 56px; line-height: 1;
+      }
+      .s3 .chip.flower { top: 6%; left: 4%; }
+      .s3 .chip.paper { top: 12%; right: 4%; font-size: 48px; }
+      .s3 .chip.spark { bottom: 4%; right: 16%; font-size: 38px; color: var(--primary); font-weight: 900; }
+      .s3 .products {
+        display: flex; gap: 26px; align-items: center;
+        filter: drop-shadow(0 14px 0 rgba(0,0,0,0.22));
+      }
+      .s3 .product-box {
+        padding: 18px; background: var(--cream);
+        border: 5px solid var(--dark); box-shadow: 10px 10px 0 0 var(--dark);
+      }
+      .s3 .product-box.alt { box-shadow: 10px 10px 0 0 var(--orange); }
+      .s3 .product-box img { display: block; width: 320px; height: auto; object-fit: contain; }
+      .s3 .product-box.small img { width: 180px; }
+      .s3 .plus {
+        font-weight: 900; font-size: 100px; color: var(--primary); line-height: 1;
+      }
+
+      /* SCENE 4: Ritual */
+      .s4 .stack {
+        position: absolute; left: 64px; right: 64px;
+        top: 50%; transform: translateY(-50%); z-index: 2;
+        display: flex; flex-direction: column; align-items: center;
+        gap: 34px; text-align: center;
+      }
+      .s4 .eyebrow {
+        font-weight: 700; font-size: 28px; letter-spacing: 0.32em;
+        text-transform: uppercase; color: var(--primary);
+      }
+      .s4 .h1 {
+        font-weight: 900; font-size: 140px; line-height: 0.9;
+        letter-spacing: -0.045em; text-transform: uppercase;
+      }
+      .s4 .h1 .em { color: var(--primary); }
+      .s4 .sub {
+        font-weight: 700; font-size: 34px; line-height: 1.3;
+        max-width: 800px;
+      }
+
+      /* SCENE 5: CTA */
+      .s5 .stack {
+        position: absolute; left: 64px; right: 64px;
+        top: 50%; transform: translateY(-50%); z-index: 2;
+        display: flex; flex-direction: column; align-items: center;
+        gap: 28px; text-align: center;
+      }
+      .s5 .h1 {
+        font-weight: 900; font-size: 122px; line-height: 0.9;
+        letter-spacing: -0.04em; text-transform: uppercase;
+      }
+      .s5 .h1 .em { color: var(--primary); }
+      .s5 .cta-pill {
+        display: inline-block;
+        background: var(--orange); color: var(--cream);
+        font-weight: 900; font-size: 54px; line-height: 1;
+        padding: 18px 32px;
+        border: 6px solid var(--dark);
+        box-shadow: 14px 14px 0 0 var(--dark);
+        transform: rotate(-1.5deg);
+      }
+
+      .legal-footer {
+        position: absolute; left: 0; right: 0; bottom: 0;
+        padding: 14px 24px; text-align: center;
+        font-family: 'Kanit', sans-serif;
+        font-weight: 900; font-size: 18px;
+        letter-spacing: 0.1em; text-transform: uppercase;
+        background: #F5F2E8; color: #1A1A1A;
+        border-bottom: 4px solid #1A1A1A;
+        border-top: 4px solid #1A1A1A;
+        z-index: 100; line-height: 1.3;
+      }
+          /* Legacy bottom bar — hidden; legal-footer is the only persistent footer */
+      .bottom { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="24.76"
+         data-width="1080" data-height="1920">
+
+      <!-- SCENE 1: HOOK (0.0 – 2.5s) -->
+      <div class="scene s1" id="scene1">
+        <div class="top">
+          <div class="brand"><span class="dot"></span> Enrola Shop</div>
+          <div class="slide-num">Flores</div>
+        </div>
+        <div class="stack">
+          <div class="eyebrow" id="s1-eye">Tarde · Ritual</div>
+          <div class="flower" id="s1-flower">🌼</div>
+          <div class="h1" id="s1-h1"><span class="em">Manzanilla.</span></div>
+        </div>
+      </div>
+
+      <!-- SCENE 2: PREPARACIÓN (2.5 – 6.5s) -->
+      <div class="scene s2" id="scene2">
+        <div class="top">
+          <div class="brand"><span class="dot"></span> Enrola Shop</div>
+          <div class="slide-num">Prepara</div>
+        </div>
+        <div class="stack">
+          <div class="eyebrow" id="s2-eye">Relaja · sin tabaco</div>
+          <div class="h1" id="s2-h1">Muele<br/><span class="em">suave.</span></div>
+          <div class="flowers-row" id="s2-flowers">
+            <div class="flower-card">🌼</div>
+            <div class="flower-card">🌼</div>
+            <div class="flower-card">🌼</div>
+          </div>
+          <div class="note" id="s2-note">Flores secas · Sin prisa · Sin química</div>
+        </div>
+      </div>
+
+      <!-- SCENE 3: ARMADO (6.5 – 10s) -->
+      <div class="scene s3" id="scene3">
+        <div class="top">
+          <div class="brand"><span class="dot"></span> Enrola Shop</div>
+          <div class="slide-num">Arma</div>
+        </div>
+        <div class="stack">
+          <div class="eyebrow" id="s3-eye">Mismo arte</div>
+          <div class="h1" id="s3-h1">Enrolar <span class="em">a mano.</span></div>
+          <div class="hands-wrap" id="s3-hands-wrap">
+            <span class="chip flower" id="s3-chip-flower">🌼</span>
+            <span class="chip paper" id="s3-chip-paper">📜</span>
+            <span class="chip spark" id="s3-chip-spark">~</span>
+            <div class="hands" id="s3-hands">🤲</div>
+          </div>
+          <div class="products" id="s3-products">
+            <div class="product-box">
+              <img src="paper.webp" alt="papel marrón">
+            </div>
+            <div class="plus">+</div>
+            <div class="product-box alt small">
+              <img src="filter.webp" alt="filtro carbón">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 4: RITUAL (10 – 12.5s) -->
+      <div class="scene s4" id="scene4">
+        <div class="top">
+          <div class="brand"><span class="dot"></span> Enrola Shop</div>
+          <div class="slide-num">Ritual</div>
+        </div>
+        <div class="stack">
+          <div class="eyebrow" id="s4-eye">Pausa merecida</div>
+          <div class="h1" id="s4-h1">Enciende.<br/><span class="em">Respira.</span></div>
+          <div class="sub" id="s4-sub">El arte de armar va <span style="color:var(--primary); font-weight:900;">más allá</span> del tabaco.</div>
+        </div>
+      </div>
+
+      <!-- SCENE 5: CTA (12.5 – 14s) -->
+      <div class="scene s5" id="scene5">
+        <div class="top">
+          <div class="brand"><span class="dot"></span> Enrola Shop</div>
+          <div class="slide-num">Tienda</div>
+        </div>
+        <div class="stack">
+          <div class="h1" id="s5-h1">Todo lo que<br/><span class="em">necesitas.</span></div>
+          <div class="cta-pill" id="s5-cta">enrola.shop</div>
+        </div>
+      </div>
+
+      <!-- PERSISTENT LEGAL FOOTER -->
+      <div class="legal-footer">+18 · ACCESORIOS PARA TABACO LEGAL · ENROLA NO PROMUEVE SUSTANCIAS ILEGALES · CONSUME CON MODERACIÓN</div>
+
+      <!-- AUDIO TRACKS -->
+      <audio id="voice"
+             src="narration.mp3"
+             data-start="0"
+             data-duration="24.76"
+             data-track-index="2"
+             data-volume="1.0"></audio>
+
+      <audio id="bgm"
+             src="bg-music.mp3"
+             data-start="0"
+             data-duration="24.76"
+             data-track-index="3"
+             data-volume="0.18"
+             data-fade-in="0.5"
+             data-fade-out="0.8"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* ============ S1 (0 – 2.5s) ============ */
+      tl.set("#scene1", { opacity: 1 }, 0);
+      tl.from("#s1-eye", { opacity: 0, y: -20, duration: 0.5, ease: "power2.out" }, 0.12);
+      tl.from("#s1-flower", { opacity: 0, scale: 0.3, rotation: 30, duration: 0.6, ease: "back.out(2.2)", transformOrigin: "center" }, 0.36);
+      tl.from("#s1-h1", { opacity: 0, y: 40, duration: 0.5, ease: "power3.out" }, 1.08);
+      tl.to("#scene1", { opacity: 0, scale: 1.1, duration: 0.3, ease: "power3.in" }, 2.7);
+      tl.set("#scene1", { visibility: "hidden" }, 3);
+
+      /* ============ S2 (2.5 – 6.5s) ============ */
+      tl.set("#scene2", { opacity: 1 }, 2.94);
+      tl.fromTo("#scene2", { scale: 0.94 }, { scale: 1, duration: 0.3, ease: "power3.out" }, 2.94);
+      tl.from("#s2-eye", { opacity: 0, y: -15, duration: 0.4, ease: "power2.out" }, 3.23);
+      tl.from("#s2-h1", { opacity: 0, y: 30, duration: 0.5, ease: "power3.out" }, 3.67);
+      tl.from("#s2-flowers .flower-card", {
+        opacity: 0, scale: 0.4, rotation: 30,
+        duration: 0.5, ease: "back.out(2.0)", stagger: 0.15, transformOrigin: "center"
+      }, 4.58);
+      tl.from("#s2-note", { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 7.05);
+      tl.to("#scene2", { opacity: 0, scale: 1.1, duration: 0.3, ease: "power3.in" }, 11.7);
+      tl.set("#scene2", { visibility: "hidden" }, 12);
+
+      /* ============ S3 (12 – 18s) — Armado: hands rolling ============ */
+      tl.set("#scene3", { opacity: 1 }, 11.89);
+      tl.fromTo("#scene3", { scale: 0.94 }, { scale: 1, duration: 0.3, ease: "power3.out" }, 11.89);
+      tl.from("#s3-eye", { opacity: 0, y: -15, duration: 0.4, ease: "power2.out" }, 12.17);
+      tl.from("#s3-h1", { opacity: 0, y: 30, duration: 0.5, ease: "power3.out" }, 12.51);
+      /* Hands bouncing in + sway rolling motion */
+      tl.from("#s3-hands", { opacity: 0, scale: 0.4, y: 40, duration: 0.6, ease: "back.out(2.0)", transformOrigin: "center 70%" }, 12.85);
+      /* Chips orbit around hands — stagger in */
+      tl.from("#s3-chip-flower", { opacity: 0, scale: 0.3, rotation: -20, duration: 0.4, ease: "back.out(2.4)", transformOrigin: "center" }, 13.35);
+      tl.from("#s3-chip-paper",  { opacity: 0, scale: 0.3, rotation: 20, duration: 0.4, ease: "back.out(2.4)", transformOrigin: "center" }, 13.55);
+      tl.from("#s3-chip-spark",  { opacity: 0, scale: 0.3, duration: 0.3, ease: "back.out(2.4)", transformOrigin: "center" }, 13.75);
+      /* Continuous rolling sway on hands (4 cycles across scene) */
+      tl.to("#s3-hands", { rotation: -10, duration: 0.7, ease: "sine.inOut", yoyo: true, repeat: 5, transformOrigin: "center 70%" }, 13.5);
+      /* Chip orbit motion — flower drifts to hands, paper floats */
+      tl.to("#s3-chip-flower", { y: -14, rotation: -12, duration: 1.0, ease: "sine.inOut", yoyo: true, repeat: 3 }, 14.0);
+      tl.to("#s3-chip-paper",  { y: -18, rotation: 14, duration: 1.2, ease: "sine.inOut", yoyo: true, repeat: 2 }, 14.2);
+      tl.to("#s3-chip-spark",  { scale: 1.3, opacity: 0.5, duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 5, transformOrigin: "center" }, 14.0);
+      /* Product boxes slide in later (after hands set the context) */
+      tl.from("#s3-products .product-box:first-child", { opacity: 0, x: -80, rotation: -5, duration: 0.5, ease: "back.out(1.6)" }, 15.2);
+      tl.from("#s3-products .plus", { opacity: 0, scale: 0.3, duration: 0.4, ease: "back.out(2.4)", transformOrigin: "center" }, 15.5);
+      tl.from("#s3-products .product-box:last-child", { opacity: 0, x: 80, rotation: 5, duration: 0.5, ease: "back.out(1.6)" }, 15.7);
+      tl.to("#scene3", { opacity: 0, scale: 1.1, duration: 0.3, ease: "power3.in" }, 17.7);
+      tl.set("#scene3", { visibility: "hidden" }, 18);
+
+      /* ============ S4 (10 – 12.5s) ============ */
+      tl.set("#scene4", { opacity: 1 }, 17.91);
+      tl.fromTo("#scene4", { scale: 0.94 }, { scale: 1, duration: 0.3, ease: "power3.out" }, 17.91);
+      tl.from("#s4-eye", { opacity: 0, y: -15, duration: 0.4, ease: "power2.out" }, 18.12);
+      tl.from("#s4-h1", { opacity: 0, y: 30, duration: 0.55, ease: "power3.out" }, 18.36);
+      tl.from("#s4-sub", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, 18.96);
+      tl.to("#scene4", { opacity: 0, scale: 1.1, duration: 0.3, ease: "power3.in" }, 20.7);
+      tl.set("#scene4", { visibility: "hidden" }, 21);
+
+      /* ============ S5 (12.5 – 14s) — final ============ */
+      tl.set("#scene5", { opacity: 1 }, 20.94);
+      tl.fromTo("#scene5", { scale: 0.94 }, { scale: 1, duration: 0.3, ease: "power3.out" }, 20.94);
+      tl.from("#s5-h1", { opacity: 0, y: 40, duration: 0.5, ease: "power3.out" }, 21.25);
+      tl.from("#s5-cta", { opacity: 0, scale: 0.5, rotation: -10, duration: 0.55, ease: "back.out(2.2)", transformOrigin: "center" }, 22.25);
+      tl.to("#s5-cta", { scale: 1.06, duration: 0.18, ease: "power2.out", transformOrigin: "center" }, 23.51);
+      tl.to("#s5-cta", { scale: 1.0, duration: 0.22, ease: "power2.in", transformOrigin: "center" }, 23.96);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

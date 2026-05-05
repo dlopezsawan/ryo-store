@@ -1,0 +1,1351 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Enrola · Planificación Mes 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #BB3B2E; --orange: #FF3B27; --secondary: #4D5431;
+      --cream: #F5F2E8; --dark: #1A1A1A; --bg-dark: #221610;
+      --muted: #85827d;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { font-family: 'Kanit', system-ui, sans-serif; background: var(--cream); color: var(--dark); -webkit-font-smoothing: antialiased; }
+
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--dark); color: var(--cream);
+      padding: 16px 28px;
+      border-bottom: 4px solid var(--orange);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+    }
+    header h1 { font-weight: 900; font-size: 22px; letter-spacing: 0.08em; text-transform: uppercase; }
+    header h1 .accent { color: var(--orange); }
+    .header-right { display: flex; gap: 12px; align-items: center; font-size: 13px; }
+    .stat {
+      padding: 6px 14px; background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .stat .n { color: var(--orange); font-weight: 900; }
+    button.btn {
+      background: var(--orange); color: var(--cream);
+      border: 2px solid var(--cream);
+      font-family: inherit; font-weight: 900; font-size: 14px;
+      padding: 10px 20px; cursor: pointer;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      transition: transform 0.1s;
+    }
+    button.btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 0 var(--cream); }
+    button.btn.small { padding: 6px 14px; font-size: 12px; }
+    button.btn.ghost { background: transparent; border-color: var(--cream); }
+    button.btn.danger { background: var(--primary); }
+
+    nav.jump {
+      padding: 14px 28px; background: var(--cream);
+      border-bottom: 2px solid var(--dark);
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+    }
+    nav.jump a {
+      font-weight: 700; font-size: 13px;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--dark); text-decoration: none;
+      padding: 8px 14px; border: 2px solid var(--dark);
+      box-shadow: 3px 3px 0 0 var(--dark); background: white;
+    }
+    nav.jump a:hover { background: var(--orange); color: var(--cream); }
+
+    main { padding: 32px 28px 80px; max-width: 1400px; margin: 0 auto; }
+    section { margin-bottom: 60px; }
+    h2 {
+      font-weight: 900; font-size: 42px; line-height: 1;
+      letter-spacing: -0.03em; text-transform: uppercase;
+      border-bottom: 4px solid var(--dark); padding-bottom: 14px;
+      margin-bottom: 28px;
+    }
+    h2 .em { color: var(--primary); }
+    h2 .count { color: var(--muted); font-weight: 600; font-size: 20px; margin-left: 12px; letter-spacing: 0.1em; }
+
+    /* Post cards */
+    .posts-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: white; border: 4px solid var(--dark);
+      box-shadow: 8px 8px 0 0 var(--dark);
+      display: flex; flex-direction: column;
+      transition: transform 0.15s;
+    }
+    .card.done { box-shadow: 8px 8px 0 0 var(--secondary); }
+    .card.done::before {
+      content: "✓ Revisado";
+      position: absolute; top: 10px; right: 10px;
+      background: var(--secondary); color: var(--cream);
+      padding: 4px 10px; font-weight: 700; font-size: 11px;
+      letter-spacing: 0.1em; text-transform: uppercase; z-index: 10;
+    }
+    .card { position: relative; }
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 3px solid var(--dark);
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 10px;
+    }
+    .card-title {
+      font-weight: 900; font-size: 18px; line-height: 1.15;
+      letter-spacing: -0.01em;
+    }
+    .card-meta {
+      font-weight: 600; font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted);
+      margin-top: 4px;
+    }
+    .pill {
+      display: inline-block; padding: 3px 10px;
+      font-size: 10px; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase;
+      border: 2px solid var(--dark); background: var(--orange); color: var(--cream);
+      flex-shrink: 0;
+    }
+    .pill.reel { background: var(--primary); }
+    .pill.carrusel { background: var(--secondary); color: var(--cream); }
+    .pill.single { background: var(--dark); color: var(--cream); }
+
+    .media {
+      background: var(--dark);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 320px; position: relative;
+      overflow: hidden;
+    }
+    .media video, .media img {
+      max-width: 100%; max-height: 480px;
+      display: block; object-fit: contain;
+    }
+    .carousel-wrap {
+      position: relative;
+      background: var(--dark);
+    }
+    .media.carousel {
+      display: block;
+      white-space: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      background: var(--dark);
+      scrollbar-width: none;
+      min-height: auto;
+    }
+    .media.carousel::-webkit-scrollbar { display: none; }
+    .media.carousel img {
+      display: inline-block;
+      vertical-align: top;
+      /* width is set via JS to scroller.clientWidth */
+      height: 560px;
+      object-fit: contain;
+      scroll-snap-align: start;
+      background: var(--cream);
+    }
+
+    /* Reel cover preview (shown above the video for Reels) */
+    .reel-cover-wrap {
+      background: var(--dark);
+      padding: 0;
+      border-bottom: 2px solid var(--cream);
+    }
+    .reel-cover-wrap .reel-cover-label {
+      background: var(--orange); color: var(--cream);
+      font-weight: 900; font-size: 10px; letter-spacing: 0.24em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      display: inline-block;
+      border-bottom: 2px solid var(--dark);
+      border-right: 2px solid var(--dark);
+    }
+    .reel-cover-wrap img {
+      width: 100%;
+      max-height: 560px;
+      object-fit: contain;
+      display: block;
+      background: var(--cream);
+    }
+    .carousel-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px;
+      background: var(--dark); color: var(--cream);
+      border-top: 2px solid var(--cream);
+    }
+    .carousel-nav button {
+      background: transparent; color: var(--cream);
+      border: 2px solid var(--cream);
+      width: 40px; height: 40px;
+      font-family: inherit; font-weight: 900; font-size: 20px; line-height: 1;
+      cursor: pointer; padding: 0;
+      transition: all 0.1s;
+    }
+    .carousel-nav button:hover:not(:disabled) {
+      background: var(--orange); border-color: var(--orange);
+    }
+    .carousel-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+    .carousel-nav .counter {
+      font-weight: 900; font-size: 14px; letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .carousel-nav .counter .current { color: var(--orange); }
+    .carousel-dots {
+      display: flex; gap: 6px; justify-content: center;
+    }
+    .carousel-dots .dot {
+      width: 8px; height: 8px; background: rgba(255,255,255,0.3);
+      border: none; padding: 0;
+      cursor: pointer;
+    }
+    .carousel-dots .dot.active { background: var(--orange); }
+
+    .copy-block {
+      padding: 14px 18px; background: #faf8f1;
+      border-top: 2px dashed var(--muted);
+      font-size: 13px; line-height: 1.5; color: var(--dark);
+      white-space: pre-wrap; max-height: 140px; overflow-y: auto;
+      font-family: 'SF Mono', ui-monospace, monospace;
+    }
+    .copy-label {
+      font-family: 'Kanit', sans-serif; font-size: 10px;
+      font-weight: 900; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 6px;
+    }
+
+    .feedback {
+      padding: 14px 18px; border-top: 3px solid var(--dark);
+      background: var(--cream);
+    }
+    .feedback label {
+      font-weight: 900; font-size: 11px; letter-spacing: 0.16em;
+      text-transform: uppercase; display: block; margin-bottom: 6px;
+    }
+    .feedback textarea {
+      width: 100%; min-height: 80px; resize: vertical;
+      border: 2px solid var(--dark); background: white;
+      padding: 10px; font-family: inherit; font-size: 14px;
+      color: var(--dark);
+    }
+    .feedback textarea:focus { outline: 2px solid var(--orange); outline-offset: 1px; }
+    .feedback-actions {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 8px;
+    }
+    .save-indicator { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+    .save-indicator.saved { color: var(--secondary); }
+
+    /* Stories */
+    .week-block { margin-bottom: 40px; }
+    .week-header {
+      background: var(--dark); color: var(--cream);
+      padding: 12px 20px; font-weight: 900; font-size: 16px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer;
+      border: 3px solid var(--dark);
+    }
+    .week-header:hover { background: var(--bg-dark); }
+    .week-header .chev { transition: transform 0.2s; }
+    .week-block.collapsed .chev { transform: rotate(-90deg); }
+    .week-block.collapsed .day-group { display: none; }
+
+    .day-group {
+      padding: 14px 20px; border: 3px solid var(--dark); border-top: none;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      background: white;
+    }
+    .day-group + .day-group { border-top: 2px dashed var(--muted); }
+
+    .story-card {
+      background: var(--cream);
+      border: 3px solid var(--dark);
+      box-shadow: 5px 5px 0 0 var(--dark);
+      display: flex; flex-direction: column;
+      position: relative;
+    }
+    .story-card.done { box-shadow: 5px 5px 0 0 var(--secondary); }
+    .story-card img {
+      width: 100%; aspect-ratio: 9/16; object-fit: cover;
+      background: var(--dark);
+    }
+    .story-meta {
+      padding: 8px 10px; border-top: 2px solid var(--dark);
+      font-weight: 700; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+      display: flex; justify-content: space-between;
+    }
+    .story-meta .date { color: var(--muted); }
+    .story-meta .type { color: var(--primary); font-weight: 900; }
+    .story-card textarea {
+      width: 100%; min-height: 60px; resize: vertical;
+      border: none; border-top: 2px solid var(--dark);
+      padding: 8px 10px; font-family: inherit; font-size: 12px;
+      background: white; color: var(--dark);
+    }
+    .story-card textarea:focus { outline: 2px solid var(--orange); outline-offset: -2px; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--secondary); color: var(--cream);
+      padding: 14px 20px; font-weight: 700; font-size: 13px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: 3px solid var(--dark); box-shadow: 6px 6px 0 0 var(--dark);
+      opacity: 0; transition: opacity 0.2s, transform 0.2s;
+      transform: translateY(8px); pointer-events: none; z-index: 200;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Empty state */
+    .empty {
+      padding: 40px; text-align: center; color: var(--muted);
+      font-weight: 600;
+    }
+
+    @media (max-width: 700px) {
+      h2 { font-size: 30px; }
+      header h1 { font-size: 16px; }
+      main { padding: 20px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Enrola · <span class="accent">Planificación Mes 2</span></h1>
+  <div class="header-right">
+    <span class="stat"><span class="n" id="statPosts">0</span>/<span id="statPostsTotal">0</span> posts</span>
+    <span class="stat"><span class="n" id="statStories">0</span>/<span id="statStoriesTotal">0</span> stories</span>
+    <button class="btn small ghost" id="clearBtn" title="Borrar todo el feedback">↻ Reset</button>
+    <button class="btn small" id="exportBtn">↓ Exportar</button>
+  </div>
+</header>
+
+<nav class="jump">
+  <span style="font-weight:900; letter-spacing:0.12em; font-size:12px;">IR A →</span>
+  <a href="#posts">Posts Mes 2</a>
+  <a href="#stories">Stories</a>
+</nav>
+
+<main>
+
+<section id="posts">
+  <h2>Posts <span class="em">Mes 2</span><span class="count" id="postsCount"></span></h2>
+  <div class="posts-grid" id="postsGrid"></div>
+</section>
+
+<section id="stories">
+  <h2>Stories <span class="em">diarias</span><span class="count" id="storiesCount"></span></h2>
+  <div id="storiesRoot"></div>
+</section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==== DATA (inlined — see _dashboard-data.json for source) ====
+const DATA = {
+  "posts": [],
+  "stories": []
+};
+
+// We load the data inline from the JSON file. Replace DATA on init.
+// (Actually we'll fetch it at load time if served, or inline it for file://)
+// ====
+</script>
+
+<script>
+// Load the data inline. When served from file://, fetch() of local JSON may be blocked
+// in some browsers; to be safe we embed the JSON at build time.
+const _EMBEDDED_DATA = {
+  "posts": [
+    {
+      "id": "post-05-carbon-activo",
+      "number": "05",
+      "title": "Post 05 · ¿Qué hace el carbón activo?",
+      "date": "Jueves 30 Abr · 20:00 VE",
+      "pillar": "Educational",
+      "format": "Reel",
+      "cover": "mes-2/post-05-carbon-activo/cover.jpg",
+      "previews": [
+        "mes-2/post-05-carbon-activo/reel.mp4"
+      ],
+      "copy": "El arte de armar empieza por cómo termina.\n\nEl carbón activo atrapa partículas y calor — el humo pasa más limpio, el sabor se nota más.\n\nPack de 10 uds · €7\nLink en la bio → Filtros.\n\n#EnrolaShop #ElArteDeArmar #CarbonActivo"
+    },
+    {
+      "id": "post-06-sabores-alien",
+      "number": "06",
+      "title": "Post 06 · Los sabores de Alien Puff",
+      "date": "Lunes 4 May · 19:00 VE",
+      "pillar": "Educational",
+      "format": "Carrusel",
+      "previews": [
+        "mes-2/post-06-sabores-alien/slides/01-portada.jpg",
+        "mes-2/post-06-sabores-alien/slides/02-frutos-bosque.jpg",
+        "mes-2/post-06-sabores-alien/slides/03-aromaticos.jpg",
+        "mes-2/post-06-sabores-alien/slides/04-frutales.jpg"
+      ],
+      "copy": "15 sabores. 3 familias. Un solo catálogo.\n\nFrutos del bosque · Aromáticos · Frutales.\nRolling paper saborizado Alien Puff — €2.50.\n\nDisponibles también como:\n→ Conos saborizados (12 uds) · €10\n→ Conos celulosa saborizados (12 uds) · €11\n→ Filtros carbón activo (10 uds) · €7\n\nGuarda este post para no perderte tu favorito. Link en la bio.\n\n#EnrolaShop #ElArteDeArmar #AlienPuff"
+    },
+    {
+      "id": "post-07-pedido-bts",
+      "number": "07",
+      "title": "Post 07 · Un pedido de principio a fin",
+      "date": "Jueves 7 May · 20:00 VE",
+      "pillar": "BTS",
+      "format": "Reel",
+      "cover": "mes-2/post-07-pedido-bts/cover.jpg",
+      "previews": [
+        "mes-2/post-07-pedido-bts/reel.mp4"
+      ],
+      "copy": "El arte de armar empieza antes de que abras tu paquete.\n\nCada pedido se prepara a mano, se revisa, se sella. Sin prisa.\n\nCatálogo completo → link en la bio.\n\n#EnrolaShop #ElArteDeArmar"
+    },
+    {
+      "id": "post-08-grinder-vs",
+      "number": "08",
+      "title": "Post 08 · ¿Cuál grinder es tuyo?",
+      "date": "Lunes 11 May · 19:00 VE",
+      "pillar": "Engagement",
+      "format": "Single",
+      "previews": [
+        "mes-2/post-08-grinder-vs/post.jpg"
+      ],
+      "copy": "¿Equipo A o Equipo B?\n\nA — Grinder Rellenador con portaconos · €10\n    El que simplifica el armado.\n\nB — Grinder Plástico 60mm · €6\n    El clásico directo.\n\nComenta tu letra 👇 — mañana armamos post con el ganador.\n\nLink en la bio → Grinders.\n\n#EnrolaShop #ElArteDeArmar #Grinders"
+    },
+    {
+      "id": "post-09-mezcla-combo",
+      "number": "09",
+      "title": "Post 09 · Mezcla lo que quieras",
+      "date": "Jueves 14 May · 20:00 VE",
+      "pillar": "Promotional",
+      "format": "Reel",
+      "cover": "mes-2/post-09-mezcla-combo/cover.jpg",
+      "previews": [
+        "mes-2/post-09-mezcla-combo/reel.mp4"
+      ],
+      "copy": "No necesitas cupón.\n\n🟧 3 items → 10% OFF\n🟧 5 items → 15% OFF\n🟧 10 items → 20% OFF\n\nMezcla papers, conos, filtros, grinders — lo que quieras cuenta.\n+ Envío gratis con €10 en Valencia.\n\nLink en la bio → Tienda.\n\n#EnrolaShop #ElArteDeArmar"
+    },
+    {
+      "id": "post-10-un-mes",
+      "number": "10",
+      "title": "Post 10 · Un mes de Enrola",
+      "date": "Lunes 18 May · 19:00 VE",
+      "pillar": "Social Proof",
+      "format": "Carrusel",
+      "previews": [
+        "mes-2/post-10-un-mes/slides/01-portada.jpg",
+        "mes-2/post-10-un-mes/slides/02-mas-vendidos.jpg",
+        "mes-2/post-10-un-mes/slides/03-sabor-ganador.jpg",
+        "mes-2/post-10-un-mes/slides/04-combo-favorito.jpg",
+        "mes-2/post-10-un-mes/slides/05-teaser.jpg"
+      ],
+      "copy": "1 mes armando contigo.\n\nGracias por confiar en la tienda. Esto es lo que más salió, lo que más gustó, y lo que viene.\n\nÚnete al Club Enrola en enrola.shop — ofertas, lanzamientos y contenido solo para miembros.\n\n#EnrolaShop #ElArteDeArmar #UnMes"
+    },
+    {
+      "id": "post-11-tips-enrolar",
+      "number": "11",
+      "title": "Post 11 · 3 errores al enrolar",
+      "date": "Jueves 21 May · 20:00 VE",
+      "pillar": "Educational",
+      "format": "Reel",
+      "cover": "mes-2/post-11-tips-enrolar/cover.jpg",
+      "previews": [
+        "mes-2/post-11-tips-enrolar/reel.mp4"
+      ],
+      "copy": "El arte de armar se aprende.\n\n3 errores comunes que arruinan el resultado:\n1 — Muy poco material: pierdes el cuerpo.\n2 — Sin filtro: humo áspero y sabor plano.\n3 — Grinder sucio: el corte cambia todo.\n\nTodo lo necesitas en enrola.shop — link en la bio.\n\n#EnrolaShop #ElArteDeArmar #Tips"
+    },
+    {
+      "id": "post-12-dominguero",
+      "number": "12",
+      "title": "Post 12 · Dominguero",
+      "date": "Domingo 24 May · 14:00 VE",
+      "pillar": "Engagement",
+      "format": "Single",
+      "previews": [
+        "mes-2/post-12-dominguero/post.jpg"
+      ],
+      "copy": "Dominguero.\n\n¿Qué están armando hoy? 👇\n\nCatálogo completo → link en la bio.\n\n#EnrolaShop #ElArteDeArmar #Dominguero"
+    },
+    {
+      "id": "post-F01-tres-flores",
+      "number": "F01",
+      "title": "F01 · Tres flores para relajarte",
+      "date": "Sábado 16 May · 14:00 VE",
+      "pillar": "Flores · Educational",
+      "format": "Carrusel",
+      "previews": [
+        "flores/F01-tres-flores/slides/01-portada.jpg",
+        "flores/F01-tres-flores/slides/02-manzanilla.jpg",
+        "flores/F01-tres-flores/slides/03-rosas.jpg",
+        "flores/F01-tres-flores/slides/04-jazmin-cta.jpg"
+      ],
+      "copy": "3 flores. 1 arte.\n\n🌼 Manzanilla — calma el sistema nervioso sin tabaco.\n🌹 Rosas — aroma floral, relajación ancestral.\n🌸 Jazmín — ritual nocturno para desconectar.\n\nTres flores medicinales 100% legales. Mismo arte de armar.\n\nPapers Enrola en la bio. Guarda este post para tu próxima noche relajada.\n\n#EnrolaShop #ElArteDeArmar #HablemosDeFlores"
+    },
+    {
+      "id": "post-F02-manzanilla-ritual",
+      "number": "F02",
+      "title": "F02 · Manzanilla · Ritual de tarde",
+      "date": "Jueves 28 May · 20:00 VE",
+      "pillar": "Flores · Lifestyle",
+      "format": "Reel",
+      "cover": "flores/F02-manzanilla-ritual/cover.jpg",
+      "previews": [
+        "flores/F02-manzanilla-ritual/reel.mp4"
+      ],
+      "copy": "El ritual más antiguo de Venezuela.\n\nLa manzanilla calma. Relaja sin tabaco, sin nicotina. Solo flor, papel y fuego.\n\nPapers Enrola — desde €2.50.\n\nEl arte va más allá del tabaco.\n\n#EnrolaShop #ElArteDeArmar #Manzanilla #HablemosDeFlores"
+    },
+    {
+      "id": "post-F03-arte-mas-alla",
+      "number": "F03",
+      "title": "F03 · El arte va más allá del tabaco",
+      "date": "Domingo 31 May · 14:00 VE",
+      "pillar": "Flores · Manifiesto",
+      "format": "Single",
+      "previews": [
+        "flores/F03-arte-mas-alla/post.jpg"
+      ],
+      "copy": "El arte de armar · manifiesto.\n\nEnrola no es solo para tabaco.\nEs para manzanilla, jazmín, rosas — y todo lo legal que te haga bien.\n\nLos papers son solo herramienta. El ritual lo pones tú.\n\nenrola.shop\n\n#EnrolaShop #ElArteDeArmar #Manifiesto #HablemosDeFlores"
+    }
+  ],
+  "stories": [
+    {
+      "id": "story-2026-04-27-1-repost",
+      "date": "2026-04-27",
+      "slot": 1,
+      "type": "repost",
+      "preview": "stories/daily/2026-04-27/01-repost.jpg"
+    },
+    {
+      "id": "story-2026-04-27-2-dyk",
+      "date": "2026-04-27",
+      "slot": 2,
+      "type": "dyk",
+      "preview": "stories/daily/2026-04-27/02-dyk.jpg"
+    },
+    {
+      "id": "story-2026-04-27-3-product",
+      "date": "2026-04-27",
+      "slot": 3,
+      "type": "product",
+      "preview": "stories/daily/2026-04-27/03-product.jpg"
+    },
+    {
+      "id": "story-2026-04-28-1-poll",
+      "date": "2026-04-28",
+      "slot": 1,
+      "type": "poll",
+      "preview": "stories/daily/2026-04-28/01-poll.jpg"
+    },
+    {
+      "id": "story-2026-04-28-2-bts",
+      "date": "2026-04-28",
+      "slot": 2,
+      "type": "bts",
+      "preview": "stories/daily/2026-04-28/02-bts.jpg"
+    },
+    {
+      "id": "story-2026-04-29-1-product",
+      "date": "2026-04-29",
+      "slot": 1,
+      "type": "product",
+      "preview": "stories/daily/2026-04-29/01-product.jpg"
+    },
+    {
+      "id": "story-2026-04-29-2-combo",
+      "date": "2026-04-29",
+      "slot": 2,
+      "type": "combo",
+      "preview": "stories/daily/2026-04-29/02-combo.jpg"
+    },
+    {
+      "id": "story-2026-04-30-1-repost",
+      "date": "2026-04-30",
+      "slot": 1,
+      "type": "repost",
+      "preview": "stories/daily/2026-04-30/01-repost.jpg"
+    },
+    {
+      "id": "story-2026-04-30-2-dyk",
+      "date": "2026-04-30",
+      "slot": 2,
+      "type": "dyk",
+      "preview": "stories/daily/2026-04-30/02-dyk.jpg"
+    },
+    {
+      "id": "story-2026-04-30-3-poll",
+      "date": "2026-04-30",
+      "slot": 3,
+      "type": "poll",
+      "preview": "stories/daily/2026-04-30/03-poll.jpg"
+    },
+    {
+      "id": "story-2026-05-01-1-product",
+      "date": "2026-05-01",
+      "slot": 1,
+      "type": "product",
+      "preview": "stories/daily/2026-05-01/01-product.jpg"
+    },
+    {
+      "id": "story-2026-05-01-2-quote",
+      "date": "2026-05-01",
+      "slot": 2,
+      "type": "quote",
+      "preview": "stories/daily/2026-05-01/02-quote.jpg"
+    },
+    {
+      "id": "story-2026-05-02-1-mood",
+      "date": "2026-05-02",
+      "slot": 1,
+      "type": "mood",
+      "preview": "stories/daily/2026-05-02/01-mood.jpg"
+    },
+    {
+      "id": "story-2026-05-02-2-combo",
+      "date": "2026-05-02",
+      "slot": 2,
+      "type": "combo",
+      "preview": "stories/daily/2026-05-02/02-combo.jpg"
+    },
+    {
+      "id": "story-2026-05-03-1-bts",
+      "date": "2026-05-03",
+      "slot": 1,
+      "type": "bts",
+      "preview": "stories/daily/2026-05-03/01-bts.jpg"
+    },
+    {
+      "id": "story-2026-05-03-2-product",
+      "date": "2026-05-03",
+      "slot": 2,
+      "type": "product",
+      "preview": "stories/daily/2026-05-03/02-product.jpg"
+    },
+    {
+      "id": "story-2026-05-04-1-repost",
+      "date": "2026-05-04",
+      "slot": 1,
+      "type": "repost",
+      "preview": "stories/daily/2026-05-04/01-repost.jpg"
+    },
+    {
+      "id": "story-2026-05-04-2-dyk",
+      "date": "2026-05-04",
+      "slot": 2,
+      "type": "dyk",
+      "preview": "stories/daily/2026-05-04/02-dyk.jpg"
+    },
+    {
+      "id": "story-2026-05-04-3-product",
+      "date": "2026-05-04",
+      "slot": 3,
+      "type": "product",
+      "preview": "stories/daily/2026-05-04/03-product.jpg"
+    },
+    {
+      "id": "story-2026-05-05-1-poll",
+      "date": "2026-05-05",
+      "slot": 1,
+      "type": "poll",
+      "preview": "stories/daily/2026-05-05/01-poll.jpg"
+    },
+    {
+      "id": "story-2026-05-05-2-bts",
+      "date": "2026-05-05",
+      "slot": 2,
+      "type": "bts",
+      "preview": "stories/daily/2026-05-05/02-bts.jpg"
+    },
+    {
+      "id": "story-2026-05-06-1-product",
+      "date": "2026-05-06",
+      "slot": 1,
+      "type": "product",
+      "preview": "stories/daily/2026-05-06/01-product.jpg"
+    },
+    {
+      "id": "story-2026-05-06-2-combo",
+      "date": "2026-05-06",
+      "slot": 2,
+      "type": "combo",
+      "preview": "stories/daily/2026-05-06/02-combo.jpg"
+    },
+    {
+      "id": "story-2026-05-07-1-repost",
+      "date": "2026-05-07",
+      "slot": 1,
+      "type": "repost",
+      "preview": "stories/daily/2026-05-07/01-repost.jpg"
+    },
+    {
+      "id": "story-2026-05-07-2-dyk",
+      "date": "2026-05-07",
+      "slot": 2,
+      "type": "dyk",
+      "preview": "stories/daily/2026-05-07/02-dyk.jpg"
+    },
+    {
+      "id": "story-2026-05-07-3-poll",
+      "date": "2026-05-07",
+      "slot": 3,
+      "type": "poll",
+      "preview": "stories/daily/2026-05-07/03-poll.jpg"
+    },
+    {
+      "id": "story-2026-05-08-1-product",
+      "date": "2026-05-08",
+      "slot": 1,
+      "type": "product",
+      "preview": "stories/daily/2026-05-08/01-product.jpg"
+    },
+    {
+      "id": "story-2026-05-08-2-quote",
+      "date": "2026-05-08",
+      "slot": 2,
+      "type": "quote",
+      "preview": "stories/daily/2026-05-08/02-quote.jpg"
+    },
+    {
+      "id": "story-2026-05-09-1-mood",
+      "date": "2026-05-09",
+      "slot": 1,
+      "type": "mood",
+      "preview": "stories/daily/2026-05-09/01-mood.jpg"
+    },
+    {
+      "id": "story-2026-05-09-2-combo",
+      "date": "2026-05-09",
+      "slot": 2,
+      "type": "combo",
+      "preview": "stories/daily/2026-05-09/02-combo.jpg"
+    },
+    {
+      "id": "story-2026-05-10-1-bts",
+      "date": "2026-05-10",
+      "slot": 1,
+      "type": "bts",
+      "preview": "stories/daily/2026-05-10/01-bts.jpg"
+    },
+    {
+      "id": "story-2026-05-10-2-product",
+      "date": "2026-05-10",
+      "slot": 2,
+      "type": "product",
+      "preview": "stories/daily/2026-05-10/02-product.jpg"
+    },
+    {
+      "id": "story-2026-05-11-1-repost",
+      "date": "2026-05-11",
+      "slot": 1,
+      "type": "repost",
+      "preview": "stories/daily/2026-05-11/01-repost.jpg"
+    },
+    {
+      "id": "story-2026-05-11-2-dyk",
+      "date": "2026-05-11",
+      "slot": 2,
+      "type": "dyk",
+      "preview": "stories/daily/2026-05-11/02-dyk.jpg"
+    },
+    {
+      "id": "story-2026-05-11-3-product",
+      "date": "2026-05-11",
+      "slot": 3,
+      "type": "product",
+      "preview": "stories/daily/2026-05-11/03-product.jpg"
+    },
+    {
+      "id": "story-2026-05-12-1-poll",
+      "date": "2026-05-12",
+      "slot": 1,
+      "type": "poll",
+      "preview": "stories/daily/2026-05-12/01-poll.jpg"
+    },
+    {
+      "id": "story-2026-05-12-2-bts",
+      "date": "2026-05-12",
+      "slot": 2,
+      "type": "bts",
+      "preview": "stories/daily/2026-05-12/02-bts.jpg"
+    },
+    {
+      "id": "story-2026-05-13-1-product",
+      "date": "2026-05-13",
+      "slot": 1,
+      "type": "product",
+      "preview": "stories/daily/2026-05-13/01-product.jpg"
+    },
+    {
+      "id": "story-2026-05-13-2-combo",
+      "date": "2026-05-13",
+      "slot": 2,
+      "type": "combo",
+      "preview": "stories/daily/2026-05-13/02-combo.jpg"
+    },
+    {
+      "id": "story-2026-05-14-1-repost",
+      "date": "2026-05-14",
+      "slot": 1,
+      "type": "repost",
+      "preview": "stories/daily/2026-05-14/01-repost.jpg"
+    },
+    {
+      "id": "story-2026-05-14-2-dyk",
+      "date": "2026-05-14",
+      "slot": 2,
+      "type": "dyk",
+      "preview": "stories/daily/2026-05-14/02-dyk.jpg"
+    },
+    {
+      "id": "story-2026-05-14-3-poll",
+      "date": "2026-05-14",
+      "slot": 3,
+      "type": "poll",
+      "preview": "stories/daily/2026-05-14/03-combo.jpg"
+    },
+    {
+      "id": "story-2026-05-15-1-product",
+      "date": "2026-05-15",
+      "slot": 1,
+      "type": "product",
+      "preview": "stories/daily/2026-05-15/01-product.jpg"
+    },
+    {
+      "id": "story-2026-05-15-2-quote",
+      "date": "2026-05-15",
+      "slot": 2,
+      "type": "quote",
+      "preview": "stories/daily/2026-05-15/02-quote.jpg"
+    },
+    {
+      "id": "story-2026-05-16-1-mood",
+      "date": "2026-05-16",
+      "slot": 1,
+      "type": "mood",
+      "preview": "stories/daily/2026-05-16/01-mood.jpg"
+    },
+    {
+      "id": "story-2026-05-16-2-combo",
+      "date": "2026-05-16",
+      "slot": 2,
+      "type": "combo",
+      "preview": "stories/daily/2026-05-16/02-combo.jpg"
+    },
+    {
+      "id": "story-2026-05-17-1-bts",
+      "date": "2026-05-17",
+      "slot": 1,
+      "type": "bts",
+      "preview": "stories/daily/2026-05-17/01-bts.jpg"
+    },
+    {
+      "id": "story-2026-05-17-2-product",
+      "date": "2026-05-17",
+      "slot": 2,
+      "type": "product",
+      "preview": "stories/daily/2026-05-17/02-product.jpg"
+    },
+    {
+      "id": "story-2026-05-18-1-repost",
+      "date": "2026-05-18",
+      "slot": 1,
+      "type": "repost",
+      "preview": "stories/daily/2026-05-18/01-repost.jpg"
+    },
+    {
+      "id": "story-2026-05-18-2-dyk",
+      "date": "2026-05-18",
+      "slot": 2,
+      "type": "dyk",
+      "preview": "stories/daily/2026-05-18/02-dyk.jpg"
+    },
+    {
+      "id": "story-2026-05-18-3-product",
+      "date": "2026-05-18",
+      "slot": 3,
+      "type": "product",
+      "preview": "stories/daily/2026-05-18/03-product.jpg"
+    },
+    {
+      "id": "story-2026-05-19-1-poll",
+      "date": "2026-05-19",
+      "slot": 1,
+      "type": "poll",
+      "preview": "stories/daily/2026-05-19/01-poll.jpg"
+    },
+    {
+      "id": "story-2026-05-19-2-bts",
+      "date": "2026-05-19",
+      "slot": 2,
+      "type": "bts",
+      "preview": "stories/daily/2026-05-19/02-bts.jpg"
+    },
+    {
+      "id": "story-2026-05-20-1-product",
+      "date": "2026-05-20",
+      "slot": 1,
+      "type": "product",
+      "preview": "stories/daily/2026-05-20/01-product.jpg"
+    },
+    {
+      "id": "story-2026-05-20-2-combo",
+      "date": "2026-05-20",
+      "slot": 2,
+      "type": "combo",
+      "preview": "stories/daily/2026-05-20/02-combo.jpg"
+    },
+    {
+      "id": "story-2026-05-21-1-repost",
+      "date": "2026-05-21",
+      "slot": 1,
+      "type": "repost",
+      "preview": "stories/daily/2026-05-21/01-repost.jpg"
+    },
+    {
+      "id": "story-2026-05-21-2-dyk",
+      "date": "2026-05-21",
+      "slot": 2,
+      "type": "dyk",
+      "preview": "stories/daily/2026-05-21/02-dyk.jpg"
+    },
+    {
+      "id": "story-2026-05-21-3-poll",
+      "date": "2026-05-21",
+      "slot": 3,
+      "type": "poll",
+      "preview": "stories/daily/2026-05-21/03-poll.jpg"
+    },
+    {
+      "id": "story-2026-05-22-1-product",
+      "date": "2026-05-22",
+      "slot": 1,
+      "type": "product",
+      "preview": "stories/daily/2026-05-22/01-product.jpg"
+    },
+    {
+      "id": "story-2026-05-22-2-quote",
+      "date": "2026-05-22",
+      "slot": 2,
+      "type": "quote",
+      "preview": "stories/daily/2026-05-22/02-quote.jpg"
+    },
+    {
+      "id": "story-2026-05-23-1-mood",
+      "date": "2026-05-23",
+      "slot": 1,
+      "type": "mood",
+      "preview": "stories/daily/2026-05-23/01-mood.jpg"
+    },
+    {
+      "id": "story-2026-05-23-2-combo",
+      "date": "2026-05-23",
+      "slot": 2,
+      "type": "combo",
+      "preview": "stories/daily/2026-05-23/02-combo.jpg"
+    },
+    {
+      "id": "story-2026-04-29-3-promo-tiers",
+      "date": "2026-04-29",
+      "slot": 3,
+      "type": "dyk",
+      "preview": "promotions/story-tiers-volumen/preview.jpg"
+    },
+    {
+      "id": "story-2026-05-01-3-promo-puntos",
+      "date": "2026-05-01",
+      "slot": 3,
+      "type": "dyk",
+      "preview": "promotions/story-puntos-club/preview.jpg"
+    },
+    {
+      "id": "story-2026-05-03-3-promo-envio",
+      "date": "2026-05-03",
+      "slot": 3,
+      "type": "dyk",
+      "preview": "promotions/story-envio-valencia/preview.jpg"
+    },
+    {
+      "id": "story-2026-05-05-3-promo-referidos",
+      "date": "2026-05-05",
+      "slot": 3,
+      "type": "dyk",
+      "preview": "promotions/story-referidos/preview.jpg"
+    },
+    {
+      "id": "story-2026-05-08-3-promo-tiers",
+      "date": "2026-05-08",
+      "slot": 3,
+      "type": "dyk",
+      "preview": "promotions/story-tiers-volumen/preview.jpg"
+    },
+    {
+      "id": "story-2026-05-10-3-promo-puntos",
+      "date": "2026-05-10",
+      "slot": 3,
+      "type": "dyk",
+      "preview": "promotions/story-puntos-club/preview.jpg"
+    },
+    {
+      "id": "story-2026-05-12-3-promo-envio",
+      "date": "2026-05-12",
+      "slot": 3,
+      "type": "dyk",
+      "preview": "promotions/story-envio-valencia/preview.jpg"
+    },
+    {
+      "id": "story-2026-05-15-3-promo-referidos",
+      "date": "2026-05-15",
+      "slot": 3,
+      "type": "dyk",
+      "preview": "promotions/story-referidos/preview.jpg"
+    },
+    {
+      "id": "story-2026-05-17-3-promo-tiers",
+      "date": "2026-05-17",
+      "slot": 3,
+      "type": "dyk",
+      "preview": "promotions/story-tiers-volumen/preview.jpg"
+    },
+    {
+      "id": "story-2026-05-19-3-promo-puntos",
+      "date": "2026-05-19",
+      "slot": 3,
+      "type": "dyk",
+      "preview": "promotions/story-puntos-club/preview.jpg"
+    },
+    {
+      "id": "story-2026-05-22-3-promo-envio",
+      "date": "2026-05-22",
+      "slot": 3,
+      "type": "dyk",
+      "preview": "promotions/story-envio-valencia/preview.jpg"
+    },
+    {
+      "id": "story-2026-05-23-3-promo-referidos",
+      "date": "2026-05-23",
+      "slot": 3,
+      "type": "dyk",
+      "preview": "promotions/story-referidos/preview.jpg"
+    }
+  ]
+};
+Object.assign(DATA, _EMBEDDED_DATA);
+</script>
+
+<script>
+// Storage
+const STORAGE_KEY = "enrola-feedback-mes2";
+
+function loadFeedback() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+  catch { return {}; }
+}
+function saveFeedback(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function getItem(id) {
+  const s = loadFeedback();
+  return s[id] || { text: "", reviewed_at: null };
+}
+function setItem(id, text, reviewed = null) {
+  const s = loadFeedback();
+  s[id] = {
+    text,
+    reviewed_at: reviewed !== null ? reviewed : (s[id]?.reviewed_at ?? null),
+    updated_at: new Date().toISOString(),
+  };
+  saveFeedback(s);
+  updateStats();
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 1600);
+}
+
+function updateStats() {
+  const s = loadFeedback();
+  const postCount = DATA.posts.filter(p => (s[p.id]?.text || "").trim()).length;
+  const storyCount = DATA.stories.filter(st => (s[st.id]?.text || "").trim()).length;
+  document.getElementById("statPosts").textContent = postCount;
+  document.getElementById("statPostsTotal").textContent = DATA.posts.length;
+  document.getElementById("statStories").textContent = storyCount;
+  document.getElementById("statStoriesTotal").textContent = DATA.stories.length;
+  document.getElementById("postsCount").textContent = `(${DATA.posts.length})`;
+  document.getElementById("storiesCount").textContent = `(${DATA.stories.length})`;
+}
+
+// ==== Render POSTS ====
+function renderPost(post) {
+  const state = getItem(post.id);
+  const hasFeedback = (state.text || "").trim().length > 0;
+
+  // Detect video whether the src is a file path (.mp4) or a data URI (data:video/*)
+  const isVideo = (src) => src.endsWith(".mp4") || src.startsWith("data:video/");
+  let mediaHTML;
+  if (post.previews.length === 1 && isVideo(post.previews[0])) {
+    // Reel: show cover PNG first, then video below
+    const coverPart = post.cover
+      ? `<div class="reel-cover-wrap"><div class="reel-cover-label">Portada (1er frame)</div><img src="${post.cover}" loading="lazy"></div>`
+      : "";
+    mediaHTML = `${coverPart}<div class="media"><video src="${post.previews[0]}" ${post.cover ? `poster="${post.cover}"` : ""} controls preload="metadata" playsinline></video></div>`;
+  } else if (post.previews.length === 1) {
+    mediaHTML = `<div class="media"><img src="${post.previews[0]}" loading="lazy"></div>`;
+  } else {
+    // carousel — horizontal snap scroll with nav (JS-sized widths)
+    const slides = post.previews.map((p, i) =>
+      `<img src="${p}" loading="lazy" data-slide="${i}" alt="slide ${i+1}">`
+    ).join("");
+    const dots = post.previews.map((_, i) =>
+      `<button class="dot${i === 0 ? " active" : ""}" data-goto="${i}" aria-label="Slide ${i+1}"></button>`
+    ).join("");
+    mediaHTML = `
+      <div class="carousel-wrap" data-carousel>
+        <div class="media carousel">${slides}</div>
+        <div class="carousel-nav">
+          <button data-prev aria-label="Anterior" disabled>←</button>
+          <div class="carousel-dots">${dots}</div>
+          <span class="counter"><span class="current">1</span> / ${post.previews.length}</span>
+          <button data-next aria-label="Siguiente"${post.previews.length <= 1 ? ' disabled' : ''}>→</button>
+        </div>
+      </div>
+    `;
+  }
+
+  const card = document.createElement("div");
+  card.className = "card" + (hasFeedback ? " done" : "");
+  card.dataset.id = post.id;
+  card.innerHTML = `
+    <div class="card-header">
+      <div>
+        <div class="card-title">#${post.number} · ${escapeHtml(post.title.replace(/^Post \d+ · /, ""))}</div>
+        <div class="card-meta">${escapeHtml(post.date)} · ${escapeHtml(post.pillar)}</div>
+      </div>
+      <span class="pill ${post.format.toLowerCase()}">${escapeHtml(post.format)}</span>
+    </div>
+    ${mediaHTML}
+    ${post.copy ? `
+      <div class="copy-block">
+        <div class="copy-label">Caption IG</div>
+        ${escapeHtml(post.copy)}
+      </div>
+    ` : ""}
+    <div class="feedback">
+      <label>Feedback / cambios a ejecutar</label>
+      <textarea placeholder="Escribe aquí lo que quieras cambiar…">${escapeHtml(state.text || "")}</textarea>
+      <div class="feedback-actions">
+        <span class="save-indicator ${hasFeedback ? "saved" : ""}">${hasFeedback ? "✓ guardado" : "sin feedback"}</span>
+        <button class="btn small ghost" style="color:var(--dark); border-color:var(--dark); background:transparent;" data-clear>Borrar</button>
+      </div>
+    </div>
+  `;
+  const textarea = card.querySelector("textarea");
+  const indicator = card.querySelector(".save-indicator");
+  textarea.addEventListener("input", () => {
+    setItem(post.id, textarea.value);
+    card.classList.toggle("done", textarea.value.trim().length > 0);
+    indicator.textContent = textarea.value.trim() ? "✓ guardado" : "sin feedback";
+    indicator.classList.toggle("saved", textarea.value.trim().length > 0);
+  });
+  card.querySelector("[data-clear]").addEventListener("click", () => {
+    textarea.value = "";
+    setItem(post.id, "");
+    card.classList.remove("done");
+    indicator.textContent = "sin feedback";
+    indicator.classList.remove("saved");
+  });
+
+  // Carousel nav — only if this post has one
+  const carouselWrap = card.querySelector("[data-carousel]");
+  if (carouselWrap) {
+    const scroller = carouselWrap.querySelector(".media.carousel");
+    const imgs = scroller.querySelectorAll("img");
+    const prevBtn = carouselWrap.querySelector("[data-prev]");
+    const nextBtn = carouselWrap.querySelector("[data-next]");
+    const counter = carouselWrap.querySelector(".counter .current");
+    const dots = carouselWrap.querySelectorAll(".dot");
+    const total = dots.length;
+    let currentIdx = 0;
+
+    // Set each image's width to the scroller's clientWidth (bulletproof sizing)
+    function sizeSlides() {
+      const w = scroller.clientWidth;
+      if (!w) return;
+      imgs.forEach(img => { img.style.width = w + "px"; });
+      // Snap back to currentIdx in new sizing
+      scroller.scrollLeft = currentIdx * w;
+    }
+
+    function updateActive() {
+      const w = scroller.clientWidth;
+      if (!w) return;
+      const idx = Math.round(scroller.scrollLeft / w);
+      if (idx === currentIdx) return;
+      currentIdx = idx;
+      counter.textContent = idx + 1;
+      dots.forEach((d, i) => d.classList.toggle("active", i === idx));
+      prevBtn.disabled = idx <= 0;
+      nextBtn.disabled = idx >= total - 1;
+    }
+
+    function scrollTo(idx) {
+      currentIdx = idx;
+      scroller.scrollTo({ left: idx * scroller.clientWidth, behavior: "smooth" });
+      counter.textContent = idx + 1;
+      dots.forEach((d, i) => d.classList.toggle("active", i === idx));
+      prevBtn.disabled = idx <= 0;
+      nextBtn.disabled = idx >= total - 1;
+    }
+
+    prevBtn.addEventListener("click", () => scrollTo(Math.max(0, currentIdx - 1)));
+    nextBtn.addEventListener("click", () => scrollTo(Math.min(total - 1, currentIdx + 1)));
+    dots.forEach((d, i) => d.addEventListener("click", () => scrollTo(i)));
+    scroller.addEventListener("scroll", () => window.requestAnimationFrame(updateActive));
+
+    // Size now + on resize + after images load (in case layout changes)
+    sizeSlides();
+    const ro = new ResizeObserver(sizeSlides);
+    ro.observe(scroller);
+    imgs.forEach(img => img.addEventListener("load", sizeSlides, { once: true }));
+  }
+
+  return card;
+}
+
+function renderPosts() {
+  const grid = document.getElementById("postsGrid");
+  grid.innerHTML = "";
+  DATA.posts.forEach(post => grid.appendChild(renderPost(post)));
+}
+
+// ==== Render STORIES ====
+function getWeekKey(dateStr) {
+  const d = new Date(dateStr + "T00:00:00");
+  const start = new Date(d);
+  start.setDate(d.getDate() - d.getDay() + 1); // Monday start
+  const e = new Date(start); e.setDate(start.getDate() + 6);
+  const fmt = (x) => x.toISOString().slice(0, 10);
+  return `${fmt(start)}—${fmt(e)}`;
+}
+
+function weekLabel(dateStr) {
+  const d = new Date(dateStr + "T00:00:00");
+  const start = new Date(d); start.setDate(d.getDate() - d.getDay() + 1);
+  const end = new Date(start); end.setDate(start.getDate() + 6);
+  const MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  return `Semana ${start.getDate()} ${MONTHS[start.getMonth()]} — ${end.getDate()} ${MONTHS[end.getMonth()]}`;
+}
+
+function prettyDate(dateStr) {
+  const d = new Date(dateStr + "T00:00:00");
+  const DAYS = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+  const MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  return `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`;
+}
+
+function renderStoryCard(st) {
+  const state = getItem(st.id);
+  const hasFeedback = (state.text || "").trim().length > 0;
+  const card = document.createElement("div");
+  card.className = "story-card" + (hasFeedback ? " done" : "");
+  card.innerHTML = `
+    <img src="${st.preview}" loading="lazy" alt="story">
+    <div class="story-meta">
+      <span class="date">${prettyDate(st.date)}</span>
+      <span class="type">${escapeHtml(st.type)} · slot ${st.slot}</span>
+    </div>
+    <textarea placeholder="Feedback…">${escapeHtml(state.text || "")}</textarea>
+  `;
+  const textarea = card.querySelector("textarea");
+  textarea.addEventListener("input", () => {
+    setItem(st.id, textarea.value);
+    card.classList.toggle("done", textarea.value.trim().length > 0);
+  });
+  return card;
+}
+
+function renderStories() {
+  const root = document.getElementById("storiesRoot");
+  root.innerHTML = "";
+  // group by week, then by day
+  const weeks = {};
+  DATA.stories.forEach(s => {
+    const wk = getWeekKey(s.date);
+    (weeks[wk] = weeks[wk] || []).push(s);
+  });
+  Object.keys(weeks).sort().forEach(wkKey => {
+    const first = weeks[wkKey][0];
+    const block = document.createElement("div");
+    block.className = "week-block";
+    const count = weeks[wkKey].length;
+    block.innerHTML = `<div class="week-header"><span>${weekLabel(first.date)} <span style="opacity:0.6; font-weight:600; margin-left:10px;">${count} stories</span></span><span class="chev">▼</span></div>`;
+    // group by day
+    const days = {};
+    weeks[wkKey].forEach(s => (days[s.date] = days[s.date] || []).push(s));
+    Object.keys(days).sort().forEach(date => {
+      const dg = document.createElement("div");
+      dg.className = "day-group";
+      days[date].sort((a, b) => a.slot - b.slot).forEach(s => dg.appendChild(renderStoryCard(s)));
+      block.appendChild(dg);
+    });
+    block.querySelector(".week-header").addEventListener("click", () => block.classList.toggle("collapsed"));
+    root.appendChild(block);
+  });
+}
+
+// ==== Utility ====
+function escapeHtml(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+// ==== Export + Clear ====
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const feedback = loadFeedback();
+  // Filter only items with actual feedback
+  const items = {};
+  for (const [id, val] of Object.entries(feedback)) {
+    if ((val.text || "").trim()) items[id] = val;
+  }
+  const out = {
+    project: "enrola-mes-2",
+    exported_at: new Date().toISOString(),
+    item_count: Object.keys(items).length,
+    feedback: items,
+  };
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const ts = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
+  a.download = `feedback-mes2-${ts}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Exportados ${out.item_count} feedbacks`);
+});
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+  if (!confirm("¿Borrar TODO el feedback de este navegador? Esto no afecta los archivos del proyecto, solo tus notas aquí.")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  renderPosts();
+  renderStories();
+  updateStats();
+  showToast("Feedback borrado");
+});
+
+// ==== Init ====
+renderPosts();
+renderStories();
+updateStats();
+</script>
+</body>
+</html>

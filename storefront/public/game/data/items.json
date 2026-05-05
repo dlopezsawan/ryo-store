@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "name": "Poción",
+    "category": "heal",
+    "effect": { "type": "heal_hp", "value": 30 },
+    "price": 10,
+    "description": "Restaura 30 HP",
+    "usableInBattle": true
+  },
+  {
+    "id": 2,
+    "name": "Super Poción",
+    "category": "heal",
+    "effect": { "type": "heal_hp", "value": 60 },
+    "price": 25,
+    "description": "Restaura 60 HP",
+    "usableInBattle": true
+  },
+  {
+    "id": 3,
+    "name": "Poción Max",
+    "category": "heal",
+    "effect": { "type": "heal_hp", "value": 9999 },
+    "price": 50,
+    "description": "Restaura todos los HP",
+    "usableInBattle": true
+  },
+  {
+    "id": 4,
+    "name": "Revivir",
+    "category": "heal",
+    "effect": { "type": "revive", "value": 0.5 },
+    "price": 75,
+    "description": "Revive una criatura con 50% HP",
+    "usableInBattle": true
+  },
+  {
+    "id": 5,
+    "name": "Revivir Max",
+    "category": "heal",
+    "effect": { "type": "revive", "value": 1.0 },
+    "price": 150,
+    "description": "Revive una criatura con todos sus HP",
+    "usableInBattle": true
+  },
+  {
+    "id": 6,
+    "name": "Antídoto",
+    "category": "heal",
+    "effect": { "type": "cure_status", "value": "poison" },
+    "price": 5,
+    "description": "Cura el envenenamiento",
+    "usableInBattle": true
+  },
+  {
+    "id": 7,
+    "name": "Despertar",
+    "category": "heal",
+    "effect": { "type": "cure_status", "value": "sleep_freeze" },
+    "price": 5,
+    "description": "Cura sueño y congelamiento",
+    "usableInBattle": true
+  },
+  {
+    "id": 8,
+    "name": "Cura Total",
+    "category": "heal",
+    "effect": { "type": "cure_status", "value": "all" },
+    "price": 15,
+    "description": "Cura todos los estados alterados",
+    "usableInBattle": true
+  },
+  {
+    "id": 9,
+    "name": "Enrolaball",
+    "category": "capture",
+    "effect": { "type": "capture", "value": 1.0 },
+    "price": 10,
+    "description": "Captura basica (x1)",
+    "usableInBattle": true
+  },
+  {
+    "id": 10,
+    "name": "Enrolaball Pro",
+    "category": "capture",
+    "effect": { "type": "capture", "value": 1.5 },
+    "price": 30,
+    "description": "Captura mejorada (x1.5)",
+    "usableInBattle": true
+  },
+  {
+    "id": 11,
+    "name": "Enrolaball Ultra",
+    "category": "capture",
+    "effect": { "type": "capture", "value": 2.0 },
+    "price": 60,
+    "description": "Captura avanzada (x2)",
+    "usableInBattle": true
+  },
+  {
+    "id": 12,
+    "name": "Enrolaball Master",
+    "category": "capture",
+    "effect": { "type": "capture", "value": 255 },
+    "price": 500,
+    "description": "Captura garantizada (100%)",
+    "usableInBattle": true
+  },
+  {
+    "id": 13,
+    "name": "Boost ATK",
+    "category": "battle",
+    "effect": { "type": "boost_stat", "stat": "atk", "stages": 1 },
+    "price": 15,
+    "description": "Aumenta el Ataque en 1 nivel",
+    "usableInBattle": true
+  },
+  {
+    "id": 14,
+    "name": "Boost DEF",
+    "category": "battle",
+    "effect": { "type": "boost_stat", "stat": "def", "stages": 1 },
+    "price": 15,
+    "description": "Aumenta la Defensa en 1 nivel",
+    "usableInBattle": true
+  },
+  {
+    "id": 15,
+    "name": "Boost SPD",
+    "category": "battle",
+    "effect": { "type": "boost_stat", "stat": "spd", "stages": 1 },
+    "price": 15,
+    "description": "Aumenta la Velocidad en 1 nivel",
+    "usableInBattle": true
+  },
+  {
+    "id": 16,
+    "name": "Boost SPE",
+    "category": "battle",
+    "effect": { "type": "boost_stat", "stat": "spe", "stages": 1 },
+    "price": 15,
+    "description": "Aumenta el Especial en 1 nivel",
+    "usableInBattle": true
+  },
+  {
+    "id": 17,
+    "name": "Piedra Evolución",
+    "category": "special",
+    "effect": { "type": "evolve", "value": 1 },
+    "price": 200,
+    "description": "Fuerza la evolución de una criatura",
+    "usableInBattle": false
+  },
+  {
+    "id": 18,
+    "name": "Reset Movimientos",
+    "category": "special",
+    "effect": { "type": "relearn_moves", "value": 1 },
+    "price": 50,
+    "description": "Permite reaprender movimientos olvidados",
+    "usableInBattle": false
+  },
+  {
+    "id": 19,
+    "name": "Repelente",
+    "category": "special",
+    "effect": { "type": "repel", "value": 50 },
+    "price": 20,
+    "description": "Evita encuentros salvajes durante 50 pasos",
+    "usableInBattle": false
+  },
+  {
+    "id": 20,
+    "name": "Cuerda Escape",
+    "category": "special",
+    "effect": { "type": "escape_dungeon", "value": 1 },
+    "price": 30,
+    "description": "Permite salir de una mazmorra al instante",
+    "usableInBattle": false
+  }
+]

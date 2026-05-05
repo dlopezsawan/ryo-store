@@ -1,0 +1,12 @@
+{
+  "HUMO":     { "HUMO": 1, "BRASA": 0.5, "HIERBA": 1, "CRISTAL": 1,   "TIERRA": 1,   "AGUA": 1,   "VIENTO": 0.5, "RESINA": 2,   "METAL": 1,   "ESPIRITU": 2   },
+  "BRASA":    { "HUMO": 2, "BRASA": 1,   "HIERBA": 2, "CRISTAL": 0.5, "TIERRA": 1,   "AGUA": 0.5, "VIENTO": 1,   "RESINA": 2,   "METAL": 0.5, "ESPIRITU": 1   },
+  "HIERBA":   { "HUMO": 1, "BRASA": 0.5, "HIERBA": 1, "CRISTAL": 1,   "TIERRA": 2,   "AGUA": 2,   "VIENTO": 1,   "RESINA": 0.5, "METAL": 0.5, "ESPIRITU": 1   },
+  "CRISTAL":  { "HUMO": 1, "BRASA": 0.5, "HIERBA": 1, "CRISTAL": 1,   "TIERRA": 0.5, "AGUA": 1,   "VIENTO": 2,   "RESINA": 1,   "METAL": 2,   "ESPIRITU": 0.5 },
+  "TIERRA":   { "HUMO": 1, "BRASA": 2,   "HIERBA": 0.5, "CRISTAL": 2, "TIERRA": 1,   "AGUA": 0.5, "VIENTO": 0,   "RESINA": 1,   "METAL": 2,   "ESPIRITU": 1   },
+  "AGUA":     { "HUMO": 1, "BRASA": 2,   "HIERBA": 0.5, "CRISTAL": 1, "TIERRA": 2,   "AGUA": 1,   "VIENTO": 1,   "RESINA": 0.5, "METAL": 1,   "ESPIRITU": 1   },
+  "VIENTO":   { "HUMO": 2, "BRASA": 1,   "HIERBA": 1, "CRISTAL": 0.5, "TIERRA": 1,   "AGUA": 1,   "VIENTO": 1,   "RESINA": 1,   "METAL": 0.5, "ESPIRITU": 2   },
+  "RESINA":   { "HUMO": 0.5, "BRASA": 0.5, "HIERBA": 2, "CRISTAL": 1, "TIERRA": 1,   "AGUA": 2,   "VIENTO": 1,   "RESINA": 1,   "METAL": 1,   "ESPIRITU": 0.5 },
+  "METAL":    { "HUMO": 1, "BRASA": 1,   "HIERBA": 2, "CRISTAL": 0.5, "TIERRA": 0.5, "AGUA": 1,   "VIENTO": 2,   "RESINA": 1,   "METAL": 1,   "ESPIRITU": 0.5 },
+  "ESPIRITU": { "HUMO": 0.5, "BRASA": 1, "HIERBA": 1, "CRISTAL": 2,   "TIERRA": 1,   "AGUA": 1,   "VIENTO": 0.5, "RESINA": 2,   "METAL": 2,   "ESPIRITU": 1   }
+}
