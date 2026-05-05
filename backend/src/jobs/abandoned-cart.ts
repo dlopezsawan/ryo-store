@@ -75,7 +75,20 @@ async function abandonedCartJob(container: MedusaContainer) {
       }))
 
       const cartTotal = items.reduce((sum: number, i: any) => sum + i.unit_price * i.quantity, 0)
-      const cartUrl = `${process.env.STORE_URL || "https://enrola.shop"}/cart`
+      // Use the cart-handoff endpoint (introduced in PR #34) so the link
+      // opens the customer's ACTUAL abandoned cart, not a generic /cart
+      // page. Without the handoff, the link previously pointed at /cart
+      // which doesn't exist (the storefront uses /carrito) — every
+      // recipient hit a 404. Even if we'd fixed the path to /carrito,
+      // they'd still land on whatever cart their browser had locally,
+      // not the one they actually abandoned.
+      //
+      // /cart/handoff?cart_id=... validates the id, writes it to the
+      // storefront's localStorage (`ryo_cart_id`), and redirects to
+      // /carrito with the real cart loaded. Same endpoint used by the
+      // WhatsApp bot's nacional handoff flow.
+      const baseUrl = process.env.STORE_URL || "https://enrola.shop"
+      const cartUrl = `${baseUrl}/cart/handoff?cart_id=${encodeURIComponent(cart.id)}`
       const subject = `${customerName.split(" ")[0]}, olvidaste algo en tu carrito 🛒`
       const html = abandonedCartEmailHtml(customerName, items, cartTotal, cartUrl)
 
