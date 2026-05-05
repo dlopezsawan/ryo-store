@@ -20,6 +20,21 @@ module.exports = defineConfig({
   },
   modules: [
     {
+      // The finanzas module owns 16 tables (pago_movil, expenses, wallets,
+      // conversions, rate snapshots, monthly closes, audit log, etc.) and
+      // is the data layer for everything under /admin/finanzas/* and the
+      // panel's Finanzas section.
+      //
+      // The module + its migrations existed for months, but at some point
+      // the resolve entry got dropped from this config — leaving the
+      // tables in place but the service unregistered. Result:
+      // every endpoint that did `container.resolve(FINANZAS_MODULE)`
+      // returned 500 ("Could not resolve 'finanzasModuleService'") and
+      // the panel's Finanzas tab showed "ERROR WALLETS / medusa GET
+      // /finanzas/* failed (500)" across the board.
+      resolve: "./src/modules/finanzas",
+    },
+    {
       resolve: "./src/modules/loyalty",
     },
     {
