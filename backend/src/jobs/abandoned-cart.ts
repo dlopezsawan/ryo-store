@@ -83,12 +83,12 @@ async function abandonedCartJob(container: MedusaContainer) {
       // they'd still land on whatever cart their browser had locally,
       // not the one they actually abandoned.
       //
-      // /cart/handoff?cart_id=... validates the id, writes it to the
+      // /carrito/handoff?cart_id=... validates the id, writes it to the
       // storefront's localStorage (`ryo_cart_id`), and redirects to
       // /carrito with the real cart loaded. Same endpoint used by the
       // WhatsApp bot's nacional handoff flow.
       const baseUrl = process.env.STORE_URL || "https://enrola.shop"
-      const cartUrl = `${baseUrl}/cart/handoff?cart_id=${encodeURIComponent(cart.id)}`
+      const cartUrl = `${baseUrl}/carrito/handoff?cart_id=${encodeURIComponent(cart.id)}`
       const subject = `${customerName.split(" ")[0]}, olvidaste algo en tu carrito 🛒`
       const html = abandonedCartEmailHtml(customerName, items, cartTotal, cartUrl)
 
