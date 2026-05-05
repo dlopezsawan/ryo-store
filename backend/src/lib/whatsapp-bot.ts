@@ -1591,12 +1591,13 @@ FLUJO DE PEDIDO:
        esos se completan en el checkout web.
      → Cuando el cliente confirme los productos, llama view_order_summary.
        El resumen incluye automáticamente un LINK al cart pre-cargado
-       (formato ${STORE_URL}/cart/handoff?cart_id=...).
+       (formato ${STORE_URL}/carrito/handoff?cart_id=...).
      → Mándale el link junto a un mensaje breve estilo:
         "Listo 🌸 te dejo tu carrito armado para que termines en la web —
          entrega por MRW a toda Venezuela:
          <link>
          Solo agregás cédula + dirección y pagás. ¡Cualquier cosa avísame! 💁‍♀️"
+     → El link viene en formato ${STORE_URL}/carrito/handoff?cart_id=...
      → NO llames submit_order para zona nacional — el checkout completa
        en la web. Tu trabajo termina cuando le mandaste el link.
 
@@ -1903,7 +1904,7 @@ export function buildGreeting(): string {
  * the SAME cart they already built over chat with Dana.
  *
  * Three cases:
- *   - Has a cart_id: deep link via /cart/handoff?cart_id=XXX, which writes
+ *   - Has a cart_id: deep link via /carrito/handoff?cart_id=XXX, which writes
  *     the cart to the storefront's localStorage and redirects to /carrito.
  *     The customer sees their items already loaded — zero rebuild work.
  *   - Has items but no cart_id (rare; cart wasn't materialized yet): fall
@@ -1917,7 +1918,7 @@ export function buildGreeting(): string {
  */
 function buildCartUrl(items: OrderData["items"], cartId?: string | null): string {
   if (cartId && /^cart_[A-Za-z0-9]+$/.test(cartId)) {
-    return `${STORE_URL}/cart/handoff?cart_id=${encodeURIComponent(cartId)}`
+    return `${STORE_URL}/carrito/handoff?cart_id=${encodeURIComponent(cartId)}`
   }
   if (items.length === 0) return STORE_URL
   return `${STORE_URL}/productos/${items[0].handle}`
