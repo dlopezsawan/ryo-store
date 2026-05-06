@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root { --primary: #BB3B2E; --orange: #FF3B27; --secondary: #4D5431; --cream: #F5F2E8; --dark: #1A1A1A; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 1080px; height: 1920px; overflow: hidden; }
+    body {
+      font-family: 'Kanit', system-ui, sans-serif;
+      background: var(--cream); color: var(--dark);
+      -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision;
+    }
+
+    .story {
+      width: 1080px; height: 1920px;
+      padding: 220px 80px 320px 64px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      row-gap: 56px;
+    }
+
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .brand { font-weight: 900; font-size: 30px; letter-spacing: 0.28em; text-transform: uppercase; display: flex; align-items: center; gap: 16px; }
+    .brand .dot { width: 16px; height: 16px; background: var(--orange); border: 3px solid var(--dark); }
+    .badge {
+      font-weight: 900; font-size: 24px; letter-spacing: 0.22em;
+      text-transform: uppercase; padding: 12px 22px;
+      background: var(--orange); color: var(--cream);
+      border: 4px solid var(--dark); box-shadow: 6px 6px 0 0 var(--dark);
+    }
+
+    .hero { }
+    .eyebrow { font-weight: 700; font-size: 32px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--primary); margin-bottom: 20px; }
+    .h1 { font-weight: 900; font-size: 156px; line-height: 0.86; letter-spacing: -0.04em; text-transform: uppercase; }
+    .h1 .em { color: var(--orange); }
+
+    .body {
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      gap: 56px;
+    }
+    .icon-row { display: flex; align-items: center; gap: 36px; }
+    .person {
+      width: 180px; height: 180px;
+      background: var(--cream);
+      border: 8px solid var(--dark);
+      border-radius: 50%;
+      box-shadow: 12px 12px 0 0 var(--dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 92px;
+    }
+    .arrow {
+      width: 0; height: 0;
+      border-top: 26px solid transparent;
+      border-bottom: 26px solid transparent;
+      border-left: 44px solid var(--dark);
+    }
+    .points-block { text-align: center; }
+    .points-num { font-weight: 900; font-size: 280px; line-height: 0.85; color: var(--orange); letter-spacing: -0.06em; }
+    .points-label { font-weight: 900; font-size: 44px; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; }
+    .points-sub { font-weight: 600; font-size: 30px; letter-spacing: 0.04em; color: var(--secondary); margin-top: 10px; }
+
+    .cta { text-align: center; }
+    .cta .label { font-weight: 700; font-size: 32px; letter-spacing: 0.04em; line-height: 1.2; }
+    .cta .em { color: var(--primary); font-weight: 900; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="story">
+    <div class="header">
+      <div class="brand"><span class="dot"></span>Enrola · Shop</div>
+      <div class="badge">Tip · 03</div>
+    </div>
+    <div class="hero">
+      <div class="eyebrow">Tu link te paga literal</div>
+      <div class="h1">Invita<br/><span class="em">amigos.</span></div>
+    </div>
+    <div class="body">
+      <div class="icon-row">
+        <div class="person">🤝</div>
+        <div class="arrow"></div>
+        <div class="person">🤝</div>
+      </div>
+      <div class="points-block">
+        <div class="points-num">+200</div>
+        <div class="points-label">Puntos · Cada uno</div>
+        <div class="points-sub">cuando tu amigo haga su primera compra</div>
+      </div>
+    </div>
+    <div class="cta">
+      <div class="label">Tu link en <span class="em">Mi Cuenta · Referidos</span></div>
+    </div>
+  </div>
+</body>
+</html>

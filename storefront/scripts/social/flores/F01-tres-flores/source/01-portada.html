@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="../../../lib/shared.css">
+<style>
+  .frame { background: var(--cream); }
+
+  .hero {
+    position: absolute; left: 64px; right: 64px;
+    top: 50%; transform: translateY(-50%);
+    z-index: 2;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+  .eyebrow {
+    font-weight: 700; font-size: 28px; letter-spacing: 0.28em;
+    text-transform: uppercase; color: var(--primary);
+  }
+  .h1 {
+    font-weight: 900; font-size: 220px; line-height: 0.88;
+    letter-spacing: -0.05em; text-transform: uppercase;
+    color: var(--dark);
+  }
+  .h1 .em { color: var(--primary); }
+  .h1 .small { font-size: 100px; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--secondary); }
+  .sub {
+    font-weight: 700; font-size: 30px; line-height: 1.3;
+    letter-spacing: 0.02em; text-transform: uppercase;
+    color: var(--dark); margin-top: 8px;
+  }
+
+  .flower-row {
+    display: flex; gap: 20px; margin-top: 16px;
+  }
+  .flower-card {
+    flex: 1;
+    aspect-ratio: 1;
+    background: var(--cream);
+    border: 4px solid var(--dark);
+    box-shadow: 8px 8px 0 0 var(--dark);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px; padding: 18px;
+  }
+  .flower-card.alt { box-shadow: 8px 8px 0 0 var(--orange); }
+  .flower-emoji { font-size: 80px; line-height: 1; }
+  .flower-name {
+    font-weight: 900; font-size: 22px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  .legal-note {
+    font-weight: 700; font-size: 18px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--secondary);
+    margin-top: 14px;
+  }
+  .legal-note .em { color: var(--primary); font-weight: 900; }
+</style></head>
+<body>
+  <div class="frame">
+    <div class="top">
+      <div class="brand"><span class="dot"></span> Enrola Shop</div>
+      <div class="slide-num">01 / 04</div>
+    </div>
+
+    <div class="hero">
+      <div class="eyebrow">Hablemos de flores</div>
+      <div class="h1">3<br/><span class="em">flores.</span><br/><span class="small">un arte.</span></div>
+
+      <div class="flower-row">
+        <div class="flower-card">
+          <div class="flower-emoji">🌼</div>
+          <div class="flower-name">Manzanilla</div>
+        </div>
+        <div class="flower-card alt">
+          <div class="flower-emoji">🌹</div>
+          <div class="flower-name">Rosas</div>
+        </div>
+        <div class="flower-card">
+          <div class="flower-emoji">🌸</div>
+          <div class="flower-name">Jazmín</div>
+        </div>
+      </div>
+
+      <div class="legal-note">
+        100 % <span class="em">legales</span> · tradicionales · relajantes
+      </div>
+    </div>
+
+    <div class="bottom">
+      <div class="handle"><span class="at">@</span>enrola.shop</div>
+      <div class="meta">Manifiesto<br/><span class="accent">Enrola</span></div>
+    </div>
+  </div>
+</body></html>

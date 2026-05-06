@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="../../lib/shared.css">
+<style>
+  .frame { background: var(--cream); }
+
+  .head-stack {
+    position: absolute; left: 64px; right: 64px;
+    top: 140px;
+    z-index: 3;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .eyebrow {
+    font-weight: 700; font-size: 26px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--primary);
+  }
+  .h1 {
+    font-weight: 900; font-size: 134px; line-height: 0.9;
+    letter-spacing: -0.04em; text-transform: uppercase;
+  }
+
+  .split {
+    position: absolute;
+    top: 410px; bottom: 230px; left: 64px; right: 64px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+    z-index: 2;
+  }
+  .col {
+    border: 5px solid var(--dark);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between;
+    padding: 36px 24px 28px;
+    position: relative;
+  }
+  .col.a { background: var(--cream); box-shadow: 12px 12px 0 0 var(--dark); }
+  .col.b { background: var(--background-dark); color: var(--cream); box-shadow: 12px 12px 0 0 var(--orange); }
+
+  .team-badge {
+    position: absolute; top: -22px; left: 22px;
+    font-weight: 900; font-size: 48px; line-height: 1;
+    padding: 10px 20px;
+    border: 4px solid var(--dark);
+    background: var(--orange); color: var(--cream);
+    letter-spacing: -0.02em;
+  }
+  .col.b .team-badge { background: var(--cream); color: var(--dark); border-color: var(--cream); }
+
+  .icon { width: 200px; height: 200px; }
+  .col-name {
+    font-weight: 900; font-size: 28px; line-height: 1.1;
+    text-transform: uppercase; letter-spacing: -0.01em;
+    text-align: center;
+  }
+  .col-desc {
+    font-weight: 600; font-size: 18px; line-height: 1.3;
+    text-align: center; margin-top: 4px;
+    color: var(--secondary);
+  }
+  .col.b .col-desc { color: var(--cream); opacity: 0.8; }
+  .price-pill {
+    background: var(--orange); color: var(--cream);
+    font-weight: 900; font-size: 44px; line-height: 1;
+    padding: 12px 22px;
+    border: 4px solid var(--dark);
+    box-shadow: 6px 6px 0 0 var(--dark);
+    letter-spacing: -0.02em;
+    transform: rotate(-1.5deg);
+    margin-top: 4px;
+  }
+  .col.b .price-pill { border-color: var(--cream); box-shadow: 6px 6px 0 0 var(--cream); }
+
+  .cta {
+    position: absolute; left: 64px; right: 64px;
+    bottom: 160px;
+    text-align: center;
+    font-weight: 700; font-size: 28px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--dark);
+  }
+  .cta .em { color: var(--primary); font-weight: 900; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="top">
+      <div class="brand"><span class="dot"></span> Enrola Shop</div>
+      <div class="slide-num">Grinders</div>
+    </div>
+
+    <div class="head-stack">
+      <div class="eyebrow">This · or · That</div>
+      <div class="h1">¿Cuál es<br/>tuyo?</div>
+    </div>
+
+    <div class="split">
+      <div class="col a">
+        <div class="team-badge">A</div>
+        <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+          <div style="position: absolute; width: 240px; height: 240px; background: var(--primary); border: 4px solid var(--dark); box-shadow: 8px 8px 0 0 var(--dark); transform: rotate(-3deg); z-index: 1;"></div>
+          <img class="icon" src="file:///Users/daniellopez/Desktop/ryo store/storefront/scripts/social/assets/products/grinder-rellenador.webp" style="width: 260px; height: 260px; object-fit: contain; position: relative; z-index: 2;">
+        </div>
+        <div>
+          <div class="col-name">Grinder<br/>Rellenador</div>
+          <div class="col-desc">Con portaconos integrado</div>
+        </div>
+        <div class="price-pill">€10</div>
+      </div>
+
+      <div class="col b">
+        <div class="team-badge">B</div>
+        <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+          <div style="position: absolute; width: 240px; height: 240px; background: var(--orange); border: 4px solid var(--cream); box-shadow: 8px 8px 0 0 var(--cream); transform: rotate(3deg); z-index: 1;"></div>
+          <img class="icon" src="file:///Users/daniellopez/Desktop/ryo store/storefront/scripts/social/assets/products/grinder-basic.webp" style="width: 260px; height: 260px; object-fit: contain; position: relative; z-index: 2;">
+        </div>
+        <div>
+          <div class="col-name">Plástico<br/>60 mm</div>
+          <div class="col-desc">El clásico básico</div>
+        </div>
+        <div class="price-pill">€6</div>
+      </div>
+    </div>
+
+    <div class="cta">Comenta tu letra <span class="em">👇</span></div>
+
+    <div class="bottom">
+      <div class="handle"><span class="at">@</span>enrola.shop</div>
+      <div class="meta">Tienda → <span class="accent">Grinders</span></div>
+    </div>
+  </div>
+</body></html>

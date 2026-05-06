@@ -1,0 +1,4371 @@
+[
+  {
+    "id": 1,
+    "name": "Cogollito",
+    "types": [
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 45,
+      "atk": 35,
+      "def": 35,
+      "spd": 40,
+      "spe": 50
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 101,
+      "8": 2,
+      "12": 3,
+      "16": 9
+    },
+    "evolution": {
+      "to": 2,
+      "level": 16
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "001-cogollito"
+  },
+  {
+    "id": 2,
+    "name": "Cogollero",
+    "types": [
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 65,
+      "atk": 52,
+      "def": 50,
+      "spd": 55,
+      "spe": 72
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 101,
+      "8": 2,
+      "12": 3,
+      "16": 9,
+      "20": 4,
+      "25": 5,
+      "30": 10
+    },
+    "evolution": {
+      "to": 3,
+      "level": 36
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "002-cogollero"
+  },
+  {
+    "id": 3,
+    "name": "Cogolord",
+    "types": [
+      "HIERBA",
+      "RESINA"
+    ],
+    "stats": {
+      "hp": 85,
+      "atk": 72,
+      "def": 70,
+      "spd": 68,
+      "spe": 95
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 3,
+      "10": 9,
+      "15": 4,
+      "20": 5,
+      "25": 71,
+      "30": 10,
+      "35": 6,
+      "40": 7
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 80,
+    "sprite": "003-cogolord"
+  },
+  {
+    "id": 4,
+    "name": "Mechita",
+    "types": [
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 42,
+      "atk": 52,
+      "def": 30,
+      "spd": 45,
+      "spe": 40
+    },
+    "movesLearn": {
+      "1": 11,
+      "5": 101,
+      "8": 18,
+      "12": 12,
+      "16": 13
+    },
+    "evolution": {
+      "to": 5,
+      "level": 16
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "004-mechita"
+  },
+  {
+    "id": 5,
+    "name": "Flamero",
+    "types": [
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 62,
+      "atk": 75,
+      "def": 48,
+      "spd": 58,
+      "spe": 60
+    },
+    "movesLearn": {
+      "1": 11,
+      "5": 101,
+      "8": 18,
+      "12": 12,
+      "16": 13,
+      "20": 14,
+      "25": 19,
+      "30": 15
+    },
+    "evolution": {
+      "to": 6,
+      "level": 36
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "005-flamero"
+  },
+  {
+    "id": 6,
+    "name": "Infernal",
+    "types": [
+      "BRASA",
+      "METAL"
+    ],
+    "stats": {
+      "hp": 80,
+      "atk": 95,
+      "def": 82,
+      "spd": 62,
+      "spe": 68
+    },
+    "movesLearn": {
+      "1": 11,
+      "5": 13,
+      "10": 14,
+      "15": 19,
+      "20": 15,
+      "25": 83,
+      "30": 16,
+      "35": 89,
+      "40": 17
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 80,
+    "sprite": "006-infernal"
+  },
+  {
+    "id": 7,
+    "name": "Gotirro",
+    "types": [
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 48,
+      "atk": 38,
+      "def": 42,
+      "spd": 40,
+      "spe": 42
+    },
+    "movesLearn": {
+      "1": 21,
+      "5": 101,
+      "8": 22,
+      "12": 23,
+      "16": 24
+    },
+    "evolution": {
+      "to": 8,
+      "level": 16
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "007-gotirro"
+  },
+  {
+    "id": 8,
+    "name": "Cabrialin",
+    "types": [
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 68,
+      "atk": 55,
+      "def": 60,
+      "spd": 55,
+      "spe": 62
+    },
+    "movesLearn": {
+      "1": 21,
+      "5": 101,
+      "8": 22,
+      "12": 23,
+      "16": 24,
+      "20": 25,
+      "25": 29,
+      "30": 26
+    },
+    "evolution": {
+      "to": 9,
+      "level": 36
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "008-cabrialin"
+  },
+  {
+    "id": 9,
+    "name": "Cabriator",
+    "types": [
+      "AGUA",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 90,
+      "atk": 78,
+      "def": 85,
+      "spd": 50,
+      "spe": 72
+    },
+    "movesLearn": {
+      "1": 21,
+      "5": 23,
+      "10": 24,
+      "15": 25,
+      "20": 29,
+      "25": 43,
+      "30": 26,
+      "35": 30,
+      "40": 27
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 80,
+    "sprite": "009-cabriator"
+  },
+  {
+    "id": 10,
+    "name": "Jalita",
+    "types": [
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 38,
+      "atk": 30,
+      "def": 32,
+      "spd": 60,
+      "spe": 45
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 50,
+      "10": 56,
+      "16": 51
+    },
+    "evolution": {
+      "to": 11,
+      "level": 14
+    },
+    "rarity": "common",
+    "catchRate": 210,
+    "sprite": "010-jalita"
+  },
+  {
+    "id": 11,
+    "name": "Ventolero",
+    "types": [
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 58,
+      "atk": 48,
+      "def": 50,
+      "spd": 82,
+      "spe": 65
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 50,
+      "10": 51,
+      "16": 56,
+      "22": 52,
+      "28": 53
+    },
+    "evolution": {
+      "to": 12,
+      "level": 34
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "011-ventolero"
+  },
+  {
+    "id": 12,
+    "name": "Huracanal",
+    "types": [
+      "VIENTO",
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 78,
+      "atk": 65,
+      "def": 68,
+      "spd": 95,
+      "spe": 82
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 50,
+      "10": 51,
+      "16": 17,
+      "22": 53,
+      "28": 20,
+      "34": 54,
+      "40": 55
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "012-huracanal"
+  },
+  {
+    "id": 13,
+    "name": "Bonguito",
+    "types": [
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 40,
+      "atk": 30,
+      "def": 45,
+      "spd": 35,
+      "spe": 50
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 26,
+      "10": 32,
+      "16": 27
+    },
+    "evolution": {
+      "to": 14,
+      "level": 18
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "013-bonguito"
+  },
+  {
+    "id": 14,
+    "name": "Bonglass",
+    "types": [
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 60,
+      "atk": 48,
+      "def": 65,
+      "spd": 50,
+      "spe": 72
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 26,
+      "10": 27,
+      "16": 32,
+      "22": 28,
+      "28": 29
+    },
+    "evolution": {
+      "to": 15,
+      "level": 38
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "014-bonglass"
+  },
+  {
+    "id": 15,
+    "name": "Prismorfo",
+    "types": [
+      "CRISTAL",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 75,
+      "atk": 60,
+      "def": 80,
+      "spd": 65,
+      "spe": 100
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 26,
+      "10": 27,
+      "16": 73,
+      "22": 29,
+      "28": 77,
+      "34": 30,
+      "40": 31
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "015-prismorfo"
+  },
+  {
+    "id": 16,
+    "name": "Arepita",
+    "types": [
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 50,
+      "atk": 40,
+      "def": 48,
+      "spd": 28,
+      "spe": 35
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 34,
+      "10": 40,
+      "16": 35
+    },
+    "evolution": {
+      "to": 17,
+      "level": 15
+    },
+    "rarity": "common",
+    "catchRate": 210,
+    "sprite": "016-arepita"
+  },
+  {
+    "id": 17,
+    "name": "Arepaso",
+    "types": [
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 75,
+      "atk": 62,
+      "def": 70,
+      "spd": 38,
+      "spe": 50
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 34,
+      "10": 35,
+      "16": 40,
+      "22": 36,
+      "28": 37
+    },
+    "evolution": {
+      "to": 18,
+      "level": 35
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "017-arepaso"
+  },
+  {
+    "id": 18,
+    "name": "Arepaking",
+    "types": [
+      "TIERRA",
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 95,
+      "atk": 85,
+      "def": 90,
+      "spd": 42,
+      "spe": 62
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 34,
+      "10": 35,
+      "16": 9,
+      "22": 37,
+      "28": 12,
+      "34": 38,
+      "40": 39
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "018-arepaking"
+  },
+  {
+    "id": 19,
+    "name": "Grindito",
+    "types": [
+      "METAL"
+    ],
+    "stats": {
+      "hp": 42,
+      "atk": 45,
+      "def": 55,
+      "spd": 30,
+      "spe": 32
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 66,
+      "10": 72,
+      "16": 67
+    },
+    "evolution": {
+      "to": 20,
+      "level": 16
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "019-grindito"
+  },
+  {
+    "id": 20,
+    "name": "Grindark",
+    "types": [
+      "METAL"
+    ],
+    "stats": {
+      "hp": 62,
+      "atk": 68,
+      "def": 78,
+      "spd": 42,
+      "spe": 48
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 66,
+      "10": 67,
+      "16": 72,
+      "22": 68,
+      "28": 69
+    },
+    "evolution": {
+      "to": 21,
+      "level": 36
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "020-grindark"
+  },
+  {
+    "id": 21,
+    "name": "Moledron",
+    "types": [
+      "METAL",
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 82,
+      "atk": 88,
+      "def": 95,
+      "spd": 48,
+      "spe": 65
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 66,
+      "10": 67,
+      "16": 1,
+      "22": 69,
+      "28": 4,
+      "34": 70,
+      "40": 71
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "021-moledron"
+  },
+  {
+    "id": 22,
+    "name": "Humito",
+    "types": [
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 40,
+      "atk": 30,
+      "def": 30,
+      "spd": 50,
+      "spe": 55
+    },
+    "movesLearn": {
+      "1": 41,
+      "5": 42,
+      "10": 48,
+      "16": 43
+    },
+    "evolution": {
+      "to": 23,
+      "level": 14
+    },
+    "rarity": "common",
+    "catchRate": 210,
+    "sprite": "022-humito"
+  },
+  {
+    "id": 23,
+    "name": "Nebuloso",
+    "types": [
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 60,
+      "atk": 48,
+      "def": 50,
+      "spd": 68,
+      "spe": 75
+    },
+    "movesLearn": {
+      "1": 41,
+      "5": 42,
+      "10": 43,
+      "16": 48,
+      "22": 44,
+      "28": 45
+    },
+    "evolution": {
+      "to": 24,
+      "level": 34
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "023-nebuloso"
+  },
+  {
+    "id": 24,
+    "name": "Fumantis",
+    "types": [
+      "HUMO",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 78,
+      "atk": 62,
+      "def": 65,
+      "spd": 80,
+      "spe": 98
+    },
+    "movesLearn": {
+      "1": 41,
+      "5": 42,
+      "10": 43,
+      "16": 73,
+      "22": 45,
+      "28": 77,
+      "34": 46,
+      "40": 47
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "024-fumantis"
+  },
+  {
+    "id": 25,
+    "name": "Terpino",
+    "types": [
+      "RESINA"
+    ],
+    "stats": {
+      "hp": 45,
+      "atk": 40,
+      "def": 40,
+      "spd": 35,
+      "spe": 45
+    },
+    "movesLearn": {
+      "1": 57,
+      "5": 58,
+      "10": 64,
+      "16": 59
+    },
+    "evolution": {
+      "to": 26,
+      "level": 17
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "025-terpino"
+  },
+  {
+    "id": 26,
+    "name": "Terpenol",
+    "types": [
+      "RESINA"
+    ],
+    "stats": {
+      "hp": 65,
+      "atk": 60,
+      "def": 58,
+      "spd": 48,
+      "spe": 65
+    },
+    "movesLearn": {
+      "1": 57,
+      "5": 58,
+      "10": 59,
+      "16": 64,
+      "22": 60,
+      "28": 61
+    },
+    "evolution": {
+      "to": 27,
+      "level": 37
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "026-terpenol"
+  },
+  {
+    "id": 27,
+    "name": "Dabmaster",
+    "types": [
+      "RESINA",
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 80,
+      "atk": 90,
+      "def": 70,
+      "spd": 58,
+      "spe": 82
+    },
+    "movesLearn": {
+      "1": 57,
+      "5": 58,
+      "10": 59,
+      "16": 9,
+      "22": 61,
+      "28": 13,
+      "34": 62,
+      "40": 63
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "027-dabmaster"
+  },
+  {
+    "id": 28,
+    "name": "Calmita",
+    "types": [
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 45,
+      "atk": 28,
+      "def": 35,
+      "spd": 40,
+      "spe": 55
+    },
+    "movesLearn": {
+      "1": 73,
+      "5": 74,
+      "10": 80,
+      "16": 75
+    },
+    "evolution": {
+      "to": 29,
+      "level": 18
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "028-calmita"
+  },
+  {
+    "id": 29,
+    "name": "Serenox",
+    "types": [
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 68,
+      "atk": 45,
+      "def": 55,
+      "spd": 58,
+      "spe": 78
+    },
+    "movesLearn": {
+      "1": 73,
+      "5": 74,
+      "10": 75,
+      "16": 80,
+      "22": 76,
+      "28": 77
+    },
+    "evolution": {
+      "to": 30,
+      "level": 38
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "029-serenox"
+  },
+  {
+    "id": 30,
+    "name": "Nirvanol",
+    "types": [
+      "ESPIRITU",
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 85,
+      "atk": 58,
+      "def": 70,
+      "spd": 72,
+      "spe": 100
+    },
+    "movesLearn": {
+      "1": 73,
+      "5": 74,
+      "10": 75,
+      "16": 41,
+      "22": 77,
+      "28": 45,
+      "34": 78,
+      "40": 79
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "030-nirvanol"
+  },
+  {
+    "id": 31,
+    "name": "Cachapin",
+    "types": [
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 48,
+      "atk": 35,
+      "def": 38,
+      "spd": 32,
+      "spe": 48
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 2,
+      "10": 8,
+      "16": 3
+    },
+    "evolution": {
+      "to": 32,
+      "level": 20
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "031-cachapin"
+  },
+  {
+    "id": 32,
+    "name": "Cachapote",
+    "types": [
+      "HIERBA",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 72,
+      "atk": 55,
+      "def": 62,
+      "spd": 42,
+      "spe": 65
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 2,
+      "10": 3,
+      "16": 33,
+      "22": 4,
+      "28": 35
+    },
+    "evolution": {
+      "to": 33,
+      "level": 40
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "032-cachapote"
+  },
+  {
+    "id": 33,
+    "name": "Maizotan",
+    "types": [
+      "HIERBA",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 95,
+      "atk": 80,
+      "def": 85,
+      "spd": 45,
+      "spe": 78
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 2,
+      "10": 3,
+      "16": 33,
+      "22": 5,
+      "28": 37,
+      "34": 6,
+      "40": 39
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "033-maizotan"
+  },
+  {
+    "id": 34,
+    "name": "Turpial",
+    "types": [
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 42,
+      "atk": 38,
+      "def": 30,
+      "spd": 58,
+      "spe": 40
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 50,
+      "10": 56,
+      "16": 51
+    },
+    "evolution": {
+      "to": 35,
+      "level": 22
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "034-turpial"
+  },
+  {
+    "id": 35,
+    "name": "Turpialar",
+    "types": [
+      "VIENTO",
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 68,
+      "atk": 62,
+      "def": 55,
+      "spd": 78,
+      "spe": 65
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 50,
+      "10": 51,
+      "16": 1,
+      "22": 52,
+      "28": 4
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "035-turpialar"
+  },
+  {
+    "id": 36,
+    "name": "Burbujin",
+    "types": [
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 45,
+      "atk": 32,
+      "def": 38,
+      "spd": 42,
+      "spe": 48
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 18,
+      "10": 24,
+      "16": 19
+    },
+    "evolution": {
+      "to": 37,
+      "level": 18
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "036-burbujin"
+  },
+  {
+    "id": 37,
+    "name": "Percolin",
+    "types": [
+      "AGUA",
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 65,
+      "atk": 50,
+      "def": 60,
+      "spd": 55,
+      "spe": 68
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 18,
+      "10": 19,
+      "16": 25,
+      "22": 20,
+      "28": 28
+    },
+    "evolution": {
+      "to": 38,
+      "level": 38
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "037-percolin"
+  },
+  {
+    "id": 38,
+    "name": "Filtrador",
+    "types": [
+      "AGUA",
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 82,
+      "atk": 65,
+      "def": 85,
+      "spd": 62,
+      "spe": 88
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 18,
+      "10": 19,
+      "16": 25,
+      "22": 21,
+      "28": 29,
+      "34": 22,
+      "40": 31
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "038-filtrador"
+  },
+  {
+    "id": 39,
+    "name": "Cenicin",
+    "types": [
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 45,
+      "atk": 48,
+      "def": 38,
+      "spd": 35,
+      "spe": 40
+    },
+    "movesLearn": {
+      "1": 9,
+      "5": 10,
+      "10": 16,
+      "16": 11
+    },
+    "evolution": {
+      "to": 40,
+      "level": 16
+    },
+    "rarity": "common",
+    "catchRate": 210,
+    "sprite": "039-cenicin"
+  },
+  {
+    "id": 40,
+    "name": "Cenicero",
+    "types": [
+      "BRASA",
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 68,
+      "atk": 70,
+      "def": 58,
+      "spd": 48,
+      "spe": 60
+    },
+    "movesLearn": {
+      "1": 9,
+      "5": 10,
+      "10": 11,
+      "16": 41,
+      "22": 12,
+      "28": 44
+    },
+    "evolution": null,
+    "rarity": "common",
+    "catchRate": 150,
+    "sprite": "040-cenicero"
+  },
+  {
+    "id": 41,
+    "name": "Pipita",
+    "types": [
+      "METAL"
+    ],
+    "stats": {
+      "hp": 42,
+      "atk": 42,
+      "def": 50,
+      "spd": 30,
+      "spe": 35
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 66,
+      "10": 72,
+      "16": 67
+    },
+    "evolution": {
+      "to": 42,
+      "level": 20
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "041-pipita"
+  },
+  {
+    "id": 42,
+    "name": "Pipalux",
+    "types": [
+      "METAL",
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 62,
+      "atk": 62,
+      "def": 72,
+      "spd": 42,
+      "spe": 55
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 66,
+      "10": 67,
+      "16": 25,
+      "22": 68,
+      "28": 28
+    },
+    "evolution": {
+      "to": 43,
+      "level": 40
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "042-pipalux"
+  },
+  {
+    "id": 43,
+    "name": "Pipatron",
+    "types": [
+      "METAL",
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 82,
+      "atk": 85,
+      "def": 92,
+      "spd": 48,
+      "spe": 72
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 66,
+      "10": 67,
+      "16": 25,
+      "22": 69,
+      "28": 29,
+      "34": 70,
+      "40": 31
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "043-pipatron"
+  },
+  {
+    "id": 44,
+    "name": "Cunaguin",
+    "types": [
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 48,
+      "atk": 50,
+      "def": 38,
+      "spd": 48,
+      "spe": 30
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 34,
+      "10": 40,
+      "16": 35
+    },
+    "evolution": {
+      "to": 45,
+      "level": 22
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "044-cunaguin"
+  },
+  {
+    "id": 45,
+    "name": "Cunaguaro",
+    "types": [
+      "TIERRA",
+      "METAL"
+    ],
+    "stats": {
+      "hp": 75,
+      "atk": 82,
+      "def": 68,
+      "spd": 65,
+      "spe": 48
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 34,
+      "10": 35,
+      "16": 65,
+      "22": 36,
+      "28": 69
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "045-cunaguaro"
+  },
+  {
+    "id": 46,
+    "name": "Semillin",
+    "types": [
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 38,
+      "atk": 30,
+      "def": 32,
+      "spd": 48,
+      "spe": 50
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 2,
+      "10": 8,
+      "16": 3
+    },
+    "evolution": {
+      "to": 47,
+      "level": 14
+    },
+    "rarity": "common",
+    "catchRate": 220,
+    "sprite": "046-semillin"
+  },
+  {
+    "id": 47,
+    "name": "Plantula",
+    "types": [
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 58,
+      "atk": 48,
+      "def": 50,
+      "spd": 60,
+      "spe": 68
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 2,
+      "10": 3,
+      "16": 8,
+      "22": 4,
+      "28": 5
+    },
+    "evolution": {
+      "to": 48,
+      "level": 32
+    },
+    "rarity": "common",
+    "catchRate": 150,
+    "sprite": "047-plantula"
+  },
+  {
+    "id": 48,
+    "name": "Floresta",
+    "types": [
+      "HIERBA",
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 80,
+      "atk": 68,
+      "def": 70,
+      "spd": 78,
+      "spe": 88
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 2,
+      "10": 3,
+      "16": 49,
+      "22": 5,
+      "28": 53,
+      "34": 6,
+      "40": 55
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "048-floresta"
+  },
+  {
+    "id": 49,
+    "name": "Hashito",
+    "types": [
+      "RESINA"
+    ],
+    "stats": {
+      "hp": 48,
+      "atk": 45,
+      "def": 42,
+      "spd": 30,
+      "spe": 40
+    },
+    "movesLearn": {
+      "1": 57,
+      "5": 58,
+      "10": 64,
+      "16": 59
+    },
+    "evolution": {
+      "to": 50,
+      "level": 20
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "049-hashito"
+  },
+  {
+    "id": 50,
+    "name": "Hashrak",
+    "types": [
+      "RESINA",
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 72,
+      "atk": 68,
+      "def": 65,
+      "spd": 42,
+      "spe": 62
+    },
+    "movesLearn": {
+      "1": 57,
+      "5": 58,
+      "10": 59,
+      "16": 25,
+      "22": 60,
+      "28": 28
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "050-hashrak"
+  },
+  {
+    "id": 51,
+    "name": "Budarin",
+    "types": [
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 48,
+      "atk": 50,
+      "def": 45,
+      "spd": 30,
+      "spe": 35
+    },
+    "movesLearn": {
+      "1": 9,
+      "5": 10,
+      "10": 16,
+      "16": 11
+    },
+    "evolution": {
+      "to": 52,
+      "level": 18
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "051-budarin"
+  },
+  {
+    "id": 52,
+    "name": "Budarazo",
+    "types": [
+      "BRASA",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 72,
+      "atk": 70,
+      "def": 65,
+      "spd": 40,
+      "spe": 52
+    },
+    "movesLearn": {
+      "1": 9,
+      "5": 10,
+      "10": 11,
+      "16": 33,
+      "22": 12,
+      "28": 36
+    },
+    "evolution": {
+      "to": 53,
+      "level": 38
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "052-budarazo"
+  },
+  {
+    "id": 53,
+    "name": "Fogonero",
+    "types": [
+      "BRASA",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 90,
+      "atk": 88,
+      "def": 82,
+      "spd": 45,
+      "spe": 65
+    },
+    "movesLearn": {
+      "1": 9,
+      "5": 10,
+      "10": 11,
+      "16": 33,
+      "22": 13,
+      "28": 37,
+      "34": 14,
+      "40": 39
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "053-fogonero"
+  },
+  {
+    "id": 54,
+    "name": "Llovizna",
+    "types": [
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 45,
+      "atk": 35,
+      "def": 38,
+      "spd": 48,
+      "spe": 42
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 18,
+      "10": 24,
+      "16": 19
+    },
+    "evolution": {
+      "to": 55,
+      "level": 16
+    },
+    "rarity": "common",
+    "catchRate": 210,
+    "sprite": "054-llovizna"
+  },
+  {
+    "id": 55,
+    "name": "Aguaceno",
+    "types": [
+      "AGUA",
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 72,
+      "atk": 58,
+      "def": 55,
+      "spd": 70,
+      "spe": 68
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 18,
+      "10": 19,
+      "16": 49,
+      "22": 20,
+      "28": 52
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "055-aguaceno"
+  },
+  {
+    "id": 56,
+    "name": "Vaperin",
+    "types": [
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 42,
+      "atk": 35,
+      "def": 32,
+      "spd": 48,
+      "spe": 48
+    },
+    "movesLearn": {
+      "1": 41,
+      "5": 42,
+      "10": 48,
+      "16": 43
+    },
+    "evolution": {
+      "to": 57,
+      "level": 18
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "056-vaperin"
+  },
+  {
+    "id": 57,
+    "name": "Vapornox",
+    "types": [
+      "HUMO",
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 62,
+      "atk": 52,
+      "def": 48,
+      "spd": 68,
+      "spe": 68
+    },
+    "movesLearn": {
+      "1": 41,
+      "5": 42,
+      "10": 43,
+      "16": 49,
+      "22": 44,
+      "28": 52
+    },
+    "evolution": {
+      "to": 58,
+      "level": 38
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "057-vapornox"
+  },
+  {
+    "id": 58,
+    "name": "Nebulon",
+    "types": [
+      "HUMO",
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 82,
+      "atk": 68,
+      "def": 62,
+      "spd": 85,
+      "spe": 88
+    },
+    "movesLearn": {
+      "1": 41,
+      "5": 42,
+      "10": 43,
+      "16": 49,
+      "22": 45,
+      "28": 53,
+      "34": 46,
+      "40": 55
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "058-nebulon"
+  },
+  {
+    "id": 59,
+    "name": "Chaman",
+    "types": [
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 48,
+      "atk": 32,
+      "def": 38,
+      "spd": 38,
+      "spe": 52
+    },
+    "movesLearn": {
+      "1": 73,
+      "5": 74,
+      "10": 80,
+      "16": 75
+    },
+    "evolution": {
+      "to": 60,
+      "level": 24
+    },
+    "rarity": "common",
+    "catchRate": 190,
+    "sprite": "059-chaman"
+  },
+  {
+    "id": 60,
+    "name": "Curandol",
+    "types": [
+      "ESPIRITU",
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 75,
+      "atk": 52,
+      "def": 60,
+      "spd": 55,
+      "spe": 82
+    },
+    "movesLearn": {
+      "1": 73,
+      "5": 74,
+      "10": 75,
+      "16": 1,
+      "22": 76,
+      "28": 4
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "060-curandol"
+  },
+  {
+    "id": 61,
+    "name": "Chispin",
+    "types": [
+      "METAL",
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 42,
+      "atk": 48,
+      "def": 35,
+      "spd": 45,
+      "spe": 37
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 66,
+      "10": 72,
+      "16": 67
+    },
+    "evolution": {
+      "to": 62,
+      "level": 16
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "061-chispin"
+  },
+  {
+    "id": 62,
+    "name": "Chispador",
+    "types": [
+      "METAL",
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 60,
+      "atk": 70,
+      "def": 62,
+      "spd": 55,
+      "spe": 52
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 66,
+      "10": 67,
+      "16": 9,
+      "22": 68,
+      "28": 12
+    },
+    "evolution": {
+      "to": 63,
+      "level": 36
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "062-chispador"
+  },
+  {
+    "id": 63,
+    "name": "Zipporion",
+    "types": [
+      "METAL",
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 80,
+      "atk": 92,
+      "def": 80,
+      "spd": 65,
+      "spe": 68
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 66,
+      "10": 67,
+      "16": 9,
+      "22": 69,
+      "28": 13,
+      "34": 70,
+      "40": 15
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "063-zipporion"
+  },
+  {
+    "id": 64,
+    "name": "Barrin",
+    "types": [
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 50,
+      "atk": 38,
+      "def": 45,
+      "spd": 30,
+      "spe": 38
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 34,
+      "10": 40,
+      "16": 35
+    },
+    "evolution": {
+      "to": 65,
+      "level": 18
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "064-barrin"
+  },
+  {
+    "id": 65,
+    "name": "Fanguero",
+    "types": [
+      "TIERRA",
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 72,
+      "atk": 58,
+      "def": 65,
+      "spd": 40,
+      "spe": 55
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 34,
+      "10": 35,
+      "16": 17,
+      "22": 36,
+      "28": 20
+    },
+    "evolution": {
+      "to": 66,
+      "level": 38
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "065-fanguero"
+  },
+  {
+    "id": 66,
+    "name": "Lodazon",
+    "types": [
+      "TIERRA",
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 95,
+      "atk": 75,
+      "def": 88,
+      "spd": 42,
+      "spe": 70
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 34,
+      "10": 35,
+      "16": 17,
+      "22": 37,
+      "28": 21,
+      "34": 38,
+      "40": 23
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "066-lodazon"
+  },
+  {
+    "id": 67,
+    "name": "Chimbito",
+    "types": [
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 42,
+      "atk": 45,
+      "def": 40,
+      "spd": 38,
+      "spe": 42
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 26,
+      "10": 32,
+      "16": 27
+    },
+    "evolution": {
+      "to": 68,
+      "level": 20
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "067-chimbito"
+  },
+  {
+    "id": 68,
+    "name": "Quemacris",
+    "types": [
+      "CRISTAL",
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 68,
+      "atk": 72,
+      "def": 60,
+      "spd": 52,
+      "spe": 65
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 26,
+      "10": 27,
+      "16": 9,
+      "22": 28,
+      "28": 12
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "068-quemacris"
+  },
+  {
+    "id": 69,
+    "name": "Pegosin",
+    "types": [
+      "RESINA",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 50,
+      "atk": 38,
+      "def": 42,
+      "spd": 28,
+      "spe": 41
+    },
+    "movesLearn": {
+      "1": 57,
+      "5": 58,
+      "10": 64,
+      "16": 59
+    },
+    "evolution": {
+      "to": 70,
+      "level": 16
+    },
+    "rarity": "common",
+    "catchRate": 210,
+    "sprite": "069-pegosin"
+  },
+  {
+    "id": 70,
+    "name": "Pegostro",
+    "types": [
+      "RESINA",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 65,
+      "atk": 60,
+      "def": 62,
+      "spd": 38,
+      "spe": 55
+    },
+    "movesLearn": {
+      "1": 57,
+      "5": 58,
+      "10": 59,
+      "16": 33,
+      "22": 60,
+      "28": 36
+    },
+    "evolution": {
+      "to": 71,
+      "level": 36
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "070-pegostro"
+  },
+  {
+    "id": 71,
+    "name": "Melazon",
+    "types": [
+      "RESINA",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 90,
+      "atk": 78,
+      "def": 85,
+      "spd": 42,
+      "spe": 72
+    },
+    "movesLearn": {
+      "1": 57,
+      "5": 58,
+      "10": 59,
+      "16": 33,
+      "22": 61,
+      "28": 37,
+      "34": 62,
+      "40": 39
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "071-melazon"
+  },
+  {
+    "id": 72,
+    "name": "Suspirin",
+    "types": [
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 40,
+      "atk": 30,
+      "def": 32,
+      "spd": 55,
+      "spe": 48
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 50,
+      "10": 56,
+      "16": 51
+    },
+    "evolution": {
+      "to": 73,
+      "level": 20
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "072-suspirin"
+  },
+  {
+    "id": 73,
+    "name": "Exhalon",
+    "types": [
+      "VIENTO",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 65,
+      "atk": 50,
+      "def": 52,
+      "spd": 75,
+      "spe": 72
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 50,
+      "10": 51,
+      "16": 73,
+      "22": 52,
+      "28": 76
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "073-exhalon"
+  },
+  {
+    "id": 74,
+    "name": "Bubblin",
+    "types": [
+      "AGUA",
+      "RESINA"
+    ],
+    "stats": {
+      "hp": 52,
+      "atk": 30,
+      "def": 38,
+      "spd": 40,
+      "spe": 48
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 18,
+      "10": 24,
+      "16": 19
+    },
+    "evolution": {
+      "to": 75,
+      "level": 22
+    },
+    "rarity": "common",
+    "catchRate": 200,
+    "sprite": "074-bubblin"
+  },
+  {
+    "id": 75,
+    "name": "Bubblash",
+    "types": [
+      "AGUA",
+      "RESINA"
+    ],
+    "stats": {
+      "hp": 68,
+      "atk": 58,
+      "def": 60,
+      "spd": 52,
+      "spe": 62
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 18,
+      "10": 19,
+      "16": 57,
+      "22": 20,
+      "28": 60
+    },
+    "evolution": {
+      "to": 76,
+      "level": 42
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "075-bubblash"
+  },
+  {
+    "id": 76,
+    "name": "Icextract",
+    "types": [
+      "AGUA",
+      "RESINA"
+    ],
+    "stats": {
+      "hp": 90,
+      "atk": 82,
+      "def": 85,
+      "spd": 70,
+      "spe": 88
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 57,
+      "10": 19,
+      "16": 59,
+      "22": 21,
+      "28": 61,
+      "34": 22,
+      "40": 63
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 45,
+    "sprite": "076-icextract"
+  },
+  {
+    "id": 77,
+    "name": "Porrito",
+    "types": [
+      "HIERBA",
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 44,
+      "atk": 40,
+      "def": 32,
+      "spd": 48,
+      "spe": 46
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 2,
+      "10": 3,
+      "16": 4,
+      "22": 8,
+      "28": 5,
+      "34": 6,
+      "40": 7
+    },
+    "evolution": {
+      "to": 78,
+      "level": 16
+    },
+    "rarity": "common",
+    "catchRate": 220,
+    "sprite": "077-porrito"
+  },
+  {
+    "id": 78,
+    "name": "Canuto",
+    "types": [
+      "HIERBA",
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 62,
+      "atk": 65,
+      "def": 52,
+      "spd": 58,
+      "spe": 63
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 9,
+      "10": 3,
+      "16": 11,
+      "22": 5,
+      "28": 12,
+      "34": 6,
+      "40": 14
+    },
+    "evolution": {
+      "to": 79,
+      "level": 36
+    },
+    "rarity": "common",
+    "catchRate": 160,
+    "sprite": "078-canuto"
+  },
+  {
+    "id": 79,
+    "name": "Bluntazo",
+    "types": [
+      "HIERBA",
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 82,
+      "atk": 88,
+      "def": 72,
+      "spd": 70,
+      "spe": 78
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 9,
+      "10": 3,
+      "16": 11,
+      "22": 5,
+      "28": 13,
+      "34": 7,
+      "40": 15
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 80,
+    "sprite": "079-bluntazo"
+  },
+  {
+    "id": 80,
+    "name": "Filtrito",
+    "types": [
+      "METAL"
+    ],
+    "stats": {
+      "hp": 45,
+      "atk": 40,
+      "def": 55,
+      "spd": 42,
+      "spe": 38
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 66,
+      "10": 67,
+      "16": 68,
+      "22": 72,
+      "28": 69,
+      "34": 70,
+      "40": 71
+    },
+    "evolution": {
+      "to": 81,
+      "level": 18
+    },
+    "rarity": "common",
+    "catchRate": 210,
+    "sprite": "080-filtrito"
+  },
+  {
+    "id": 81,
+    "name": "Filtramax",
+    "types": [
+      "METAL",
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 72,
+      "atk": 68,
+      "def": 80,
+      "spd": 75,
+      "spe": 55
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 49,
+      "10": 67,
+      "16": 51,
+      "22": 69,
+      "28": 53,
+      "34": 70,
+      "40": 55
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 100,
+    "sprite": "081-filtramax"
+  },
+  {
+    "id": 82,
+    "name": "Heladin",
+    "types": [
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 40,
+      "atk": 35,
+      "def": 50,
+      "spd": 38,
+      "spe": 42
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 26,
+      "10": 27,
+      "16": 28,
+      "22": 32,
+      "28": 29,
+      "34": 30,
+      "40": 31
+    },
+    "evolution": {
+      "to": 83,
+      "level": 20
+    },
+    "rarity": "common",
+    "catchRate": 220,
+    "sprite": "082-heladin"
+  },
+  {
+    "id": 83,
+    "name": "Glacirin",
+    "types": [
+      "CRISTAL",
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 62,
+      "atk": 55,
+      "def": 70,
+      "spd": 52,
+      "spe": 61
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 17,
+      "10": 27,
+      "16": 19,
+      "22": 29,
+      "28": 21,
+      "34": 30,
+      "40": 23
+    },
+    "evolution": {
+      "to": 84,
+      "level": 40
+    },
+    "rarity": "common",
+    "catchRate": 155,
+    "sprite": "083-glacirin"
+  },
+  {
+    "id": 84,
+    "name": "Crionebla",
+    "types": [
+      "CRISTAL",
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 88,
+      "atk": 78,
+      "def": 92,
+      "spd": 72,
+      "spe": 90
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 17,
+      "10": 27,
+      "16": 20,
+      "22": 29,
+      "28": 22,
+      "34": 31,
+      "40": 23
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 40,
+    "sprite": "084-crionebla"
+  },
+  {
+    "id": 85,
+    "name": "Rosinin",
+    "types": [
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 42,
+      "atk": 38,
+      "def": 36,
+      "spd": 45,
+      "spe": 49
+    },
+    "movesLearn": {
+      "1": 41,
+      "5": 42,
+      "10": 43,
+      "16": 44,
+      "22": 48,
+      "28": 45,
+      "34": 46,
+      "40": 47
+    },
+    "evolution": {
+      "to": 86,
+      "level": 22
+    },
+    "rarity": "common",
+    "catchRate": 215,
+    "sprite": "085-rosinin"
+  },
+  {
+    "id": 86,
+    "name": "Rosinero",
+    "types": [
+      "HUMO",
+      "RESINA"
+    ],
+    "stats": {
+      "hp": 70,
+      "atk": 65,
+      "def": 60,
+      "spd": 62,
+      "spe": 73
+    },
+    "movesLearn": {
+      "1": 41,
+      "5": 57,
+      "10": 43,
+      "16": 59,
+      "22": 45,
+      "28": 61,
+      "34": 46,
+      "40": 63
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 105,
+    "sprite": "086-rosinero"
+  },
+  {
+    "id": 87,
+    "name": "Totemico",
+    "types": [
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 48,
+      "atk": 42,
+      "def": 52,
+      "spd": 30,
+      "spe": 38
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 34,
+      "10": 35,
+      "16": 36,
+      "22": 40,
+      "28": 37,
+      "34": 38,
+      "40": 39
+    },
+    "evolution": {
+      "to": 88,
+      "level": 24
+    },
+    "rarity": "common",
+    "catchRate": 210,
+    "sprite": "087-totemico"
+  },
+  {
+    "id": 88,
+    "name": "Petroglin",
+    "types": [
+      "TIERRA",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 68,
+      "atk": 60,
+      "def": 72,
+      "spd": 42,
+      "spe": 58
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 73,
+      "10": 35,
+      "16": 75,
+      "22": 37,
+      "28": 77,
+      "34": 38,
+      "40": 79
+    },
+    "evolution": {
+      "to": 89,
+      "level": 44
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "088-petroglin"
+  },
+  {
+    "id": 89,
+    "name": "Ancestron",
+    "types": [
+      "TIERRA",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 95,
+      "atk": 85,
+      "def": 98,
+      "spd": 55,
+      "spe": 82
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 73,
+      "10": 36,
+      "16": 75,
+      "22": 38,
+      "28": 78,
+      "34": 39,
+      "40": 79
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 35,
+    "sprite": "089-ancestron"
+  },
+  {
+    "id": 90,
+    "name": "Velita",
+    "types": [
+      "BRASA",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 40,
+      "atk": 35,
+      "def": 38,
+      "spd": 42,
+      "spe": 57
+    },
+    "movesLearn": {
+      "1": 9,
+      "5": 10,
+      "10": 11,
+      "16": 12,
+      "22": 16,
+      "28": 13,
+      "34": 14,
+      "40": 15
+    },
+    "evolution": {
+      "to": 91,
+      "level": 20
+    },
+    "rarity": "common",
+    "catchRate": 215,
+    "sprite": "090-velita"
+  },
+  {
+    "id": 91,
+    "name": "Velarion",
+    "types": [
+      "BRASA",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 68,
+      "atk": 75,
+      "def": 58,
+      "spd": 60,
+      "spe": 72
+    },
+    "movesLearn": {
+      "1": 9,
+      "5": 73,
+      "10": 11,
+      "16": 75,
+      "22": 13,
+      "28": 77,
+      "34": 14,
+      "40": 79
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 100,
+    "sprite": "091-velarion"
+  },
+  {
+    "id": 92,
+    "name": "Mangolin",
+    "types": [
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 48,
+      "atk": 38,
+      "def": 40,
+      "spd": 42,
+      "spe": 52
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 2,
+      "10": 3,
+      "16": 4,
+      "22": 8,
+      "28": 5,
+      "34": 6,
+      "40": 7
+    },
+    "evolution": {
+      "to": 93,
+      "level": 18
+    },
+    "rarity": "common",
+    "catchRate": 220,
+    "sprite": "092-mangolin"
+  },
+  {
+    "id": 93,
+    "name": "Mangotal",
+    "types": [
+      "HIERBA",
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 68,
+      "atk": 58,
+      "def": 60,
+      "spd": 55,
+      "spe": 69
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 17,
+      "10": 3,
+      "16": 19,
+      "22": 5,
+      "28": 21,
+      "34": 6,
+      "40": 23
+    },
+    "evolution": {
+      "to": 94,
+      "level": 38
+    },
+    "rarity": "common",
+    "catchRate": 150,
+    "sprite": "093-mangotal"
+  },
+  {
+    "id": 94,
+    "name": "Mangoboss",
+    "types": [
+      "HIERBA",
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 88,
+      "atk": 78,
+      "def": 75,
+      "spd": 68,
+      "spe": 86
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 17,
+      "10": 4,
+      "16": 20,
+      "22": 5,
+      "28": 22,
+      "34": 7,
+      "40": 23
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 75,
+    "sprite": "094-mangoboss"
+  },
+  {
+    "id": 95,
+    "name": "Bolivin",
+    "types": [
+      "METAL"
+    ],
+    "stats": {
+      "hp": 46,
+      "atk": 44,
+      "def": 55,
+      "spd": 35,
+      "spe": 40
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 66,
+      "10": 67,
+      "16": 68,
+      "22": 72,
+      "28": 69,
+      "34": 70,
+      "40": 71
+    },
+    "evolution": {
+      "to": 96,
+      "level": 22
+    },
+    "rarity": "common",
+    "catchRate": 210,
+    "sprite": "095-bolivin"
+  },
+  {
+    "id": 96,
+    "name": "Carabobin",
+    "types": [
+      "METAL",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 70,
+      "atk": 68,
+      "def": 78,
+      "spd": 48,
+      "spe": 56
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 33,
+      "10": 67,
+      "16": 35,
+      "22": 69,
+      "28": 37,
+      "34": 70,
+      "40": 39
+    },
+    "evolution": {
+      "to": 97,
+      "level": 42
+    },
+    "rarity": "common",
+    "catchRate": 140,
+    "sprite": "096-carabobin"
+  },
+  {
+    "id": 97,
+    "name": "Libertador",
+    "types": [
+      "METAL",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 92,
+      "atk": 95,
+      "def": 98,
+      "spd": 58,
+      "spe": 72
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 33,
+      "10": 68,
+      "16": 36,
+      "22": 69,
+      "28": 38,
+      "34": 71,
+      "40": 39
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 35,
+    "sprite": "097-libertador"
+  },
+  {
+    "id": 98,
+    "name": "Vitralin",
+    "types": [
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 42,
+      "atk": 35,
+      "def": 45,
+      "spd": 40,
+      "spe": 48
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 26,
+      "10": 27,
+      "16": 28,
+      "22": 32,
+      "28": 29,
+      "34": 30,
+      "40": 31
+    },
+    "evolution": {
+      "to": 99,
+      "level": 24
+    },
+    "rarity": "common",
+    "catchRate": 215,
+    "sprite": "098-vitralin"
+  },
+  {
+    "id": 99,
+    "name": "Vitralux",
+    "types": [
+      "CRISTAL",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 68,
+      "atk": 60,
+      "def": 65,
+      "spd": 58,
+      "spe": 75
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 73,
+      "10": 27,
+      "16": 75,
+      "22": 29,
+      "28": 77,
+      "34": 30,
+      "40": 79
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 100,
+    "sprite": "099-vitralux"
+  },
+  {
+    "id": 100,
+    "name": "Waxito",
+    "types": [
+      "RESINA",
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 48,
+      "atk": 30,
+      "def": 40,
+      "spd": 35,
+      "spe": 52
+    },
+    "movesLearn": {
+      "1": 57,
+      "5": 58,
+      "10": 59,
+      "16": 60,
+      "22": 64,
+      "28": 61,
+      "34": 62,
+      "40": 63
+    },
+    "evolution": {
+      "to": 101,
+      "level": 20
+    },
+    "rarity": "common",
+    "catchRate": 220,
+    "sprite": "100-waxito"
+  },
+  {
+    "id": 101,
+    "name": "Waxmelt",
+    "types": [
+      "RESINA",
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 72,
+      "atk": 68,
+      "def": 60,
+      "spd": 55,
+      "spe": 75
+    },
+    "movesLearn": {
+      "1": 57,
+      "5": 41,
+      "10": 59,
+      "16": 43,
+      "22": 61,
+      "28": 45,
+      "34": 62,
+      "40": 47
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 105,
+    "sprite": "101-waxmelt"
+  },
+  {
+    "id": 102,
+    "name": "Molinin",
+    "types": [
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 40,
+      "atk": 35,
+      "def": 38,
+      "spd": 55,
+      "spe": 42
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 50,
+      "10": 51,
+      "16": 52,
+      "22": 56,
+      "28": 53,
+      "34": 54,
+      "40": 55
+    },
+    "evolution": {
+      "to": 103,
+      "level": 18
+    },
+    "rarity": "common",
+    "catchRate": 220,
+    "sprite": "102-molinin"
+  },
+  {
+    "id": 103,
+    "name": "Turbinox",
+    "types": [
+      "VIENTO",
+      "METAL"
+    ],
+    "stats": {
+      "hp": 70,
+      "atk": 65,
+      "def": 72,
+      "spd": 78,
+      "spe": 55
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 65,
+      "10": 51,
+      "16": 67,
+      "22": 53,
+      "28": 69,
+      "34": 54,
+      "40": 71
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 100,
+    "sprite": "103-turbinox"
+  },
+  {
+    "id": 104,
+    "name": "Sahumerin",
+    "types": [
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 45,
+      "atk": 38,
+      "def": 42,
+      "spd": 40,
+      "spe": 50
+    },
+    "movesLearn": {
+      "1": 41,
+      "5": 42,
+      "10": 43,
+      "16": 44,
+      "22": 48,
+      "28": 45,
+      "34": 46,
+      "40": 47
+    },
+    "evolution": {
+      "to": 105,
+      "level": 20
+    },
+    "rarity": "common",
+    "catchRate": 215,
+    "sprite": "104-sahumerin"
+  },
+  {
+    "id": 105,
+    "name": "Sahumador",
+    "types": [
+      "HUMO",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 65,
+      "atk": 55,
+      "def": 68,
+      "spd": 50,
+      "spe": 62
+    },
+    "movesLearn": {
+      "1": 41,
+      "5": 33,
+      "10": 43,
+      "16": 35,
+      "22": 45,
+      "28": 37,
+      "34": 46,
+      "40": 39
+    },
+    "evolution": {
+      "to": 106,
+      "level": 40
+    },
+    "rarity": "common",
+    "catchRate": 150,
+    "sprite": "105-sahumador"
+  },
+  {
+    "id": 106,
+    "name": "Incensario",
+    "types": [
+      "HUMO",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 90,
+      "atk": 75,
+      "def": 92,
+      "spd": 62,
+      "spe": 86
+    },
+    "movesLearn": {
+      "1": 41,
+      "5": 33,
+      "10": 44,
+      "16": 36,
+      "22": 46,
+      "28": 38,
+      "34": 47,
+      "40": 39
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 40,
+    "sprite": "106-incensario"
+  },
+  {
+    "id": 107,
+    "name": "Tacarito",
+    "types": [
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 48,
+      "atk": 40,
+      "def": 42,
+      "spd": 44,
+      "spe": 46
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 18,
+      "10": 19,
+      "16": 20,
+      "22": 24,
+      "28": 21,
+      "34": 22,
+      "40": 23
+    },
+    "evolution": {
+      "to": 108,
+      "level": 22
+    },
+    "rarity": "common",
+    "catchRate": 215,
+    "sprite": "107-tacarito"
+  },
+  {
+    "id": 108,
+    "name": "Tacarigua",
+    "types": [
+      "AGUA",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 75,
+      "atk": 62,
+      "def": 68,
+      "spd": 60,
+      "spe": 72
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 73,
+      "10": 19,
+      "16": 75,
+      "22": 21,
+      "28": 77,
+      "34": 22,
+      "40": 79
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 95,
+    "sprite": "108-tacarigua"
+  },
+  {
+    "id": 109,
+    "name": "Tijerin",
+    "types": [
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 42,
+      "atk": 45,
+      "def": 38,
+      "spd": 48,
+      "spe": 47
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 2,
+      "10": 3,
+      "16": 4,
+      "22": 8,
+      "28": 5,
+      "34": 6,
+      "40": 7
+    },
+    "evolution": {
+      "to": 110,
+      "level": 18
+    },
+    "rarity": "common",
+    "catchRate": 220,
+    "sprite": "109-tijerin"
+  },
+  {
+    "id": 110,
+    "name": "Podarex",
+    "types": [
+      "HIERBA",
+      "METAL"
+    ],
+    "stats": {
+      "hp": 70,
+      "atk": 78,
+      "def": 72,
+      "spd": 60,
+      "spe": 62
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 65,
+      "10": 3,
+      "16": 67,
+      "22": 5,
+      "28": 69,
+      "34": 7,
+      "40": 71
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 100,
+    "sprite": "110-podarex"
+  },
+  {
+    "id": 111,
+    "name": "Chispita",
+    "types": [
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 38,
+      "atk": 52,
+      "def": 32,
+      "spd": 55,
+      "spe": 43
+    },
+    "movesLearn": {
+      "1": 9,
+      "5": 10,
+      "10": 11,
+      "16": 12,
+      "22": 16,
+      "28": 13,
+      "34": 14,
+      "40": 15
+    },
+    "evolution": {
+      "to": 112,
+      "level": 16
+    },
+    "rarity": "common",
+    "catchRate": 220,
+    "sprite": "111-chispita"
+  },
+  {
+    "id": 112,
+    "name": "Llamarada",
+    "types": [
+      "BRASA",
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 65,
+      "atk": 78,
+      "def": 50,
+      "spd": 80,
+      "spe": 62
+    },
+    "movesLearn": {
+      "1": 9,
+      "5": 49,
+      "10": 11,
+      "16": 51,
+      "22": 13,
+      "28": 53,
+      "34": 15,
+      "40": 55
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 100,
+    "sprite": "112-llamarada"
+  },
+  {
+    "id": 113,
+    "name": "Perkito",
+    "types": [
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 40,
+      "atk": 38,
+      "def": 48,
+      "spd": 42,
+      "spe": 42
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 26,
+      "10": 27,
+      "16": 28,
+      "22": 32,
+      "28": 29,
+      "34": 30,
+      "40": 31
+    },
+    "evolution": {
+      "to": 114,
+      "level": 22
+    },
+    "rarity": "common",
+    "catchRate": 215,
+    "sprite": "113-perkito"
+  },
+  {
+    "id": 114,
+    "name": "Perkador",
+    "types": [
+      "CRISTAL",
+      "METAL"
+    ],
+    "stats": {
+      "hp": 62,
+      "atk": 58,
+      "def": 72,
+      "spd": 52,
+      "spe": 56
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 65,
+      "10": 27,
+      "16": 67,
+      "22": 29,
+      "28": 69,
+      "34": 30,
+      "40": 71
+    },
+    "evolution": {
+      "to": 115,
+      "level": 42
+    },
+    "rarity": "common",
+    "catchRate": 145,
+    "sprite": "114-perkador"
+  },
+  {
+    "id": 115,
+    "name": "Perkmaster",
+    "types": [
+      "CRISTAL",
+      "METAL"
+    ],
+    "stats": {
+      "hp": 88,
+      "atk": 82,
+      "def": 95,
+      "spd": 68,
+      "spe": 78
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 65,
+      "10": 28,
+      "16": 68,
+      "22": 30,
+      "28": 70,
+      "34": 31,
+      "40": 71
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 38,
+    "sprite": "115-perkmaster"
+  },
+  {
+    "id": 116,
+    "name": "Aromin",
+    "types": [
+      "RESINA"
+    ],
+    "stats": {
+      "hp": 44,
+      "atk": 36,
+      "def": 38,
+      "spd": 42,
+      "spe": 50
+    },
+    "movesLearn": {
+      "1": 57,
+      "5": 58,
+      "10": 59,
+      "16": 60,
+      "22": 64,
+      "28": 61,
+      "34": 62,
+      "40": 63
+    },
+    "evolution": {
+      "to": 117,
+      "level": 20
+    },
+    "rarity": "common",
+    "catchRate": 220,
+    "sprite": "116-aromin"
+  },
+  {
+    "id": 117,
+    "name": "Aromantis",
+    "types": [
+      "RESINA",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 72,
+      "atk": 58,
+      "def": 62,
+      "spd": 60,
+      "spe": 78
+    },
+    "movesLearn": {
+      "1": 57,
+      "5": 73,
+      "10": 59,
+      "16": 75,
+      "22": 61,
+      "28": 77,
+      "34": 62,
+      "40": 79
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 100,
+    "sprite": "117-aromantis"
+  },
+  {
+    "id": 118,
+    "name": "Polvorin",
+    "types": [
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 55,
+      "atk": 52,
+      "def": 58,
+      "spd": 42,
+      "spe": 48
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 34,
+      "10": 35,
+      "16": 36,
+      "22": 40,
+      "28": 37,
+      "34": 38,
+      "40": 39
+    },
+    "evolution": {
+      "to": 119,
+      "level": 30
+    },
+    "rarity": "rare",
+    "catchRate": 120,
+    "sprite": "118-polvorin"
+  },
+  {
+    "id": 119,
+    "name": "Polvorosa",
+    "types": [
+      "TIERRA",
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 88,
+      "atk": 80,
+      "def": 92,
+      "spd": 60,
+      "spe": 82
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 25,
+      "10": 36,
+      "16": 27,
+      "22": 38,
+      "28": 29,
+      "34": 39,
+      "40": 31
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 38,
+    "sprite": "119-polvorosa"
+  },
+  {
+    "id": 120,
+    "name": "Guacamin",
+    "types": [
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 52,
+      "atk": 48,
+      "def": 45,
+      "spd": 55,
+      "spe": 58
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 2,
+      "10": 3,
+      "16": 4,
+      "22": 8,
+      "28": 5,
+      "34": 6,
+      "40": 7
+    },
+    "evolution": {
+      "to": 121,
+      "level": 30
+    },
+    "rarity": "rare",
+    "catchRate": 115,
+    "sprite": "120-guacamin"
+  },
+  {
+    "id": 121,
+    "name": "Guacamaya",
+    "types": [
+      "HIERBA",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 85,
+      "atk": 80,
+      "def": 72,
+      "spd": 82,
+      "spe": 90
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 73,
+      "10": 4,
+      "16": 75,
+      "22": 5,
+      "28": 78,
+      "34": 7,
+      "40": 79
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 35,
+    "sprite": "121-guacamaya"
+  },
+  {
+    "id": 122,
+    "name": "Conservin",
+    "types": [
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 55,
+      "atk": 48,
+      "def": 55,
+      "spd": 40,
+      "spe": 50
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 18,
+      "10": 19,
+      "16": 20,
+      "22": 24,
+      "28": 21,
+      "34": 22,
+      "40": 23
+    },
+    "evolution": {
+      "to": 123,
+      "level": 30
+    },
+    "rarity": "rare",
+    "catchRate": 115,
+    "sprite": "122-conservin"
+  },
+  {
+    "id": 123,
+    "name": "Conservero",
+    "types": [
+      "AGUA",
+      "METAL"
+    ],
+    "stats": {
+      "hp": 90,
+      "atk": 78,
+      "def": 88,
+      "spd": 55,
+      "spe": 72
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 65,
+      "10": 20,
+      "16": 67,
+      "22": 22,
+      "28": 69,
+      "34": 23,
+      "40": 71
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 38,
+    "sprite": "123-conservero"
+  },
+  {
+    "id": 124,
+    "name": "Carboncin",
+    "types": [
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 52,
+      "atk": 58,
+      "def": 50,
+      "spd": 45,
+      "spe": 48
+    },
+    "movesLearn": {
+      "1": 9,
+      "5": 10,
+      "10": 11,
+      "16": 12,
+      "22": 16,
+      "28": 13,
+      "34": 14,
+      "40": 15
+    },
+    "evolution": {
+      "to": 125,
+      "level": 30
+    },
+    "rarity": "rare",
+    "catchRate": 115,
+    "sprite": "124-carboncin"
+  },
+  {
+    "id": 125,
+    "name": "Narguilor",
+    "types": [
+      "BRASA",
+      "RESINA"
+    ],
+    "stats": {
+      "hp": 88,
+      "atk": 90,
+      "def": 78,
+      "spd": 62,
+      "spe": 80
+    },
+    "movesLearn": {
+      "1": 9,
+      "5": 57,
+      "10": 12,
+      "16": 59,
+      "22": 14,
+      "28": 61,
+      "34": 15,
+      "40": 63
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 35,
+    "sprite": "125-narguilor"
+  },
+  {
+    "id": 126,
+    "name": "Hallaquin",
+    "types": [
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 52,
+      "atk": 45,
+      "def": 50,
+      "spd": 58,
+      "spe": 52
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 50,
+      "10": 51,
+      "16": 52,
+      "22": 56,
+      "28": 53,
+      "34": 54,
+      "40": 55
+    },
+    "evolution": {
+      "to": 127,
+      "level": 30
+    },
+    "rarity": "rare",
+    "catchRate": 115,
+    "sprite": "126-hallaquin"
+  },
+  {
+    "id": 127,
+    "name": "Hallacazo",
+    "types": [
+      "VIENTO",
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 85,
+      "atk": 72,
+      "def": 75,
+      "spd": 88,
+      "spe": 80
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 41,
+      "10": 52,
+      "16": 44,
+      "22": 53,
+      "28": 46,
+      "34": 55,
+      "40": 47
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 38,
+    "sprite": "127-hallacazo"
+  },
+  {
+    "id": 128,
+    "name": "Papelon",
+    "types": [
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 55,
+      "atk": 45,
+      "def": 50,
+      "spd": 60,
+      "spe": 58
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 2,
+      "10": 3,
+      "16": 4,
+      "22": 8,
+      "28": 5,
+      "34": 6,
+      "40": 7
+    },
+    "evolution": null,
+    "rarity": "common",
+    "catchRate": 190,
+    "sprite": "128-papelon"
+  },
+  {
+    "id": 129,
+    "name": "Filtrox",
+    "types": [
+      "METAL"
+    ],
+    "stats": {
+      "hp": 60,
+      "atk": 50,
+      "def": 68,
+      "spd": 42,
+      "spe": 40
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 66,
+      "10": 67,
+      "16": 68,
+      "22": 72,
+      "28": 69,
+      "34": 70,
+      "40": 71
+    },
+    "evolution": null,
+    "rarity": "common",
+    "catchRate": 190,
+    "sprite": "129-filtrox"
+  },
+  {
+    "id": 130,
+    "name": "Clippy",
+    "types": [
+      "METAL",
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 58,
+      "atk": 62,
+      "def": 55,
+      "spd": 52,
+      "spe": 48
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 9,
+      "10": 67,
+      "16": 11,
+      "22": 69,
+      "28": 13,
+      "34": 70,
+      "40": 15
+    },
+    "evolution": null,
+    "rarity": "common",
+    "catchRate": 185,
+    "sprite": "130-clippy"
+  },
+  {
+    "id": 131,
+    "name": "Bongolon",
+    "types": [
+      "CRISTAL",
+      "AGUA"
+    ],
+    "stats": {
+      "hp": 80,
+      "atk": 55,
+      "def": 78,
+      "spd": 42,
+      "spe": 60
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 17,
+      "10": 27,
+      "16": 19,
+      "22": 29,
+      "28": 21,
+      "34": 31,
+      "40": 23
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "131-bongolon"
+  },
+  {
+    "id": 132,
+    "name": "Vaporcito",
+    "types": [
+      "HUMO",
+      "METAL"
+    ],
+    "stats": {
+      "hp": 65,
+      "atk": 60,
+      "def": 62,
+      "spd": 68,
+      "spe": 58
+    },
+    "movesLearn": {
+      "1": 41,
+      "5": 65,
+      "10": 43,
+      "16": 67,
+      "22": 45,
+      "28": 69,
+      "34": 47,
+      "40": 71
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "132-vaporcito"
+  },
+  {
+    "id": 133,
+    "name": "Enrollao",
+    "types": [
+      "HIERBA",
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 72,
+      "atk": 58,
+      "def": 60,
+      "spd": 55,
+      "spe": 70
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 41,
+      "10": 3,
+      "16": 43,
+      "22": 5,
+      "28": 45,
+      "34": 7,
+      "40": 47
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "133-enrollao"
+  },
+  {
+    "id": 134,
+    "name": "Moledora",
+    "types": [
+      "METAL",
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 68,
+      "atk": 72,
+      "def": 75,
+      "spd": 50,
+      "spe": 55
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 1,
+      "10": 67,
+      "16": 3,
+      "22": 69,
+      "28": 5,
+      "34": 71,
+      "40": 7
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "134-moledora"
+  },
+  {
+    "id": 135,
+    "name": "Chaguaramin",
+    "types": [
+      "HIERBA",
+      "VIENTO"
+    ],
+    "stats": {
+      "hp": 70,
+      "atk": 60,
+      "def": 58,
+      "spd": 72,
+      "spe": 65
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 49,
+      "10": 3,
+      "16": 51,
+      "22": 5,
+      "28": 53,
+      "34": 7,
+      "40": 55
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "135-chaguaramin"
+  },
+  {
+    "id": 136,
+    "name": "Hamaquero",
+    "types": [
+      "VIENTO",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 75,
+      "atk": 48,
+      "def": 62,
+      "spd": 65,
+      "spe": 72
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 73,
+      "10": 51,
+      "16": 75,
+      "22": 53,
+      "28": 77,
+      "34": 55,
+      "40": 79
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "136-hamaquero"
+  },
+  {
+    "id": 137,
+    "name": "Papagallo",
+    "types": [
+      "VIENTO",
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 62,
+      "atk": 70,
+      "def": 55,
+      "spd": 78,
+      "spe": 58
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 9,
+      "10": 51,
+      "16": 11,
+      "22": 53,
+      "28": 13,
+      "34": 55,
+      "40": 15
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "137-papagallo"
+  },
+  {
+    "id": 138,
+    "name": "La Palida",
+    "types": [
+      "ESPIRITU",
+      "HUMO"
+    ],
+    "stats": {
+      "hp": 85,
+      "atk": 45,
+      "def": 75,
+      "spd": 60,
+      "spe": 110
+    },
+    "movesLearn": {
+      "1": 91,
+      "5": 92,
+      "10": 93,
+      "15": 58,
+      "20": 94,
+      "25": 95,
+      "30": 56,
+      "35": 96,
+      "40": 99,
+      "45": 97
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 30,
+    "sprite": "138-la-palida"
+  },
+  {
+    "id": 139,
+    "name": "Munchero",
+    "types": [
+      "TIERRA",
+      "HIERBA"
+    ],
+    "stats": {
+      "hp": 80,
+      "atk": 65,
+      "def": 68,
+      "spd": 40,
+      "spe": 60
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 1,
+      "10": 35,
+      "16": 3,
+      "22": 37,
+      "28": 5,
+      "34": 39,
+      "40": 7
+    },
+    "evolution": null,
+    "rarity": "rare",
+    "catchRate": 90,
+    "sprite": "139-munchero"
+  },
+  {
+    "id": 140,
+    "name": "Palidita",
+    "types": [
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 55,
+      "atk": 30,
+      "def": 45,
+      "spd": 50,
+      "spe": 65
+    },
+    "movesLearn": {
+      "1": 91,
+      "5": 101,
+      "10": 92,
+      "15": 58,
+      "20": 93,
+      "25": 95
+    },
+    "evolution": {
+      "to": 138,
+      "level": 30
+    },
+    "rarity": "rare",
+    "catchRate": 80,
+    "sprite": "140-palidita"
+  },
+  {
+    "id": 141,
+    "name": "Caobon",
+    "types": [
+      "HIERBA",
+      "TIERRA"
+    ],
+    "stats": {
+      "hp": 98,
+      "atk": 85,
+      "def": 92,
+      "spd": 42,
+      "spe": 88
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 33,
+      "10": 4,
+      "16": 36,
+      "22": 5,
+      "28": 38,
+      "34": 7,
+      "40": 39
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 30,
+    "sprite": "141-caobon"
+  },
+  {
+    "id": 142,
+    "name": "Teleferix",
+    "types": [
+      "VIENTO",
+      "METAL"
+    ],
+    "stats": {
+      "hp": 82,
+      "atk": 78,
+      "def": 85,
+      "spd": 90,
+      "spe": 68
+    },
+    "movesLearn": {
+      "1": 49,
+      "5": 65,
+      "10": 52,
+      "16": 68,
+      "22": 53,
+      "28": 70,
+      "34": 55,
+      "40": 71
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 30,
+    "sprite": "142-teleferix"
+  },
+  {
+    "id": 143,
+    "name": "Pilandero",
+    "types": [
+      "TIERRA",
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 90,
+      "atk": 95,
+      "def": 88,
+      "spd": 48,
+      "spe": 72
+    },
+    "movesLearn": {
+      "1": 33,
+      "5": 9,
+      "10": 36,
+      "16": 12,
+      "22": 38,
+      "28": 14,
+      "34": 39,
+      "40": 15
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 30,
+    "sprite": "143-pilandero"
+  },
+  {
+    "id": 144,
+    "name": "Sambilon",
+    "types": [
+      "CRISTAL",
+      "METAL"
+    ],
+    "stats": {
+      "hp": 88,
+      "atk": 75,
+      "def": 95,
+      "spd": 58,
+      "spe": 82
+    },
+    "movesLearn": {
+      "1": 25,
+      "5": 65,
+      "10": 28,
+      "16": 68,
+      "22": 30,
+      "28": 70,
+      "34": 31,
+      "40": 71
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 30,
+    "sprite": "144-sambilon"
+  },
+  {
+    "id": 145,
+    "name": "Redactor",
+    "types": [
+      "ESPIRITU",
+      "METAL"
+    ],
+    "stats": {
+      "hp": 85,
+      "atk": 80,
+      "def": 88,
+      "spd": 65,
+      "spe": 85
+    },
+    "movesLearn": {
+      "1": 73,
+      "5": 65,
+      "10": 75,
+      "16": 68,
+      "22": 78,
+      "28": 70,
+      "34": 79,
+      "40": 71
+    },
+    "evolution": null,
+    "rarity": "epic",
+    "catchRate": 30,
+    "sprite": "145-redactor"
+  },
+  {
+    "id": 146,
+    "name": "Cabrialesix",
+    "types": [
+      "AGUA",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 110,
+      "atk": 100,
+      "def": 95,
+      "spd": 105,
+      "spe": 108
+    },
+    "movesLearn": {
+      "1": 17,
+      "5": 73,
+      "10": 20,
+      "16": 76,
+      "22": 22,
+      "28": 78,
+      "34": 23,
+      "40": 79
+    },
+    "evolution": null,
+    "rarity": "legendary",
+    "catchRate": 5,
+    "sprite": "146-cabrialesix"
+  },
+  {
+    "id": 147,
+    "name": "Penalveris",
+    "types": [
+      "HIERBA",
+      "ESPIRITU"
+    ],
+    "stats": {
+      "hp": 112,
+      "atk": 95,
+      "def": 100,
+      "spd": 90,
+      "spe": 115
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 73,
+      "10": 4,
+      "16": 76,
+      "22": 6,
+      "28": 78,
+      "34": 7,
+      "40": 79
+    },
+    "evolution": null,
+    "rarity": "legendary",
+    "catchRate": 5,
+    "sprite": "147-penalveris"
+  },
+  {
+    "id": 148,
+    "name": "Carabobex",
+    "types": [
+      "METAL",
+      "BRASA"
+    ],
+    "stats": {
+      "hp": 105,
+      "atk": 115,
+      "def": 108,
+      "spd": 88,
+      "spe": 95
+    },
+    "movesLearn": {
+      "1": 65,
+      "5": 9,
+      "10": 68,
+      "16": 12,
+      "22": 70,
+      "28": 14,
+      "34": 71,
+      "40": 15
+    },
+    "evolution": null,
+    "rarity": "legendary",
+    "catchRate": 5,
+    "sprite": "148-carabobex"
+  },
+  {
+    "id": 149,
+    "name": "Redantom",
+    "types": [
+      "ESPIRITU",
+      "CRISTAL"
+    ],
+    "stats": {
+      "hp": 108,
+      "atk": 98,
+      "def": 100,
+      "spd": 102,
+      "spe": 112
+    },
+    "movesLearn": {
+      "1": 73,
+      "5": 25,
+      "10": 76,
+      "16": 28,
+      "22": 78,
+      "28": 30,
+      "34": 79,
+      "40": 31
+    },
+    "evolution": null,
+    "rarity": "legendary",
+    "catchRate": 5,
+    "sprite": "149-redantom"
+  },
+  {
+    "id": 150,
+    "name": "Enrolador",
+    "types": [
+      "TODOS"
+    ],
+    "stats": {
+      "hp": 110,
+      "atk": 108,
+      "def": 105,
+      "spd": 100,
+      "spe": 110
+    },
+    "movesLearn": {
+      "1": 1,
+      "5": 9,
+      "10": 17,
+      "16": 25,
+      "22": 33,
+      "28": 41,
+      "34": 49,
+      "40": 57
+    },
+    "evolution": null,
+    "rarity": "legendary",
+    "catchRate": 3,
+    "sprite": "150-enrolador"
+  }
+]

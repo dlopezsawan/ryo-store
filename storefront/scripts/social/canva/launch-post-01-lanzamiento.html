@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Enrola — Post 1 Announcement</title>
+<style>
+  @font-face { font-family: 'Kanit'; src: url('../../../public/fonts/Kanit-Regular.ttf') format('truetype'); font-weight: 400; }
+  @font-face { font-family: 'Kanit'; src: url('../../../public/fonts/Kanit-Medium.ttf')  format('truetype'); font-weight: 500; }
+  @font-face { font-family: 'Kanit'; src: url('../../../public/fonts/Kanit-SemiBold.ttf') format('truetype'); font-weight: 600; }
+  @font-face { font-family: 'Kanit'; src: url('../../../public/fonts/Kanit-Bold.ttf')   format('truetype'); font-weight: 700; }
+  @font-face { font-family: 'Kanit'; src: url('../../../public/fonts/Kanit-Black.ttf')  format('truetype'); font-weight: 900; }
+
+  :root {
+    --primary: #BB3B2E;
+    --orange:  #FF3B27;
+    --secondary: #4D5431;
+    --cream:   #F5F2E8;
+    --dark:    #1A1A1A;
+    --muted:   #85827d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1350px; }
+  body {
+    font-family: 'Kanit', system-ui, sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+
+  .frame {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle paper-grain background using SVG noise */
+  .frame::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.10  0 0 0 0 0.08  0 0 0 0 0.06  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: 0.55;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+  }
+
+  /* TOP BAR */
+  .top {
+    position: absolute; top: 56px; left: 64px; right: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 2;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 14px;
+    font-weight: 900; font-size: 22px; letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .brand .dot { width: 14px; height: 14px; background: var(--primary); border: 3px solid var(--dark); }
+  .date {
+    font-weight: 700; font-size: 18px; letter-spacing: 0.22em; text-transform: uppercase;
+    padding: 8px 14px; border: 3px solid var(--dark); background: var(--cream);
+    box-shadow: 4px 4px 0 0 var(--dark);
+  }
+
+  /* MIDDLE / HERO */
+  .hero {
+    position: absolute; left: 64px; right: 64px;
+    top: 50%; transform: translateY(-50%);
+    z-index: 2;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .eyebrow {
+    font-weight: 600; font-size: 24px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--secondary);
+  }
+  .h1 {
+    font-weight: 900; font-size: 122px; line-height: 0.92;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  .h1 .row { display: flex; align-items: center; gap: 22px; flex-wrap: nowrap; }
+  .h1 .em { color: var(--primary); }
+  .h1 .pill {
+    display: inline-block;
+    background: var(--orange);
+    color: var(--cream);
+    padding: 0 22px 8px;
+    border: 4px solid var(--dark);
+    box-shadow: 10px 10px 0 0 var(--dark);
+    transform: rotate(-1.5deg);
+    line-height: 1;
+  }
+
+  /* PRODUCT CHIPS */
+  .chips {
+    display: flex; flex-wrap: wrap; gap: 14px; margin-top: 18px; z-index: 2;
+  }
+  .chip {
+    font-weight: 700; font-size: 22px; text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 12px 20px;
+    background: var(--cream);
+    border: 3px solid var(--dark);
+    box-shadow: 5px 5px 0 0 var(--dark);
+  }
+  .chip.alt { background: var(--dark); color: var(--cream); }
+
+  /* BOTTOM */
+  .bottom {
+    position: absolute; left: 64px; right: 64px; bottom: 56px;
+    z-index: 2;
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 4px solid var(--dark);
+    padding-top: 22px;
+  }
+  .handle {
+    font-weight: 900; font-size: 36px; letter-spacing: 0.02em;
+    line-height: 1;
+  }
+  .handle .at { color: var(--primary); }
+  .meta {
+    text-align: right;
+    font-weight: 600; font-size: 17px; line-height: 1.3;
+    color: var(--dark);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .meta .accent { color: var(--primary); font-weight: 900; }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <div class="top">
+      <div class="brand"><span class="dot"></span> Enrola Shop</div>
+      <div class="date">04 · 20 · 26</div>
+    </div>
+
+    <div class="hero">
+      <div class="eyebrow">Hecho en Venezuela · Drop 001</div>
+      <div class="h1">
+        <span class="row">Hoy es <span class="pill">4:20.</span></span>
+        Venezuela tiene<br/>
+        <span class="em">tienda nueva.</span>
+      </div>
+
+      <div class="chips">
+        <div class="chip">Papers</div>
+        <div class="chip">Conos</div>
+        <div class="chip">Grinders</div>
+        <div class="chip">Filtros</div>
+        <div class="chip alt">+ más</div>
+      </div>
+
+      <div class="coupon-strip" style="margin-top: 26px; display: flex; align-items: stretch; gap: 0; border: 4px solid var(--dark); box-shadow: 10px 10px 0 0 var(--dark); background: var(--cream);">
+        <div style="background: var(--orange); color: var(--cream); padding: 18px 24px; font-weight: 900; font-size: 38px; line-height: 1; letter-spacing: -0.01em; border-right: 4px solid var(--dark);">20% OFF</div>
+        <div style="background: var(--cream); color: var(--dark); padding: 18px 24px; font-weight: 900; font-size: 38px; line-height: 1; letter-spacing: 0.02em;">ENROLA420</div>
+        <div style="background: var(--dark); color: var(--cream); padding: 18px 24px; font-weight: 700; font-size: 16px; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1.2; flex: 1; display: flex; align-items: center;">
+          Toda la semana<br/>1ra compra · Mín. 15 €
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom">
+      <div class="handle"><span class="at">@</span>enrola.shop</div>
+      <div class="meta">
+        Same-day Valencia · MRW <span class="accent">VE</span><br/>
+        Pago Móvil ✓
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

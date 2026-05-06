@@ -1,0 +1,7 @@
+#!/usr/bin/expect -f
+set timeout -1
+set password "Otuneo&Zl,i&Z9gJ'7nO"
+spawn rsync -avz -e "ssh -p 2222 -o StrictHostKeyChecking=no" --exclude node_modules --exclude .medusa --exclude .next --exclude .env "/Users/daniellopez/Desktop/ryo store/storefront/" root@62.171.139.141:/root/ryo-store/storefront/
+expect "assword:"
+send "$password\r"
+expect eof

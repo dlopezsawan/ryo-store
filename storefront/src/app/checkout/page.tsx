@@ -1,0 +1,1616 @@
+"use client";
+
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import Link from "next/link";
+import Image from "next/image";
+import { useCart } from "@/context/CartContext";
+import { centsToDisplay } from "@/lib/price";
+import { formatPrice } from "@/lib/format";
+import * as cartApi from "@/lib/cart";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { Upload, X, Star, UserPlus, MapPin, Plus, Gift } from "lucide-react";
+import AddressAutocomplete from "@/components/address/AddressAutocomplete";
+import WhatsAppPhoneInput from "@/components/form/WhatsAppPhoneInput";
+import { useSession } from "next-auth/react";
+import ComboTierBanner from "@/components/combo/ComboTierBanner";
+import { applyComboDiscount } from "@/lib/combo-tiers";
+import { findNearestMrwOffice } from "@/lib/mrw-finder";
+import { compareNameToCne } from "@/lib/cedula-name-match";
+import {
+  trackCheckoutStarted,
+  trackCheckoutStep,
+  trackOrderPlaced,
+  trackPaymentProofUploaded,
+  trackCouponApplied,
+  trackCouponFailed,
+} from "@/lib/posthog";
+
+type LoyaltyReward = {
+  id: string;
+  name: string;
+  description?: string;
+  points_required: number;
+  image_url?: string;
+  stock?: number | null;
+};
+
+type ShippingOption = {
+  id: string;
+  name?: string;
+  shipping_option_type?: { code?: string };
+  type?: { code?: string };
+  amount?: number;
+  calculated_price?: { calculated_amount?: number };
+};
+
+function selectShippingOption(
+  options: ShippingOption[],
+  shippingType: "inmediato" | "mrw",
+  subtotal: number
+): ShippingOption | null {
+  const getCode = (o: ShippingOption) =>
+    o.shipping_option_type?.code ?? o.type?.code ?? "";
+  const getName = (o: ShippingOption) => (o.name ?? "").toLowerCase();
+  const getAmount = (o: ShippingOption) => {
+    const a = o.amount ?? o.calculated_price?.calculated_amount;
+    return a != null ? Number(a) : 0;
+  };
+  const isMrw = (o: ShippingOption) =>
+    getName(o).includes("mrw") || getCode(o) === "mrw";
+  const isInmediato = (o: ShippingOption) =>
+    getName(o).includes("inmediato") ||
+    getName(o).includes("valencia") ||
+    getCode(o).startsWith("inmediato");
+
+  if (shippingType === "mrw") {
+    return options.find(isMrw) ?? null;
+  }
+  if (shippingType === "inmediato") {
+    const immediatoOptions = options.filter((o) => !isMrw(o));
+    if (immediatoOptions.length === 0) return null;
+    const useGratis = subtotal >= 10;
+    const preferAmount = useGratis ? 0 : 300;
+    const match =
+      immediatoOptions.find((o) => getAmount(o) === preferAmount) ??
+      immediatoOptions.find((o) => getAmount(o) === (useGratis ? 0 : 3)) ??
+      immediatoOptions.find((o) =>
+        useGratis ? getName(o).includes("gratis") : getName(o).includes("$3")
+      );
+    return match ?? immediatoOptions[0];
+  }
+  return options[0] ?? null;
+}
+
+const PAGO_MOVIL_INSTRUCTIONS = [
+  {
+    step: 1,
+    text: "Realiza tu pago a",
+    details: (
+      <>
+        <p className="font-bold text-dark">Banco de Venezuela</p>
+        <p className="text-base font-medium">21028734</p>
+        <p className="text-base font-medium">04244043276</p>
+      </>
+    ),
+  },
+  {
+    step: 2,
+    text: "Completa los datos del formulario y sube la captura del pago",
+  },
+  {
+    step: 3,
+    text: "Verificaremos el pago y recibirás actualizaciones del pedido por correo",
+  },
+];
+
+export default function CheckoutPage() {
+  const { cart, loading: cartLoading, refresh } = useCart();
+  const router = useRouter();
+  const { data: session, status: authStatus } = useSession();
+  const isLoggedIn = authStatus === "authenticated";
+  const [fullCart, setFullCart] = useState<{
+    id: string;
+    region_id: string;
+    payment_collection?: { id: string };
+    email?: string;
+    shipping_address?: Record<string, unknown>;
+  } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address1, setAddress1] = useState("");
+  const [address2, setAddress2] = useState("");
+  const [city, setCity] = useState("");
+  const [countryCode, setCountryCode] = useState("VE");
+  const [province, setProvince] = useState("");
+  const [mapsUrl, setMapsUrl] = useState("");
+  const [addressCoords, setAddressCoords] = useState<{ lat: number; lng: number } | null>(null);
+
+  // ─── MRW recipient + cedula validation (only relevant when shippingType=mrw) ─
+  // The buyer (logged-in account / payer) and the recipient (who picks up at MRW)
+  // can be different people. MRW rejects shipments when the cedula registered
+  // doesn't match the receiver's name, so we capture both pieces and verify
+  // against CNE before submission.
+  const [recipientType, setRecipientType] = useState<"self" | "other">("self");
+  const [nationality, setNationality] = useState<"V" | "E">("V");
+  const [cedula, setCedula] = useState("");          // own cedula (when recipient=self)
+  const [recipientFirstName, setRecipientFirstName] = useState("");
+  const [recipientLastName, setRecipientLastName] = useState("");
+  const [recipientNationality, setRecipientNationality] = useState<"V" | "E">("V");
+  const [recipientCedula, setRecipientCedula] = useState("");
+  const [recipientPhone, setRecipientPhone] = useState("");
+  const [cedulaCheck, setCedulaCheck] = useState<{
+    status: "idle" | "loading" | "match" | "partial" | "mismatch" | "not_found" | "unavailable";
+    cneName?: string;
+  }>({ status: "idle" });
+  const [shippingType, setShippingType] = useState<"inmediato" | "mrw">("inmediato");
+
+  // Saved addresses (logged-in users)
+  type SavedAddress = {
+    id: string;
+    first_name?: string;
+    last_name?: string;
+    address_1?: string;
+    address_2?: string;
+    city?: string;
+    province?: string;
+    phone?: string;
+    country_code?: string;
+  };
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofPreview, setProofPreview] = useState<string | null>(null);
+  const [wrongRegion, setWrongRegion] = useState<boolean | null>(null);
+  const [bcvRate, setBcvRate] = useState<number | null>(null);
+  const formLoadTime = useRef<number>(Date.now());
+  const [honeypot, setHoneypot] = useState("");
+  const [subscribeNewsletter, setSubscribeNewsletter] = useState(true);
+  const [acceptedTos, setAcceptedTos] = useState(false);
+
+  // Discount code
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountApplied, setDiscountApplied] = useState<string | null>(null);
+  const [discountError, setDiscountError] = useState("");
+  const [discountLoading, setDiscountLoading] = useState(false);
+
+  // Loyalty reward warning
+  const [rewardWarning, setRewardWarning] = useState(false);
+
+  // Loyalty rewards
+  const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null);
+  const [loyaltyRewards, setLoyaltyRewards] = useState<LoyaltyReward[]>([]);
+  const [selectedRewards, setSelectedRewards] = useState<LoyaltyReward[]>([]);
+  const checkoutTrackedRef = useRef(false);
+
+  // Track checkout_started once per session (on first load with a populated cart)
+  useEffect(() => {
+    if (checkoutTrackedRef.current || !cart?.id || !cart.item_count) return;
+    checkoutTrackedRef.current = true;
+    trackCheckoutStarted({
+      item_count: cart.item_count,
+      subtotal: cart.subtotal ?? 0,
+    });
+  }, [cart?.id, cart?.item_count, cart?.subtotal]);
+
+  // NOTA: la auto-aplicación de códigos COMBO/WHOLESALE fue removida.
+  // Ahora el backend aplica los descuentos como line-item adjustments
+  // automáticamente vía POST /store/carts/:id/recalculate-combos, llamado
+  // por el cliente en `cart.ts` después de cada add/update/remove. Esa ruta
+  // es la única autoritativa: cuenta SKUs únicos, aplica 10/15/20% a 1
+  // unidad de cada línea no-mayorista, y 30% a todas las unidades de
+  // líneas mayoristas (qty ≥ 24).
+
+  useEffect(() => {
+    if (!cart?.id) return;
+    const loadFullCart = (attempt = 1) => {
+      Promise.all([
+        fetch(`/api/cart?cartId=${encodeURIComponent(cart.id)}`).then((r) => r.json()),
+        cartApi.getRegionId("ve"),
+      ])
+        .then(([data, venezuelaRegionId]) => {
+          const c = data.cart ?? data;
+          // If region_id is missing and we have retries left, try again
+          if (!c?.region_id && attempt < 3) {
+            setTimeout(() => loadFullCart(attempt + 1), 800);
+            return;
+          }
+          setFullCart(c);
+          if (c.email) setEmail(c.email);
+          if (c.shipping_address) {
+            const a = c.shipping_address;
+            // Only fill non-empty values so saved-address auto-fill isn't overwritten
+            if (a.first_name) setFirstName(a.first_name);
+            if (a.last_name) setLastName(a.last_name);
+            if (a.phone) setPhone(a.phone);
+            if (a.address_1) setAddress1(a.address_1);
+            if (a.address_2) setAddress2(a.address_2);
+            if (a.city) setCity(a.city);
+            if (a.country_code) setCountryCode(a.country_code);
+            if (a.province) setProvince(a.province);
+          }
+          setWrongRegion(
+            venezuelaRegionId != null &&
+              c.region_id != null &&
+              c.region_id !== venezuelaRegionId
+          );
+        })
+        .catch(() => {
+          if (attempt < 3) setTimeout(() => loadFullCart(attempt + 1), 800);
+          else setFullCart(null);
+        });
+    };
+    loadFullCart();
+  }, [cart?.id]);
+
+  useEffect(() => {
+    if (!cart?.id && !cartLoading) {
+      router.replace("/carrito");
+    }
+  }, [cart, cartLoading, router]);
+
+  // Load loyalty points + available rewards for logged-in users
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    Promise.all([
+      fetch("/api/cuenta/loyalty").then((r) => r.json()),
+      fetch("/api/cuenta/rewards").then((r) => r.json()),
+    ])
+      .then(([loyalty, rewardsData]) => {
+        setLoyaltyPoints(loyalty.points ?? 0);
+        setLoyaltyRewards(rewardsData.rewards ?? []);
+      })
+      .catch(() => {});
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    fetch("/api/bcv-rate")
+      .then((r) => r.json())
+      .then((data) => {
+        const factor = Number(data?.usdToBs ?? data?.usd);
+        if (factor > 0) setBcvRate(factor);
+      })
+      .catch(() => {});
+  }, []);
+
+  // ─── CNE cedula validator (only when MRW selected) ────────────────────────
+  // Compares the typed name against the name CNE has registered for that
+  // cedula. Debounced 600ms so we don't spam the endpoint on every keystroke.
+  // Result drives a small advisory UI block; never blocks submission outright.
+  useEffect(() => {
+    if (shippingType !== "mrw") {
+      setCedulaCheck({ status: "idle" });
+      return;
+    }
+    const isOther = recipientType === "other";
+    const ced = (isOther ? recipientCedula : cedula).replace(/\D/g, "");
+    const nat = isOther ? recipientNationality : nationality;
+    const targetFirst = isOther ? recipientFirstName : firstName;
+    const targetLast = isOther ? recipientLastName : lastName;
+    const fullName = `${targetFirst} ${targetLast}`.trim();
+
+    if (!ced || ced.length < 6 || !fullName) {
+      setCedulaCheck({ status: "idle" });
+      return;
+    }
+
+    setCedulaCheck({ status: "loading" });
+    const controller = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const r = await fetch(
+          `/api/checkout/verify-cedula?nacionalidad=${nat}&cedula=${ced}`,
+          { signal: controller.signal }
+        );
+        const data = (await r.json()) as {
+          valid: boolean | null;
+          name?: string;
+          reason?: string;
+        };
+        if (controller.signal.aborted) return;
+
+        if (data.valid === true && data.name) {
+          const result = compareNameToCne(fullName, data.name);
+          setCedulaCheck({
+            status:
+              result === "match"
+                ? "match"
+                : result === "partial"
+                ? "partial"
+                : "mismatch",
+            cneName: data.name,
+          });
+        } else if (data.valid === false && data.reason === "not_found") {
+          setCedulaCheck({ status: "not_found" });
+        } else {
+          // null → not supported (E) or service unavailable: don't alarm the user
+          setCedulaCheck({ status: "unavailable" });
+        }
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          setCedulaCheck({ status: "unavailable" });
+        }
+      }
+    }, 600);
+
+    return () => {
+      controller.abort();
+      clearTimeout(t);
+    };
+  }, [
+    shippingType,
+    recipientType,
+    cedula,
+    nationality,
+    recipientCedula,
+    recipientNationality,
+    firstName,
+    lastName,
+    recipientFirstName,
+    recipientLastName,
+  ]);
+
+  // Auto-fill from logged-in customer profile (only if fields are still empty)
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const token = (session as unknown as Record<string, unknown>)?.medusaToken as string;
+    if (!token) return;
+    fetch("/api/cuenta/profile", { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((d) => {
+        const c = d.customer;
+        if (!c) return;
+        if (!email && c.email) setEmail(c.email);
+        if (!firstName && c.first_name) setFirstName(c.first_name);
+        if (!lastName && c.last_name) setLastName(c.last_name);
+        const customerPhone = c.phone || "";
+        if (!phone && customerPhone) setPhone(customerPhone);
+        // Pre-fill from default/first saved address — always auto-select on load
+        const addrs = c.addresses ?? [];
+        if (addrs.length > 0) {
+          setSavedAddresses(addrs);
+          const a = addrs[0];
+          setSelectedAddressId(a.id);
+          if (a.address_1) setAddress1(a.address_1);
+          if (a.address_2 != null) setAddress2(a.address_2 ?? "");
+          if (a.city) setCity(a.city);
+          if (a.province != null) setProvince(a.province ?? "");
+          // Only use address phone if customer profile has no phone
+          if (!customerPhone && a.phone) setPhone(a.phone);
+        }
+      })
+      .catch(() => {});
+  }, [isLoggedIn, session]); // eslint-disable-line
+
+  const handleProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (!["image/jpeg", "image/jpg", "image/png"].includes(f.type)) {
+      setError("Solo se permiten archivos JPG o PNG");
+      return;
+    }
+    if (f.size > 5 * 1024 * 1024) {
+      setError("La imagen no debe superar 5MB");
+      return;
+    }
+    setError(null);
+    setProofFile(f);
+    trackPaymentProofUploaded({ method: "pago_movil", file_size_kb: Math.round(f.size / 1024) });
+    const reader = new FileReader();
+    reader.onload = () => setProofPreview(reader.result as string);
+    reader.readAsDataURL(f);
+  };
+
+  const removeProof = () => {
+    setProofFile(null);
+    setProofPreview(null);
+  };
+
+  // Loyalty computed values
+  const pointsUsed = selectedRewards.reduce((s, r) => s + r.points_required, 0);
+  const remainingPoints = (loyaltyPoints ?? 0) - pointsUsed;
+
+  const toggleReward = (reward: LoyaltyReward) => {
+    const isSelected = selectedRewards.some((r) => r.id === reward.id);
+    if (isSelected) {
+      setRewardWarning(false);
+      setSelectedRewards((prev) => prev.filter((r) => r.id !== reward.id));
+    } else {
+      if (!cart?.items?.length) {
+        setRewardWarning(true);
+        return;
+      }
+      setRewardWarning(false);
+      if (remainingPoints >= reward.points_required) {
+        setSelectedRewards((prev) => [...prev, reward]);
+      }
+    }
+  };
+
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim() || !cart?.id) return;
+    setDiscountLoading(true);
+    setDiscountError("");
+    try {
+      const res = await fetch("/api/checkout/discount", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cartId: cart.id, code: discountCode.trim().toUpperCase() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Código inválido");
+      setDiscountApplied(discountCode.trim().toUpperCase());
+      setDiscountError("");
+      trackCouponApplied({
+        code: discountCode.trim().toUpperCase(),
+        discount_pct: data.discount_pct,
+        discount_amount: data.discount_amount,
+      });
+      await refresh();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Código inválido";
+      setDiscountError(msg);
+      trackCouponFailed({ code: discountCode.trim().toUpperCase(), reason: msg });
+    } finally {
+      setDiscountLoading(false);
+    }
+  };
+
+  const handleRemoveDiscount = async () => {
+    if (!cart?.id || !discountApplied) return;
+    try {
+      await fetch("/api/checkout/discount", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cartId: cart.id, code: discountApplied }),
+      });
+    } catch {}
+    setDiscountApplied(null);
+    setDiscountCode("");
+    setDiscountError("");
+    await refresh();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (wrongRegion) return;
+    if (!cart?.id) {
+      setError("No se encontró el carrito. Recarga la página.");
+      return;
+    }
+    if (!fullCart?.region_id) {
+      setError("Cargando datos del carrito, espera un momento e intenta de nuevo.");
+      return;
+    }
+    if (!proofFile) {
+      setError("Debes subir la captura del pago");
+      return;
+    }
+    if (!acceptedTos) {
+      setError("Debes aceptar los Términos y Condiciones para continuar");
+      return;
+    }
+    // Bot protection: honeypot filled or form submitted too fast
+    if (honeypot || Date.now() - formLoadTime.current < 3000) return;
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", proofFile);
+      const uploadRes = await fetch("/api/checkout/upload-proof", {
+        method: "POST",
+        body: formData,
+      });
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json();
+        throw new Error(err.error || "Error al subir la imagen");
+      }
+      const { url } = await uploadRes.json();
+
+      // For MRW + recipient=other, the shipping address must show the RECEIVER's
+      // name/cedula/phone (because that's what MRW validates against), not the
+      // buyer's. Buyer details remain on the order/customer side via metadata.
+      const isMrwOther = shippingType === "mrw" && recipientType === "other";
+      const shipFirst = isMrwOther ? recipientFirstName.trim() : firstName.trim();
+      const shipLast = isMrwOther ? recipientLastName.trim() : lastName.trim();
+      const shipPhone = isMrwOther ? recipientPhone.trim() : phone.trim();
+
+      const address = {
+        first_name: shipFirst,
+        last_name: shipLast,
+        phone: shipPhone,
+        address_1: address1.trim(),
+        address_2: address2?.trim() || undefined,
+        city: city.trim(),
+        country_code: (countryCode || "ve").toLowerCase(),
+        province: province?.trim() || undefined,
+        postal_code: "",
+      };
+
+      // Cédula on the order is the one MRW will validate (recipient's if other,
+      // buyer's if self). Always store with the V-/E- prefix in metadata.
+      let mrwIdMeta: Record<string, unknown> = {};
+      if (shippingType === "mrw") {
+        const ced = (recipientType === "other" ? recipientCedula : cedula).replace(/\D/g, "");
+        const nat = recipientType === "other" ? recipientNationality : nationality;
+        if (ced) {
+          mrwIdMeta = {
+            cedula: `${nat}-${ced}`,
+            cedula_owner: recipientType, // "self" | "other"
+          };
+          if (recipientType === "other") {
+            mrwIdMeta = {
+              ...mrwIdMeta,
+              recipient_first_name: recipientFirstName.trim(),
+              recipient_last_name: recipientLastName.trim(),
+              recipient_phone: recipientPhone.trim(),
+              recipient_cedula: `${recipientNationality}-${recipientCedula.replace(/\D/g, "")}`,
+              // Keep buyer info preserved separately for clarity in admin/Telegram
+              buyer_first_name: firstName.trim(),
+              buyer_last_name: lastName.trim(),
+              buyer_phone: phone.trim(),
+              buyer_email: email.trim(),
+            };
+          }
+        }
+      }
+
+      // Inmediato shipping has 2 underlying Medusa shipping_options:
+      //   - "Inmediato (Valencia) - $3"  (amount: 3) → used when subtotal < €10
+      //   - "Inmediato (Valencia) - Gratis" (amount: 0) → used when subtotal ≥ €10
+      // The storefront already swaps between them via selectShippingOption(), so
+      // order_summary.shipping_total ends up as 0 or 3 correctly. We track the
+      // "free shipping rule applied" event here as metadata so Telegram + the
+      // finance dashboard can surface "ahorro de €3 por la promoción" instead
+      // of showing a plain €0 with no context.
+      const FREE_SHIPPING_THRESHOLD_EUR = 10;
+      const FULL_SHIPPING_PRICE_EUR = 3;
+      const isInmediatoFree =
+        shippingType === "inmediato" && cart.subtotal >= FREE_SHIPPING_THRESHOLD_EUR;
+      const shippingCost =
+        shippingType === "inmediato" && cart.subtotal < FREE_SHIPPING_THRESHOLD_EUR ? FULL_SHIPPING_PRICE_EUR : 0;
+
+      // For MRW orders: try to find the closest MRW office to the customer's
+      // address so the team in Telegram sees a clickable pin (with agency name
+      // when available) right next to the shipping address.
+      let mrwOfficeMeta: Record<string, unknown> = {};
+      if (shippingType === "mrw" && addressCoords) {
+        try {
+          const office = await findNearestMrwOffice(addressCoords.lat, addressCoords.lng);
+          if (office) {
+            mrwOfficeMeta = {
+              mrw_office_name: office.name,
+              mrw_office_address: office.address,
+              mrw_office_url: office.maps_url,
+              ...(office.place_id ? { mrw_office_place_id: office.place_id } : {}),
+            };
+          }
+        } catch (err) {
+          console.warn("[checkout] MRW office lookup failed:", err);
+        }
+      }
+
+      const updateRes = await fetch("/api/checkout/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cartId: cart.id,
+          email: email.trim(),
+          shipping_address: address,
+          billing_address: address,
+          metadata: {
+            payment_proof_url: url,
+            shipping_type: shippingType,
+            shipping_cost: shippingCost,
+            tos_accepted_at: new Date().toISOString(),
+            ...(mapsUrl ? { maps_url: mapsUrl } : {}),
+            ...mrwOfficeMeta,
+            ...mrwIdMeta,
+            // Free-shipping promo flags — surfaced by the bot + finance module
+            ...(isInmediatoFree
+              ? {
+                  free_shipping_applied: true,
+                  free_shipping_threshold_eur: FREE_SHIPPING_THRESHOLD_EUR,
+                  free_shipping_savings_eur: FULL_SHIPPING_PRICE_EUR,
+                }
+              : {}),
+            ...(selectedRewards.length > 0 ? {
+              redeemed_rewards: selectedRewards.map((r) => ({ id: r.id, name: r.name, points: r.points_required })),
+              total_points_redeemed: pointsUsed,
+            } : {}),
+          },
+        }),
+      });
+      const updateData = await updateRes.json().catch(() => ({}));
+      if (!updateRes.ok) {
+        const msg =
+          updateData?.message ||
+          updateData?.error ||
+          (typeof updateData === "string" ? updateData : null);
+        throw new Error(
+          msg
+            ? `Error al actualizar datos: ${typeof msg === "string" ? msg : JSON.stringify(msg)}`
+            : "Error al actualizar datos"
+        );
+      }
+
+      let collectionId = fullCart.payment_collection?.id;
+      if (!collectionId) {
+        const pcRes = await fetch("/api/checkout/payment-collection", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cart_id: cart.id }),
+        });
+        if (!pcRes.ok) throw new Error("Error al crear sesión de pago");
+        const pcData = await pcRes.json();
+        collectionId = pcData.payment_collection?.id;
+      }
+      if (!collectionId) throw new Error("No se pudo obtener la colección de pago");
+
+      const shippingOptionsRes = await fetch(
+        `/api/checkout/shipping-options?cartId=${encodeURIComponent(cart.id)}`
+      );
+      const shippingData = await shippingOptionsRes.json();
+      const raw = shippingData.shipping_options ?? shippingData.options ?? [];
+      const options = Array.isArray(raw) ? raw : [];
+      if (options.length === 0) {
+        throw new Error(
+          "No hay opciones de envío. Prueba: 1) Vacía el carrito (abajo), vuelve a la tienda, añade productos y repite el checkout. 2) En Medusa Admin: Settings → Stock Locations → Valencia → activa Manual en Fulfillment Providers."
+        );
+      }
+      const selectedOption = selectShippingOption(options, shippingType, cart.subtotal);
+      if (!selectedOption) {
+        throw new Error(
+          "No se encontró la opción de envío seleccionada. Intenta de nuevo."
+        );
+      }
+      const shipRes = await fetch("/api/checkout/shipping", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cartId: cart.id, option_id: selectedOption.id }),
+      });
+      if (!shipRes.ok) {
+        const errData = await shipRes.json().catch(() => ({}));
+        throw new Error(errData?.message || errData?.error || "Error al aplicar el envío");
+      }
+
+      const providersRes = await fetch(
+        `/api/checkout/payment-providers?regionId=${encodeURIComponent(fullCart.region_id)}`
+      );
+      const providersData = await providersRes.json();
+      const providers = providersData.payment_providers ?? providersData ?? [];
+      const providerId = Array.isArray(providers)
+        ? providers[0]?.id ?? "pp_system_default"
+        : "pp_system_default";
+
+      const sessionRes = await fetch("/api/checkout/payment-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          collectionId,
+          provider_id: providerId,
+          data: { payment_proof_url: url },
+        }),
+      });
+      if (!sessionRes.ok) {
+        const err = await sessionRes.json().catch(() => ({}));
+        throw new Error(err?.message || err?.error || "Error al crear sesión de pago");
+      }
+
+      // Redeem loyalty rewards before completing order
+      if (selectedRewards.length > 0 && isLoggedIn) {
+        const redeemRes = await fetch("/api/cuenta/loyalty/redeem", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reward_ids: selectedRewards.map((r) => r.id) }),
+        });
+        if (!redeemRes.ok) {
+          const redeemErr = await redeemRes.json().catch(() => ({}));
+          throw new Error(redeemErr.error || "Error al canjear los puntos");
+        }
+      }
+
+      const completeRes = await fetch("/api/checkout/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cartId: cart.id }),
+      });
+      const completeData = await completeRes.json();
+
+      if (completeData.type === "order" && completeData.order) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("ryo_cart_id");
+        }
+        const order = completeData.order;
+        const emailToUse = order?.email ?? email?.trim();
+        trackOrderPlaced({
+          order_id: order.id,
+          total: order.total ?? cart?.subtotal ?? 0,
+          items: cart?.item_count ?? 0,
+          payment_method: "pago_movil",
+        });
+        trackCheckoutStep({ step: "completed", item_count: cart?.item_count, subtotal: cart?.subtotal });
+        if (emailToUse) {
+          fetch("/api/checkout/send-confirmation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              order, 
+              email: emailToUse, 
+              bcvRate: bcvRate ?? undefined, 
+              paymentProofUrl: url, 
+              shippingType,
+              redeemedRewards: selectedRewards.length > 0 ? selectedRewards : undefined,
+              totalPointsRedeemed: pointsUsed > 0 ? pointsUsed : undefined
+            }),
+          }).catch(() => {});
+          if (subscribeNewsletter) {
+            fetch("/api/newsletter", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: emailToUse, name: `${firstName} ${lastName}`.trim() }),
+            }).catch(() => {});
+          }
+        }
+        await refresh();
+        router.push(`/checkout/gracias?order=${completeData.order.id}`);
+      } else {
+        throw new Error(
+          completeData.error?.message || completeData.message || "Error al completar el pedido"
+        );
+      }
+    } catch (err) {
+      // If we already redeemed rewards but order failed, reverse the redemption
+      if (selectedRewards.length > 0 && isLoggedIn) {
+        fetch("/api/cuenta/loyalty/redeem", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reward_ids: selectedRewards.map((r) => r.id) }),
+        }).catch(() => {});
+      }
+      setError(err instanceof Error ? err.message : "Error al procesar el pedido");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (cartLoading || (!cart && !cartLoading)) {
+    return (
+      <div className="min-h-screen bg-cream">
+        <Header />
+        <main className="max-w-[1380px] mx-auto px-4 py-8">
+          <p className="text-muted">Cargando...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!cart?.items?.length) {
+    return (
+      <div className="min-h-screen bg-cream">
+        <Header />
+        <main className="max-w-[1380px] mx-auto px-4 py-8 text-center">
+          <p className="text-muted text-lg mb-4">Tu carrito está vacío</p>
+          <Link
+            href="/tienda"
+            className="inline-block bg-primary text-white px-8 py-3 font-bold text-sm uppercase tracking-wide border-2 border-dark hover:bg-primary/80 transition-colors"
+          >
+            IR A LA TIENDA
+          </Link>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const handleClearCartAndRetry = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("ryo_cart_id");
+    }
+    refresh();
+    router.push("/carrito");
+  };
+
+  return (
+    <div className="min-h-screen bg-cream">
+      <Header />
+
+      <main className="max-w-[1380px] mx-auto px-4 py-8 md:py-12 overflow-x-clip">
+        {/* Breadcrumbs */}
+        <nav className="flex items-center gap-2 text-sm mb-6 font-medium">
+          <Link href="/carrito" className="text-muted hover:text-primary transition-colors">Carrito</Link>
+          <span className="text-primary font-bold">&rarr;</span>
+          <span className="text-dark font-bold">Envío & Pago</span>
+        </nav>
+
+        <div className="flex items-center gap-4 mb-8">
+          <div className="h-1 w-12 bg-primary" />
+          <h1 className="font-black text-dark text-4xl md:text-6xl uppercase tracking-tight">
+            Checkout
+          </h1>
+        </div>
+
+        {/* Club Enrola banner — only for guests */}
+        {!isLoggedIn && (
+          <div className="mb-8 border-[3px] border-dark p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 mr-1.5"
+            style={{ background: "var(--secondary)", boxShadow: "6px 6px 0px 0px #1A1A1A" }}>
+            <div className="flex-shrink-0 w-12 h-12 bg-orange border-2 border-dark flex items-center justify-center shadow-[2px_2px_0px_0px_#1A1A1A]">
+              <Star size={24} strokeWidth={3} className="text-white" fill="white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-base uppercase tracking-wide text-cream">¡Únete al Club Enrola y gana puntos!</p>
+              <p className="text-cream/80 text-sm mt-0.5">
+                Regístrate gratis y acumula <strong className="text-orange">10 puntos por cada $1</strong> de compra. Canjéalos por recompensas exclusivas.
+              </p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0 flex-wrap">
+              <Link
+                href={`/registro?redirect=/checkout`}
+                className="flex items-center gap-2 bg-orange text-white px-5 py-2.5 font-black text-sm uppercase tracking-widest border-2 border-dark shadow-[3px_3px_0px_0px_#1A1A1A] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all whitespace-nowrap"
+              >
+                <UserPlus size={16} strokeWidth={2.5} />
+                Crear Cuenta
+              </Link>
+              <Link
+                href={`/login?callbackUrl=/checkout`}
+                className="bg-transparent text-cream px-5 py-2.5 font-black text-sm uppercase tracking-widest border-2 border-cream/60 hover:border-orange hover:text-orange transition-colors whitespace-nowrap"
+              >
+                Iniciar Sesión
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {wrongRegion && (
+          <div className="mb-8 border-3 border-dark bg-amber-50 p-6" style={{ borderWidth: "3px", boxShadow: "4px 4px 0 0 var(--primary)" }}>
+            <h3 className="font-bold text-amber-900 text-lg mb-2">
+              Tu carrito usa otra region
+            </h3>
+            <p className="text-amber-800 mb-4 text-sm">
+              Este carrito fue creado con una región que no incluye Venezuela. Para enviar a
+              Venezuela, vacía el carrito y vuelve a añadir los productos.
+            </p>
+            <button
+              type="button"
+              onClick={handleClearCartAndRetry}
+              className="bg-primary text-white px-6 py-3 font-bold text-sm uppercase border-2 border-dark hover:bg-primary/80 transition"
+            >
+              Vaciar carrito e ir a la tienda
+            </button>
+          </div>
+        )}
+
+        <form
+          onSubmit={handleSubmit}
+          className="grid md:grid-cols-3 gap-4 md:gap-8 w-full"
+          style={{ opacity: wrongRegion ? 0.6 : 1, pointerEvents: wrongRegion ? "none" : "auto" }}
+        >
+          {/* Honeypot — hidden from humans, bots fill this */}
+          <div style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }} aria-hidden="true">
+            <input
+              type="text"
+              name="_hp"
+              tabIndex={-1}
+              autoComplete="off"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+            />
+          </div>
+          <div className="md:col-span-2 space-y-4 md:space-y-6 min-w-0 overflow-hidden">
+            {/* Shipping form */}
+            <div className="border-3 border-dark bg-white p-4 md:p-6 shadow-[3px_3px_0_0_var(--secondary)] md:shadow-[6px_6px_0_0_var(--secondary)]" style={{ borderWidth: "3px" }}>
+              <h2 className="font-black text-dark text-lg uppercase tracking-wide mb-4 md:mb-5 pb-3 border-b-2 border-dark">
+                Datos de Envío
+              </h2>
+
+              {/* Saved address selector — only for logged-in users with addresses */}
+              {isLoggedIn && savedAddresses.length > 0 && (
+                <div className="mb-5">
+                  <p className="text-xs font-bold text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <MapPin size={14} strokeWidth={2.5} />
+                    Tus direcciones guardadas
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {savedAddresses.map((addr) => {
+                      const isSelected = selectedAddressId === addr.id;
+                      return (
+                        <button
+                          key={addr.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedAddressId(addr.id);
+                            if (addr.first_name) setFirstName(addr.first_name);
+                            if (addr.last_name) setLastName(addr.last_name);
+                            if (addr.address_1) setAddress1(addr.address_1);
+                            setAddress2(addr.address_2 ?? "");
+                            if (addr.city) setCity(addr.city);
+                            setProvince(addr.province ?? "");
+                            if (addr.phone) setPhone(addr.phone);
+                          }}
+                          className={`text-left p-2.5 border-2 transition-all flex flex-col gap-1.5 ${
+                            isSelected
+                              ? "border-orange bg-orange/5 shadow-[3px_3px_0px_0px_var(--orange)]"
+                              : "border-dark/20 hover:border-dark bg-cream/40"
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <div className={`w-3 h-3 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${isSelected ? "border-orange bg-orange" : "border-dark/30"}`}>
+                              {isSelected && <div className="w-1 h-1 rounded-full bg-white" />}
+                            </div>
+                            <p className="font-black text-xs text-dark truncate">
+                              {addr.first_name} {addr.last_name}
+                            </p>
+                          </div>
+                          <p className="text-[10px] text-muted leading-tight line-clamp-2 pl-[18px]">
+                            {addr.address_1}{addr.city ? `, ${addr.city}` : ""}
+                          </p>
+                        </button>
+                      );
+                    })}
+                    {/* Option to enter a new address — spans full row */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedAddressId(null);
+                        setAddress1(""); setAddress2(""); setCity(""); setProvince("");
+                      }}
+                      className={`col-span-2 text-left p-2.5 border-2 transition-all flex items-center gap-2 ${
+                        selectedAddressId === null
+                          ? "border-orange bg-orange/5 shadow-[3px_3px_0px_0px_var(--orange)]"
+                          : "border-dashed border-dark/20 hover:border-dark bg-cream/20"
+                      }`}
+                    >
+                      <Plus size={14} strokeWidth={2.5} className="text-muted flex-shrink-0" />
+                      <span className="text-xs font-bold text-muted uppercase tracking-wide">Usar otra dirección</span>
+                    </button>
+                  </div>
+                  <div className="border-b-2 border-dashed border-dark/10 mt-5 mb-4" />
+                </div>
+              )}
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">Email *</label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="vintage-input w-full"
+                  />
+                  <label className="flex items-center gap-2 mt-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={subscribeNewsletter}
+                      onChange={(e) => setSubscribeNewsletter(e.target.checked)}
+                      className="w-4 h-4 accent-orange"
+                    />
+                    <span className="text-xs text-dark/70 font-medium">Suscribirme al newsletter de Enrola para recibir novedades y ofertas</span>
+                  </label>
+                </div>
+                <div>
+                  <WhatsAppPhoneInput
+                    value={phone}
+                    onChange={setPhone}
+                    showHelper
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">Nombre *</label>
+                  <input
+                    type="text"
+                    required
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="vintage-input w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">Apellido *</label>
+                  <input
+                    type="text"
+                    required
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="vintage-input w-full"
+                  />
+                </div>
+              </div>
+              <div className="mt-4">
+                <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">Dirección *</label>
+                <AddressAutocomplete
+                  value={address1}
+                  onChange={setAddress1}
+                  onSelect={(components) => {
+                    setAddress1(components.address_1);
+                    if (components.city) setCity(components.city);
+                    if (components.province) setProvince(components.province);
+                    if (components.country_code) setCountryCode(components.country_code.toUpperCase());
+                    if (components.maps_url) setMapsUrl(components.maps_url);
+                    if (
+                      typeof components.lat === "number" &&
+                      typeof components.lng === "number"
+                    ) {
+                      setAddressCoords({ lat: components.lat, lng: components.lng });
+                    } else {
+                      setAddressCoords(null);
+                    }
+                  }}
+                  required
+                  placeholder="Empieza a escribir tu dirección..."
+                />
+              </div>
+              <div className="mt-4">
+                <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-2">Referencia (opcional)</label>
+                <input
+                  type="text"
+                  value={address2}
+                  onChange={(e) => setAddress2(e.target.value)}
+                  placeholder="Punto de referencia"
+                  className="vintage-input w-full"
+                />
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">Ciudad *</label>
+                  <input
+                    type="text"
+                    required
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="vintage-input w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">Estado</label>
+                  <input
+                    type="text"
+                    value={province}
+                    onChange={(e) => setProvince(e.target.value)}
+                    className="vintage-input w-full"
+                  />
+                </div>
+              </div>
+              <div className="mt-5">
+                <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">Tipo de Envío *</label>
+                <div className="flex gap-3">
+                  <label className={`flex-1 flex items-center gap-3 p-3 border-2 cursor-pointer transition-all ${shippingType === "inmediato" ? "border-primary bg-primary/5" : "border-dark/20 hover:border-dark"}`}>
+                    <input
+                      type="radio"
+                      name="shippingType"
+                      value="inmediato"
+                      checked={shippingType === "inmediato"}
+                      onChange={() => setShippingType("inmediato")}
+                      className="accent-primary"
+                    />
+                    <div>
+                      <p className="font-bold text-sm text-dark">Inmediato</p>
+                      <p className="text-xs text-muted">Solo Valencia</p>
+                    </div>
+                  </label>
+                  <label className={`flex-1 flex items-center gap-3 p-3 border-2 cursor-pointer transition-all ${shippingType === "mrw" ? "border-primary bg-primary/5" : "border-dark/20 hover:border-dark"}`}>
+                    <input
+                      type="radio"
+                      name="shippingType"
+                      value="mrw"
+                      checked={shippingType === "mrw"}
+                      onChange={() => setShippingType("mrw")}
+                      className="accent-primary"
+                    />
+                    <div>
+                      <p className="font-bold text-sm text-dark">Por MRW</p>
+                      <p className="text-xs text-muted">Cobro a destino</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* MRW recipient + cedula block — only shown when MRW selected */}
+              {shippingType === "mrw" && (
+                <div className="mt-5 border-2 border-dark/15 bg-amber-50/40 p-4">
+                  <p className="text-xs font-bold text-dark uppercase tracking-wider mb-3">
+                    🪪 Datos para retirar en MRW
+                  </p>
+                  <p className="text-xs text-muted mb-3">
+                    MRW exige cédula y nombre que coincidan con el receptor del envío. Si no coinciden, rechazan la entrega.
+                  </p>
+
+                  {/* Recipient toggle */}
+                  <div className="flex gap-3 mb-4">
+                    <label className={`flex-1 flex items-center gap-2 p-2 border-2 cursor-pointer text-sm ${recipientType === "self" ? "border-primary bg-primary/5" : "border-dark/20 hover:border-dark"}`}>
+                      <input
+                        type="radio"
+                        name="recipientType"
+                        value="self"
+                        checked={recipientType === "self"}
+                        onChange={() => setRecipientType("self")}
+                        className="accent-primary"
+                      />
+                      <span className="font-medium text-dark">El envío es para mí</span>
+                    </label>
+                    <label className={`flex-1 flex items-center gap-2 p-2 border-2 cursor-pointer text-sm ${recipientType === "other" ? "border-primary bg-primary/5" : "border-dark/20 hover:border-dark"}`}>
+                      <input
+                        type="radio"
+                        name="recipientType"
+                        value="other"
+                        checked={recipientType === "other"}
+                        onChange={() => setRecipientType("other")}
+                        className="accent-primary"
+                      />
+                      <span className="font-medium text-dark">Para otra persona</span>
+                    </label>
+                  </div>
+
+                  {recipientType === "self" ? (
+                    <div className="grid sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-muted uppercase mb-1">Tipo</label>
+                        <select
+                          value={nationality}
+                          onChange={(e) => setNationality(e.target.value as "V" | "E")}
+                          className="vintage-input w-full"
+                        >
+                          <option value="V">V</option>
+                          <option value="E">E</option>
+                        </select>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-bold text-muted uppercase mb-1">Tu cédula *</label>
+                        <input
+                          type="text"
+                          required
+                          inputMode="numeric"
+                          value={cedula}
+                          onChange={(e) => setCedula(e.target.value.replace(/\D/g, ""))}
+                          placeholder="12345678"
+                          className="vintage-input w-full"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-muted uppercase mb-1">Nombre receptor *</label>
+                        <input
+                          type="text"
+                          required
+                          value={recipientFirstName}
+                          onChange={(e) => setRecipientFirstName(e.target.value)}
+                          className="vintage-input w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-muted uppercase mb-1">Apellido receptor *</label>
+                        <input
+                          type="text"
+                          required
+                          value={recipientLastName}
+                          onChange={(e) => setRecipientLastName(e.target.value)}
+                          className="vintage-input w-full"
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="block text-xs font-bold text-muted uppercase mb-1">Tipo</label>
+                          <select
+                            value={recipientNationality}
+                            onChange={(e) => setRecipientNationality(e.target.value as "V" | "E")}
+                            className="vintage-input w-full"
+                          >
+                            <option value="V">V</option>
+                            <option value="E">E</option>
+                          </select>
+                        </div>
+                        <div className="col-span-2">
+                          <label className="block text-xs font-bold text-muted uppercase mb-1">Cédula receptor *</label>
+                          <input
+                            type="text"
+                            required
+                            inputMode="numeric"
+                            value={recipientCedula}
+                            onChange={(e) => setRecipientCedula(e.target.value.replace(/\D/g, ""))}
+                            placeholder="12345678"
+                            className="vintage-input w-full"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-muted uppercase mb-1">Teléfono receptor *</label>
+                        <input
+                          type="tel"
+                          required
+                          value={recipientPhone}
+                          onChange={(e) => setRecipientPhone(e.target.value)}
+                          placeholder="04241234567"
+                          className="vintage-input w-full"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Validation feedback — silent unless there's an actual problem.
+                       Match → discreet green check.
+                       Partial / mismatch / not_found → warning to act on.
+                       Loading / unavailable / rate_limited → render nothing. */}
+                  {cedulaCheck.status === "match" && (
+                    <p className="mt-3 text-xs text-emerald-700 font-medium">
+                      ✅ Cédula verificada
+                    </p>
+                  )}
+                  {cedulaCheck.status === "partial" && (
+                    <div className="mt-3 p-2 bg-amber-100 border border-amber-300 text-xs text-amber-900">
+                      ⚠️ El nombre coincide solo parcialmente con la cédula
+                      {cedulaCheck.cneName ? ` (registro: "${cedulaCheck.cneName}")` : ""}.
+                      Verifica los datos para evitar problemas con MRW.
+                    </div>
+                  )}
+                  {cedulaCheck.status === "mismatch" && (
+                    <div className="mt-3 p-2 bg-red-100 border border-red-400 text-xs text-red-900">
+                      🚫 El nombre <strong>no coincide</strong> con la cédula
+                      {cedulaCheck.cneName ? ` (registro: "${cedulaCheck.cneName}")` : ""}.
+                      MRW probablemente rechazará el envío. Revisa el nombre o la cédula antes de continuar.
+                    </div>
+                  )}
+                  {cedulaCheck.status === "not_found" && (
+                    <div className="mt-3 p-2 bg-red-100 border border-red-400 text-xs text-red-900">
+                      🚫 La cédula no está registrada. Verifica el número.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Payment */}
+            <div className="border-3 border-dark bg-white p-4 md:p-6 shadow-[3px_3px_0_0_var(--secondary)] md:shadow-[6px_6px_0_0_var(--secondary)]" style={{ borderWidth: "3px" }}>
+              <h2 className="font-black text-dark text-lg uppercase tracking-wide mb-5 pb-3 border-b-2 border-dark">
+                Pago Móvil
+              </h2>
+              <div className="space-y-5 text-dark">
+                {PAGO_MOVIL_INSTRUCTIONS.map((item) => (
+                  <div
+                    key={item.step}
+                    className={item.step === 1 ? "sm:flex sm:items-start sm:gap-3 sm:flex-nowrap" : "flex gap-4"}
+                  >
+                    <div className={`flex gap-4 ${item.step === 1 ? "sm:flex-shrink-0" : ""}`}>
+                      <span className="w-8 h-8 bg-primary text-white flex items-center justify-center font-black flex-shrink-0 text-sm">
+                        {item.step}
+                      </span>
+                      <div>
+                        <p className="font-bold text-sm">{item.text}</p>
+                        {item.details}
+                      </div>
+                    </div>
+                    {item.step === 1 && (
+                      <div className="mt-3 sm:mt-0 sm:flex-shrink-0">
+                        <Image
+                          src="/pago-movil-qr.png"
+                          alt="QR Pago Móvil"
+                          width={140}
+                          height={140}
+                          className="block border-2 border-dark"
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6">
+                <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">
+                  Captura del pago * (JPG o PNG)
+                </label>
+                {!proofPreview ? (
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-secondary cursor-pointer hover:border-primary transition-colors bg-cream/50">
+                    <Upload className="w-8 h-8 text-muted mb-2" strokeWidth={2} />
+                    <span className="text-sm text-muted font-medium">
+                      Haz clic para subir la captura
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png"
+                      onChange={handleProofChange}
+                      className="hidden"
+                    />
+                  </label>
+                ) : (
+                  <div className="relative inline-block">
+                    <img
+                      src={proofPreview}
+                      alt="Captura de pago"
+                      className="max-h-48 border-2 border-dark"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeProof}
+                      className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-white flex items-center justify-center border-2 border-dark hover:bg-primary/80"
+                    >
+                      <X size={16} strokeWidth={3} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {error && (
+              <div className="border-2 border-primary bg-primary/5 px-4 py-3 text-primary text-sm font-medium">
+                {error}
+              </div>
+            )}
+          </div>
+
+          {/* Summary sidebar */}
+          <div className="min-w-0 overflow-hidden">
+            <div className="border-3 border-dark bg-white p-4 md:p-6 sticky top-24 shadow-[3px_3px_0px_0px_var(--primary)] md:shadow-[6px_6px_0px_0px_var(--primary)]" style={{ borderWidth: "3px" }}>
+              <h2 className="font-black text-dark text-lg uppercase tracking-wide mb-5 pb-3 border-b-2 border-dark">
+                Resumen
+              </h2>
+              <div className="space-y-3 mb-5">
+                {cart.items.map((item) => {
+                const thumbUrl = item.thumbnail?.startsWith("http")
+                  ? item.thumbnail
+                  : item.thumbnail && process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+                    ? `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL.replace(/\/$/, "")}${item.thumbnail.startsWith("/") ? "" : "/"}${item.thumbnail}`
+                    : null;
+                return (
+                  <div key={item.id} className="flex gap-3 items-center">
+                    <div className="w-14 h-14 border-2 border-dark overflow-hidden bg-cream flex-shrink-0 relative">
+                      {thumbUrl ? (
+                        <Image src={thumbUrl} alt={item.title} fill className="object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted text-xs">&mdash;</div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-dark text-sm truncate">{item.title}</p>
+                      <p className="text-xs text-muted">
+                        {item.quantity} &times; €{formatPrice(centsToDisplay(item.unit_price))}
+                      </p>
+                    </div>
+                  </div>
+                );
+                })}
+              </div>
+              {/* Loyalty rewards redemption */}
+              {isLoggedIn && loyaltyPoints !== null && loyaltyPoints > 0 && loyaltyRewards.length > 0 && (
+                <div className="mb-4 pb-4 border-b border-dashed border-dark/15">
+                  <div className="flex items-center justify-between mb-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <Star size={13} className="text-orange" fill="currentColor" />
+                      <span className="text-xs font-black text-dark uppercase tracking-wider">Canjear Premios</span>
+                    </div>
+                    <span className="text-xs font-bold text-orange">{remainingPoints.toLocaleString()} pts disponibles</span>
+                  </div>
+                  {rewardWarning && (
+                    <div className="flex items-start gap-2 bg-dark text-cream border-2 border-primary p-2.5 mb-2.5" style={{ boxShadow: "3px 3px 0px 0px var(--primary)" }}>
+                      <span className="text-primary font-black text-base leading-none flex-shrink-0">!</span>
+                      <p className="text-xs font-bold leading-snug">
+                        Debes tener al menos un producto en tu carrito antes de canjear puntos.
+                      </p>
+                    </div>
+                  )}
+                  <div className="space-y-1.5">
+                    {loyaltyRewards
+                      .filter((r) => r.stock === null || r.stock === undefined || r.stock > 0)
+                      .map((reward) => {
+                        const isSelected = selectedRewards.some((r) => r.id === reward.id);
+                        const canAfford = isSelected || remainingPoints >= reward.points_required;
+                        return (
+                          <button
+                            key={reward.id}
+                            type="button"
+                            onClick={() => toggleReward(reward)}
+                            disabled={!canAfford}
+                            className={`w-full text-left p-2.5 border-2 flex items-center gap-2.5 transition-all ${
+                              isSelected
+                                ? "border-orange bg-orange/5 shadow-[2px_2px_0px_0px_var(--orange)]"
+                                : canAfford
+                                  ? "border-dark/20 hover:border-dark/50 bg-cream/30"
+                                  : "border-dark/10 bg-cream/10 opacity-40 cursor-not-allowed"
+                            }`}
+                          >
+                            <div className={`w-3.5 h-3.5 border-2 flex-shrink-0 flex items-center justify-center ${isSelected ? "border-orange bg-orange" : "border-dark/30"}`}>
+                              {isSelected && <div className="w-1.5 h-1.5 bg-white" />}
+                            </div>
+                            {reward.image_url ? (
+                              <img src={reward.image_url} alt={reward.name} className="w-8 h-8 object-cover border border-dark/20 flex-shrink-0" />
+                            ) : (
+                              <div className="w-8 h-8 bg-cream border border-dark/20 flex items-center justify-center flex-shrink-0">
+                                <Gift size={14} className="text-dark/40" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-black text-xs text-dark truncate">{reward.name}</p>
+                              {reward.description && (
+                                <p className="text-[10px] text-muted truncate">{reward.description}</p>
+                              )}
+                            </div>
+                            <span className={`text-xs font-black flex-shrink-0 ${isSelected ? "text-orange" : canAfford ? "text-dark/60" : "text-dark/30"}`}>
+                              {reward.points_required.toLocaleString()} pts
+                            </span>
+                          </button>
+                        );
+                    })}
+                  </div>
+                  {selectedRewards.length > 0 && (
+                    <p className="text-[10px] text-dark/50 mt-2 font-medium">
+                      {pointsUsed.toLocaleString()} pts se canjearán al confirmar el pedido
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Discount code */}
+              <div className="mb-4 pb-4 border-b border-dashed border-dark/15">
+                <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">Código de descuento</label>
+                {discountApplied ? (
+                  <div className="flex items-center gap-2 bg-green-50 border-2 border-green-600 px-3 py-2">
+                    <span className="text-green-700 text-xs font-black uppercase tracking-wide flex-1">✓ {discountApplied} aplicado</span>
+                    <button type="button" onClick={handleRemoveDiscount} className="text-green-600 hover:text-red-500 text-xs font-bold transition-colors">✕</button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2 min-w-0 w-full">
+                    <input
+                      type="text"
+                      value={discountCode}
+                      onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
+                      placeholder="CÓDIGO"
+                      className="vintage-input min-w-0 flex-1 text-sm uppercase"
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleApplyDiscount(); } }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyDiscount}
+                      disabled={discountLoading || !discountCode.trim()}
+                      className="bg-dark text-cream px-3 py-2 font-black text-xs uppercase border-2 border-dark shadow-[3px_3px_0px_0px_#FF3B27] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0 w-14"
+                    >
+                      {discountLoading ? "..." : "OK"}
+                    </button>
+                  </div>
+                )}
+                {discountError && <p className="text-primary text-xs mt-1.5 font-medium">{discountError}</p>}
+              </div>
+
+              {/* Combo discount banner */}
+              <div className="mb-4">
+                <ComboTierBanner compact />
+              </div>
+
+              <div className="border-t-2 border-dashed border-secondary/40 pt-4 space-y-2 mb-6">
+                {selectedRewards.map((r) => (
+                  <div key={r.id} className="flex justify-between items-center text-sm">
+                    <span className="text-dark font-medium flex items-center gap-1.5 min-w-0">
+                      <Gift size={12} className="text-orange flex-shrink-0" />
+                      <span className="truncate">{r.name}</span>
+                    </span>
+                    <span className="font-black text-green-600 uppercase text-xs flex-shrink-0 ml-2">GRATIS</span>
+                  </div>
+                ))}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted font-medium uppercase">Subtotal</span>
+                  <span className="font-bold">€{cart.subtotal.toFixed(2)}</span>
+                </div>
+                {(() => {
+                  const combo = applyComboDiscount(cart.subtotal, cart.item_count, cart.items.map(i => ({ quantity: i.quantity, unit_price: centsToDisplay(i.unit_price), variant_id: i.variant_id })));
+                  return (
+                    <>
+                      {combo.activeTier && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-secondary font-bold uppercase">Dto. Combo {combo.activeTier.label}</span>
+                          <span className="font-black text-secondary">-€{(combo.discount - combo.wholesaleDiscount).toFixed(2)}</span>
+                        </div>
+                      )}
+                      {combo.hasWholesale && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-orange font-bold uppercase">Dto. Mayorista 30%</span>
+                          <span className="font-black text-orange">-€{combo.wholesaleDiscount.toFixed(2)}</span>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted font-medium uppercase">
+                    Envío
+                    {shippingType === "inmediato" &&
+                      (cart.subtotal >= 10 ? " (gratis)" : " (+$3)")}
+                    {shippingType === "mrw" && " (cobro a destino)"}
+                  </span>
+                  <span className="font-bold">
+                    {shippingType === "inmediato"
+                      ? cart.subtotal >= 10
+                        ? "$0.00"
+                        : "$3.00"
+                      : "—"}
+                  </span>
+                </div>
+                {(() => {
+                  const combo = applyComboDiscount(cart.subtotal, cart.item_count, cart.items.map(i => ({ quantity: i.quantity, unit_price: centsToDisplay(i.unit_price), variant_id: i.variant_id })));
+                  const base = combo.activeTier ? combo.discountedTotal : cart.subtotal;
+                  const shipping = shippingType === "inmediato" && cart.subtotal < 10 ? 3 : 0;
+                  return (
+                    <div className="flex justify-between text-lg font-black pt-2 border-t border-dark/10">
+                      <span className="uppercase">Total</span>
+                      <span className={combo.activeTier ? "text-orange" : ""}>
+                        €{(base + shipping).toFixed(2)}
+                      </span>
+                    </div>
+                  );
+                })()}
+                {bcvRate && (() => {
+                  const combo = applyComboDiscount(cart.subtotal, cart.item_count, cart.items.map(i => ({ quantity: i.quantity, unit_price: centsToDisplay(i.unit_price), variant_id: i.variant_id })));
+                  const base = combo.activeTier ? combo.discountedTotal : cart.subtotal;
+                  const totalUsd = base + (shippingType === "inmediato" && cart.subtotal < 10 ? 3 : 0);
+                  const totalBs = totalUsd * bcvRate;
+                  return (
+                    <div className="pt-3 mt-2 border-t border-dark/10">
+                      <p className="text-xs text-muted mb-1">Equivalente en bolívares (tasa EUR alcamb.io)</p>
+                      <p className="text-base font-bold text-dark">
+                        €{totalUsd.toFixed(2)} EUR &asymp;{" "}
+                        {totalBs.toLocaleString("es-VE", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        Bs
+                      </p>
+                    </div>
+                  );
+                })()}
+              </div>
+              <label className="flex items-start gap-2 mb-4 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={acceptedTos}
+                  onChange={(e) => setAcceptedTos(e.target.checked)}
+                  className="w-4 h-4 mt-0.5 accent-orange flex-shrink-0"
+                />
+                <span className="text-xs text-dark/80 font-medium leading-snug">
+                  He leído y acepto los{" "}
+                  <Link href="/terminos" target="_blank" className="font-bold underline hover:text-primary">
+                    Términos y Condiciones
+                  </Link>{" "}
+                  y la{" "}
+                  <Link href="/privacidad" target="_blank" className="font-bold underline hover:text-primary">
+                    Política de Privacidad
+                  </Link>
+                  .
+                </span>
+              </label>
+              <button
+                type="submit"
+                disabled={submitting || !proofFile || wrongRegion === true || !acceptedTos}
+                className="block w-full text-center bg-orange text-white py-4 font-black text-sm uppercase tracking-widest border-2 border-dark retro-shadow hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {submitting ? "Procesando..." : "CONFIRMAR PEDIDO"}
+              </button>
+              <Link
+                href="/carrito"
+                className="block text-center mt-4 text-muted text-sm font-medium hover:text-dark uppercase"
+              >
+                Volver al carrito
+              </Link>
+              <button
+                type="button"
+                onClick={handleClearCartAndRetry}
+                className="block w-full text-center mt-2 text-muted text-xs hover:text-primary underline"
+              >
+                Vaciar carrito e iniciar de nuevo
+              </button>
+            </div>
+          </div>
+        </form>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}

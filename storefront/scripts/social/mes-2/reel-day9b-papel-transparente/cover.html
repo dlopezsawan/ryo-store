@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root { --primary: #BB3B2E; --orange: #FF3B27; --secondary: #4D5431; --cream: #F5F2E8; --dark: #1A1A1A; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 1080px; height: 1920px; overflow: hidden; }
+    body {
+      font-family: 'Kanit', system-ui, sans-serif;
+      background: var(--cream); color: var(--dark);
+      -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision;
+    }
+
+    .reel {
+      width: 1080px; height: 1920px;
+      padding: 240px 80px 440px 64px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      row-gap: 40px;
+    }
+
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .brand { font-weight: 900; font-size: 30px; letter-spacing: 0.28em; text-transform: uppercase; display: flex; align-items: center; gap: 16px; }
+    .brand .dot { width: 16px; height: 16px; background: var(--orange); border: 3px solid var(--dark); }
+    .badge {
+      font-weight: 900; font-size: 24px; letter-spacing: 0.22em;
+      text-transform: uppercase; padding: 12px 22px;
+      background: var(--secondary); color: var(--cream);
+      border: 4px solid var(--dark); box-shadow: 6px 6px 0 0 var(--dark);
+    }
+
+    .hero { }
+    .eyebrow {
+      font-weight: 700; font-size: 32px; letter-spacing: 0.32em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 16px;
+    }
+    .h1 {
+      font-weight: 900; font-size: 132px; line-height: 0.88;
+      letter-spacing: -0.04em; text-transform: uppercase;
+    }
+    .h1 .em { color: var(--orange); }
+
+    .stage {
+      display: flex; flex-direction: column; justify-content: center;
+      align-items: center; gap: 44px;
+    }
+    .paper-stack {
+      display: flex; gap: 36px; align-items: center; justify-content: center;
+    }
+    .paper-card {
+      width: 380px; padding: 18px;
+      border: 5px solid var(--dark);
+      box-shadow: 12px 12px 0 0 var(--dark);
+      position: relative;
+      display: flex; flex-direction: column; align-items: center; gap: 18px;
+    }
+    .paper-card.transp { background: var(--cream); transform: rotate(-2deg); }
+    .paper-card.brown { background: var(--cream); transform: rotate(2deg); }
+    .paper-card img { width: 100%; height: auto; object-fit: contain; }
+    .paper-tag {
+      padding: 8px 16px;
+      font-weight: 900; font-size: 22px; letter-spacing: 0.16em;
+      text-transform: uppercase; border: 4px solid var(--dark);
+    }
+    .paper-card.transp .paper-tag { background: var(--orange); color: var(--cream); }
+    .paper-card.brown .paper-tag { background: var(--secondary); color: var(--cream); }
+
+    .quote {
+      text-align: center;
+      font-weight: 700; font-size: 36px; letter-spacing: 0.02em;
+      line-height: 1.25; color: var(--secondary); text-transform: uppercase;
+      max-width: 880px;
+    }
+    .quote .em { color: var(--primary); font-weight: 900; }
+
+    .cta { text-align: center; }
+    .cta .label { font-weight: 700; font-size: 30px; letter-spacing: 0.04em; line-height: 1.2; }
+    .cta .em { color: var(--primary); font-weight: 900; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="reel">
+    <div class="header">
+      <div class="brand"><span class="dot"></span>Enrola · Shop</div>
+    </div>
+
+    <div class="hero">
+      <div class="eyebrow">Sleeper hit</div>
+      <div class="h1">Papel<br/><span class="em">transparente.</span></div>
+    </div>
+
+    <div class="stage">
+      <div class="paper-stack">
+        <div class="paper-card transp">
+          <img src="../../assets/products/papers-celulosa.webp" alt="Papel celulosa transparente"/>
+          <div class="paper-tag">Celulosa</div>
+        </div>
+        <div class="paper-card brown">
+          <img src="../../assets/products/papers-marron.webp" alt="Papel marrón"/>
+          <div class="paper-tag">Marrón</div>
+        </div>
+      </div>
+      <div class="quote">Sin tinta · sin cloro · <span class="em">sin nada que no necesitas.</span></div>
+    </div>
+
+    <div class="cta">
+      <div class="label">Conos <span class="em">Celulosa Alien Puff</span> · 12 uds</div>
+    </div>
+  </div>
+</body>
+</html>

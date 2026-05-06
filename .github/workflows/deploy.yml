@@ -78,6 +78,21 @@ jobs:
               echo "waiting for medusa ($i/12)…"; sleep 5
             done
 
+            # Run pending migrations. Medusa does NOT auto-migrate on boot,
+            # so PRs that add modules / new tables would silently fail until
+            # a human ran this manually (see PR #30 + #27 — both required
+            # an out-of-band `db:migrate` after merge). Idempotent: a no-op
+            # when there are no pending migrations.
+            echo "─── running pending migrations ───"
+            if docker compose exec -T medusa npx medusa db:migrate 2>&1 | tail -20; then
+              echo "✓ migrations applied (or no-op)"
+            else
+              # Don't fail the deploy: code is already live, and a migration
+              # error usually means the operator needs to investigate manually.
+              # We surface it as a warning so the GitHub Actions log lights up.
+              echo "::warning::medusa db:migrate exited non-zero — investigate manually"
+            fi
+
             echo "─── deploy summary ───"
             docker compose ps --format 'table {{.Name}}\t{{.Status}}\t{{.Ports}}' | head -10
             echo ""

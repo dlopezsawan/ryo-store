@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="../../../../lib/shared.css">
+<style>
+  .frame.reel { background: var(--cream); }
+  .center-stack {
+    position: absolute; left: 0; right: 0;
+    top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 60px;
+    z-index: 2;
+  }
+  .tile {
+    width: 520px; height: 520px;
+    background: var(--cream);
+    border: 8px solid var(--dark);
+    box-shadow: 22px 22px 0 0 var(--orange);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tile svg { width: 360px; height: 360px; }
+  .label {
+    font-weight: 900; font-size: 92px; letter-spacing: -0.02em;
+    text-transform: uppercase; color: var(--dark); line-height: 1;
+  }
+  .brand-tag {
+    position: absolute; left: 0; right: 0; top: 80px;
+    text-align: center;
+    font-weight: 900; font-size: 24px; letter-spacing: 0.32em;
+    color: var(--secondary); text-transform: uppercase;
+  }
+  .brand-tag .dot { display: inline-block; width: 10px; height: 10px;
+    background: var(--primary); border: 2px solid var(--dark);
+    vertical-align: middle; margin: 0 14px 4px;
+  }
+</style></head>
+<body>
+  <div class="frame reel">
+    <div class="brand-tag">Enrola<span class="dot"></span>Shop</div>
+    <div class="center-stack">
+      <div class="tile">
+        <svg viewBox="0 0 200 200" fill="none" stroke="#1A1A1A" stroke-width="9" stroke-linejoin="round" stroke-linecap="round">
+          <!-- awning -->
+          <polygon points="22,82 178,82 162,46 38,46" fill="#FF3B27" stroke="#1A1A1A" stroke-width="9"/>
+          <!-- awning stripes -->
+          <line x1="62" y1="46" x2="48" y2="82" stroke="#F5F2E8" stroke-width="6"/>
+          <line x1="100" y1="46" x2="100" y2="82" stroke="#F5F2E8" stroke-width="6"/>
+          <line x1="138" y1="46" x2="152" y2="82" stroke="#F5F2E8" stroke-width="6"/>
+          <!-- building body -->
+          <rect x="32" y="82" width="136" height="100" fill="#F5F2E8" stroke="#1A1A1A" stroke-width="9"/>
+          <!-- door -->
+          <rect x="80" y="115" width="40" height="67" fill="#1A1A1A"/>
+          <circle cx="112" cy="150" r="3" fill="#F5F2E8"/>
+          <!-- windows -->
+          <rect x="42" y="100" width="28" height="22" fill="#F5F2E8" stroke="#1A1A1A" stroke-width="6"/>
+          <rect x="130" y="100" width="28" height="22" fill="#F5F2E8" stroke="#1A1A1A" stroke-width="6"/>
+          <!-- ground line -->
+          <line x1="18" y1="182" x2="182" y2="182" stroke="#1A1A1A" stroke-width="9"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</body></html>

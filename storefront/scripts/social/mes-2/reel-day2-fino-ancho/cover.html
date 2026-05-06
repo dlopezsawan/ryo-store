@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root { --primary: #BB3B2E; --orange: #FF3B27; --secondary: #4D5431; --cream: #F5F2E8; --dark: #1A1A1A; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 1080px; height: 1920px; overflow: hidden; }
+    body {
+      font-family: 'Kanit', system-ui, sans-serif;
+      background: var(--cream); color: var(--dark);
+      -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision;
+    }
+
+    .reel {
+      width: 1080px; height: 1920px;
+      padding: 240px 80px 440px 64px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      row-gap: 40px;
+    }
+
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .brand { font-weight: 900; font-size: 30px; letter-spacing: 0.28em; text-transform: uppercase; display: flex; align-items: center; gap: 16px; }
+    .brand .dot { width: 16px; height: 16px; background: var(--orange); border: 3px solid var(--dark); }
+    .badge {
+      font-weight: 900; font-size: 24px; letter-spacing: 0.22em;
+      text-transform: uppercase; padding: 12px 22px;
+      background: var(--secondary); color: var(--cream);
+      border: 4px solid var(--dark); box-shadow: 6px 6px 0 0 var(--dark);
+    }
+
+    .hero { text-align: center; }
+    .eyebrow {
+      font-weight: 700; font-size: 32px; letter-spacing: 0.32em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 18px;
+    }
+    .h1 {
+      font-weight: 900; font-size: 220px; line-height: 0.86;
+      letter-spacing: -0.05em; text-transform: uppercase;
+    }
+    .h1 .em { color: var(--orange); }
+    .h1 .vs { color: var(--secondary); font-weight: 900; }
+
+    .vs-block {
+      display: flex; flex-direction: column; justify-content: center;
+      gap: 32px;
+    }
+    .opt-row { display: flex; gap: 28px; }
+    .opt {
+      flex: 1; padding: 44px 40px;
+      border: 5px solid var(--dark);
+      box-shadow: 10px 10px 0 0 var(--dark);
+      display: flex; flex-direction: column; gap: 14px; align-items: center;
+    }
+    .opt.fino { background: var(--cream); }
+    .opt.ancho { background: var(--orange); color: var(--cream); }
+    .opt-icon { font-weight: 900; font-size: 100px; line-height: 1; letter-spacing: -0.04em; color: var(--primary); }
+    .opt.ancho .opt-icon { color: var(--cream); }
+    .opt-name { font-weight: 900; font-size: 56px; letter-spacing: -0.02em; text-transform: uppercase; line-height: 1; }
+    .opt-trait { font-weight: 600; font-size: 24px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(26,26,26,0.55); text-align: center; }
+    .opt.ancho .opt-trait { color: rgba(245,242,232,0.85); }
+
+    .question { text-align: center; font-weight: 700; font-size: 38px; letter-spacing: 0.04em; line-height: 1.2; color: var(--dark); }
+    .question .em { color: var(--primary); font-weight: 900; }
+
+    .cta { text-align: center; }
+    .cta .label { font-weight: 700; font-size: 30px; letter-spacing: 0.04em; line-height: 1.2; }
+    .cta .em { color: var(--primary); font-weight: 900; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="reel">
+    <div class="header">
+      <div class="brand"><span class="dot"></span>Enrola · Shop</div>
+    </div>
+
+    <div class="hero">
+      <div class="eyebrow">¿Cuál eres tú?</div>
+      <div class="h1">Fino<br/><span class="vs">vs</span><br/><span class="em">ancho.</span></div>
+    </div>
+
+    <div class="vs-block">
+      <div class="opt-row">
+        <div class="opt fino">
+          <div class="opt-icon">‖</div>
+          <div class="opt-name">Fino</div>
+          <div class="opt-trait">Limpio · Preciso</div>
+        </div>
+        <div class="opt ancho">
+          <div class="opt-icon">▮</div>
+          <div class="opt-name">Ancho</div>
+          <div class="opt-trait">Relajado · Generoso</div>
+        </div>
+      </div>
+      <div class="question">Dime cómo armas y te digo <span class="em">quién eres.</span></div>
+    </div>
+
+    <div class="cta">
+      <div class="label">Catálogo completo en <span class="em">enrola.shop</span></div>
+    </div>
+  </div>
+</body>
+</html>

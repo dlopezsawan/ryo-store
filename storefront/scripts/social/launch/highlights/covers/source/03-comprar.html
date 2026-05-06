@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="../../../../lib/shared.css">
+<style>
+  .frame.reel { background: var(--cream); }
+  .center-stack {
+    position: absolute; left: 0; right: 0;
+    top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 60px;
+    z-index: 2;
+  }
+  .tile {
+    width: 520px; height: 520px;
+    background: var(--cream);
+    border: 8px solid var(--dark);
+    box-shadow: 22px 22px 0 0 var(--orange);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tile svg { width: 380px; height: 380px; }
+  .label {
+    font-weight: 900; font-size: 92px; letter-spacing: -0.02em;
+    text-transform: uppercase; color: var(--dark); line-height: 1;
+  }
+  .brand-tag {
+    position: absolute; left: 0; right: 0; top: 80px;
+    text-align: center;
+    font-weight: 900; font-size: 24px; letter-spacing: 0.32em;
+    color: var(--secondary); text-transform: uppercase;
+  }
+  .brand-tag .dot { display: inline-block; width: 10px; height: 10px;
+    background: var(--primary); border: 2px solid var(--dark);
+    vertical-align: middle; margin: 0 14px 4px;
+  }
+</style></head>
+<body>
+  <div class="frame reel">
+    <div class="brand-tag">Enrola<span class="dot"></span>Shop</div>
+    <div class="center-stack">
+      <div class="tile">
+        <svg viewBox="0 0 200 200" fill="none" stroke="#1A1A1A" stroke-width="9" stroke-linejoin="round" stroke-linecap="round">
+          <!-- bag handles -->
+          <path d="M 70 70 Q 70 30 100 30 Q 130 30 130 70" stroke="#1A1A1A" stroke-width="11" fill="none"/>
+          <!-- bag body -->
+          <path d="M 38 70 L 162 70 L 172 180 L 28 180 Z" fill="#FF3B27" stroke="#1A1A1A" stroke-width="9" stroke-linejoin="round"/>
+          <!-- stitch line -->
+          <line x1="38" y1="92" x2="162" y2="92" stroke="#1A1A1A" stroke-width="4" stroke-dasharray="6 4"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</body></html>

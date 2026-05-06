@@ -1,0 +1,13 @@
+{
+  "name": "enrola-reel-recorder",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Frame-by-frame recorder for Enrola hyperframes reels (GSAP timeline + audio).",
+  "scripts": {
+    "render": "node render-reel.mjs"
+  },
+  "dependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}
