@@ -6,7 +6,7 @@ import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutGrid, ShoppingBag, Package, Layers, Users, Tag, Activity, BarChart3,
-  Coins, Megaphone, Star, Calendar, Mail, Settings,
+  Coins, Megaphone, Star, Calendar, Mail, Settings, MessageCircle,
   ChevronDown, LogOut, ExternalLink, MapPin, Truck, Undo2,
   ChevronLeft, ChevronRight,
 } from "lucide-react"
@@ -89,6 +89,7 @@ function buildSections(badges?: SidebarBadges): NavSection[] {
     {
       title: "Comunicación",
       items: [
+        { href: "/dana", label: "Dana", icon: MessageCircle, badge: badges?.danaHumanActive ? { count: badges.danaHumanActive, tone: "primary" as const } : undefined },
         { href: "/social", label: "Social", icon: Calendar, badge: socialBadge },
         { href: "/webmail", label: "Webmail", icon: Mail },
       ],
@@ -106,6 +107,8 @@ export interface SidebarBadges {
   lowStockItems?: number
   pendingReturns?: number
   postsInReview?: number
+  /** Conversaciones de Dana en human_active (operador tomó control). */
+  danaHumanActive?: number
 }
 
 /** Render helper para una lista plana de NavItems. Se usa tanto para items
