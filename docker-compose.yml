@@ -93,6 +93,14 @@ services:
       - traefik.http.routers.medusa.entrypoints=websecure
       - traefik.http.routers.medusa.tls.certresolver=mytlschallenge
       - traefik.http.services.medusa.loadbalancer.server.port=9000
+      # Tell Traefik which network to use to reach this container.
+      # Containers attached to multiple networks (here we're on
+      # `ryo_internal` for backend comms + `n8n_default` for Traefik)
+      # would otherwise have Traefik pick whichever network IP came
+      # back first from the Docker daemon — sometimes ryo_internal,
+      # which Traefik can't reach because traefik only lives on
+      # n8n_default. Pinning the label makes it deterministic.
+      - traefik.docker.network=n8n_default
       # NOTE: previously two extra Traefik routers exposed the Medusa admin
       # SPA + admin API on the public storefront domain
       # (`enrola.shop/dashboard` and `enrola.shop/admin/*`). Removed because:
@@ -169,6 +177,8 @@ services:
       - traefik.http.routers.storefront.entrypoints=websecure
       - traefik.http.routers.storefront.tls.certresolver=mytlschallenge
       - traefik.http.services.storefront.loadbalancer.server.port=3000
+      # Pin the Traefik backend network — see medusa block above.
+      - traefik.docker.network=n8n_default
     volumes:
       - payment_proofs:/app/public/uploads
     networks:
@@ -219,6 +229,8 @@ services:
       - traefik.http.routers.panel.entrypoints=websecure
       - traefik.http.routers.panel.tls.certresolver=mytlschallenge
       - traefik.http.services.panel.loadbalancer.server.port=3001
+      # Pin the Traefik backend network — see medusa block above.
+      - traefik.docker.network=n8n_default
 
   listmonk:
     image: listmonk/listmonk:latest
@@ -246,6 +258,8 @@ services:
       - traefik.http.routers.listmonk.entrypoints=websecure
       - traefik.http.routers.listmonk.tls.certresolver=mytlschallenge
       - traefik.http.services.listmonk.loadbalancer.server.port=9000
+      # Pin the Traefik backend network — see medusa block above.
+      - traefik.docker.network=n8n_default
     networks:
       # `ryo_internal` so it can reach postgres (its DB lives there);
       # `n8n_default` so Traefik can serve newsletter.enrola.shop.
