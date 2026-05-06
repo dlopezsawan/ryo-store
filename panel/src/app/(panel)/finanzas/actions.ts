@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache"
 import {
   createFinanzasExpense, updateFinanzasExpense, deleteFinanzasExpense,
-  createFinanzasConversion,
+  createFinanzasConversion, createFinanzasTransfer,
   createFinanzasWallet, updateFinanzasWallet, deleteFinanzasWallet,
   MedusaError,
 } from "@/lib/medusa"
@@ -91,6 +91,13 @@ export async function createConversionAction(input: {
   amount_usdt: number
   reference?: string
   notes?: string
+  // Optional. If omitted the backend uses default wallets (first active
+  // by sort_order for each currency). The panel surfaces selectors so
+  // the operator can pick which Bs wallet to drain and which USDT wallet
+  // to credit — the previous default was silently routing every
+  // standalone conversion to Leo's USDT wallet.
+  source_wallet_id?: string
+  dest_wallet_id?: string
 }): Promise<ActionResult> {
   try {
     if (input.amount_bs <= 0 || input.amount_usdt <= 0) {
@@ -104,6 +111,46 @@ export async function createConversionAction(input: {
       rate,
       reference: input.reference?.trim() || undefined,
       notes: input.notes?.trim() || undefined,
+      source_wallet_id: input.source_wallet_id || undefined,
+      dest_wallet_id: input.dest_wallet_id || undefined,
+    })
+    revalidatePath("/finanzas")
+    return { ok: true }
+  } catch (e) { return { ok: false, error: toError(e) } }
+}
+
+/**
+ * Wallet → wallet transfer. Same-currency transfers just move funds;
+ * cross-currency ones (e.g. Bs → USDT) require both `amount` (debited)
+ * and `amount_received` (credited at destination).
+ */
+export async function createTransferAction(input: {
+  from_wallet_id: string
+  to_wallet_id: string
+  amount: number
+  amount_received?: number
+  rate?: number
+  note?: string
+  transferred_at?: string
+}): Promise<ActionResult> {
+  try {
+    if (!input.from_wallet_id || !input.to_wallet_id) {
+      return { ok: false, error: "Wallets origen y destino son obligatorios" }
+    }
+    if (input.from_wallet_id === input.to_wallet_id) {
+      return { ok: false, error: "Las wallets deben ser distintas" }
+    }
+    if (!Number.isFinite(input.amount) || input.amount <= 0) {
+      return { ok: false, error: "Monto debe ser > 0" }
+    }
+    await createFinanzasTransfer({
+      from_wallet_id: input.from_wallet_id,
+      to_wallet_id: input.to_wallet_id,
+      amount: input.amount,
+      amount_received: input.amount_received,
+      rate: input.rate,
+      note: input.note?.trim() || undefined,
+      transferred_at: input.transferred_at,
     })
     revalidatePath("/finanzas")
     return { ok: true }
