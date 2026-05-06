@@ -2,22 +2,70 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const COOKIE_NAME = "enrola_age_verified";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
+/**
+ * +18 age gate. Compliance reference: docs/compliance/02-WEB.md §6.
+ *
+ * On accept we:
+ *   1. Set the `enrola_age_verified` cookie (consumed by `Analytics`
+ *      to gate GA4/Umami/PostHog — pixels NEVER fire before this clic).
+ *   2. Add `age-verified` class to <html> so the inline-script SSR path
+ *      can hide the gate on subsequent navigations without flash.
+ *   3. POST `/api/age-gate/accept` so the backend logs an immutable
+ *      record of the acceptance (timestamp + IP + user-agent + the
+ *      exact disclaimer wording the visitor saw). This is the
+ *      "registro técnico" required by §3.2 to make the click-accept
+ *      legally meaningful.
+ *
+ * Deny: redirects out of the site. Compliance says we shouldn't try to
+ * keep the visitor — better a hard exit than tracking a minor.
+ */
+
+const DISCLAIMER_TEXT =
+  "Declaro bajo fe que soy mayor de 18 años. Este sitio comercializa productos para personas mayores de 18 años. Falsear esta declaración me responsabiliza penalmente bajo la legislación venezolana vigente.";
+
+const DISCLAIMER_VERSION = "2026-05-v1";
+
 export default function AgeGate() {
   const [show, setShow] = useState(true);
   const [denied, setDenied] = useState(false);
+  const [accepted, setAccepted] = useState(false);
 
   if (!show) return null;
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     const secure =
       typeof window !== "undefined" && window.location.protocol === "https:"
         ? "; Secure"
         : "";
     document.cookie = `${COOKIE_NAME}=true; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax${secure}`;
+    document.documentElement.classList.add("age-verified");
+    // Notify components mounted in the same tree (e.g. Analytics) that
+    // the gate just lifted, so they can boot pixels without a reload.
+    try {
+      window.dispatchEvent(new CustomEvent("enrola:age-verified"));
+    } catch { /* swallow — best-effort signal */ }
+    // Backend log. Best-effort — we don't block the UX on it; if the
+    // request fails (network blip, ad-blocker hitting our own /api/),
+    // the cookie is still set and the visitor proceeds.
+    try {
+      await fetch("/api/age-gate/accept", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          disclaimer_version: DISCLAIMER_VERSION,
+          disclaimer_text: DISCLAIMER_TEXT,
+          accepted_at: new Date().toISOString(),
+          // Don't send IP/UA from the client — the API route reads them
+          // from request headers server-side, more trustworthy.
+        }),
+        keepalive: true,
+      });
+    } catch { /* swallow */ }
     setShow(false);
   };
 
@@ -31,7 +79,7 @@ export default function AgeGate() {
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-dark p-4"
     >
       <div
-        className="bg-cream border-[3px] border-orange w-full max-w-sm text-center"
+        className="bg-cream border-[3px] border-orange w-full max-w-md text-center"
         style={{ boxShadow: "4px 4px 0px 0px #E84B2B" }}
       >
         <div className="bg-dark px-6 py-4">
@@ -72,14 +120,35 @@ export default function AgeGate() {
               <h2 className="font-black text-dark text-lg uppercase tracking-wider mb-2">
                 Verificación de edad
               </h2>
-              <p className="text-dark/60 text-sm mb-6">
-                Este sitio vende productos para mayores de 18 años. ¿Confirmas que eres mayor de edad?
+              <p className="text-dark/70 text-sm mb-4 leading-relaxed text-left">
+                {DISCLAIMER_TEXT}
               </p>
+
+              <label className="flex items-start gap-2 mb-5 text-left text-xs text-dark/70 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={accepted}
+                  onChange={(e) => setAccepted(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-orange flex-shrink-0"
+                />
+                <span>
+                  He leído y acepto la declaración anterior, los{" "}
+                  <Link href="/terminos" className="underline hover:text-orange">
+                    Términos
+                  </Link>{" "}
+                  y la{" "}
+                  <Link href="/privacidad" className="underline hover:text-orange">
+                    Política de Privacidad
+                  </Link>
+                  .
+                </span>
+              </label>
 
               <div className="flex flex-col gap-2">
                 <button
                   onClick={handleAccept}
-                  className="w-full bg-orange text-white py-3 font-black text-xs uppercase tracking-widest border-2 border-dark hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                  disabled={!accepted}
+                  className="w-full bg-orange text-white py-3 font-black text-xs uppercase tracking-widest border-2 border-dark hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0"
                   style={{ boxShadow: "3px 3px 0px 0px #1A1A1A" }}
                 >
                   Sí, soy mayor de 18

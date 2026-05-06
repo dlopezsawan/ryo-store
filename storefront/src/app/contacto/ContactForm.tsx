@@ -173,6 +173,31 @@ export default function ContactForm() {
         >
           {status === "loading" ? "Enviando..." : "ENVIAR MENSAJE"}
         </button>
+
+        {/* reCAPTCHA disclosure — Google's own ToS require this when
+            the v3 invisible badge is hidden, which we do via global
+            CSS. Compliance reference: docs/compliance/02-WEB.md §8.2. */}
+        <p className="text-[11px] text-dark/55 leading-relaxed mt-1">
+          Este sitio está protegido por reCAPTCHA y se aplican la{" "}
+          <a
+            href="https://policies.google.com/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-orange"
+          >
+            Política de Privacidad
+          </a>{" "}
+          y los{" "}
+          <a
+            href="https://policies.google.com/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-orange"
+          >
+            Términos de Servicio
+          </a>{" "}
+          de Google.
+        </p>
       </form>
     </>
   );
