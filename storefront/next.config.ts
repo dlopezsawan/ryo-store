@@ -36,7 +36,39 @@ const nextConfig: NextConfig = {
     ];
   },
   async headers() {
+    // Baseline security headers applied to every route. Compliance:
+    // docs/compliance/02-WEB.md §12.2.
+    //   - HSTS: forces HTTPS for one year on all subdomains. Safe to
+    //     set globally because every public host is already HTTPS.
+    //   - X-Frame-Options DENY: blocks the storefront from being
+    //     iframed (clickjacking).
+    //   - X-Content-Type-Options nosniff: stops the browser from
+    //     guessing MIME types (XSS via fake images, etc.).
+    //   - Referrer-Policy strict-origin-when-cross-origin: don't leak
+    //     full URLs to third parties via Referer.
+    //   - Permissions-Policy: hard-deny camera/mic/geolocation — none
+    //     of those are used today; revisit when a feature needs them.
+    //   - CSP: deliberately NOT set globally yet — the homepage uses
+    //     inline JSON-LD scripts and lazy-loads pixels from several
+    //     third-party origins that would each need to be allow-listed.
+    //     Better to enable CSP per-route once we've audited everything
+    //     than ship a broken CSP that breaks production. Tracked as a
+    //     follow-up.
+    const baselineSecurity = [
+      { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+      { key: "X-Frame-Options", value: "DENY" },
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+    ];
     return [
+      {
+        // Apply baseline security headers to ALL routes. Cache-Control
+        // headers below override `Cache-Control` only — the security
+        // headers compose because Next merges by route + key.
+        source: "/:path*",
+        headers: baselineSecurity,
+      },
       {
         // JS/CSS con hash en nombre → immutable (1 año) solo en producción
         source: "/_next/static/:path*",

@@ -62,15 +62,19 @@ const sections = [
     content: `Los datos personales recolectados por Enrola Shop (nombre, cedula, telefono, correo electronico, direccion de envio, entre otros) se utilizan unicamente para procesar pedidos, coordinar envios, emitir facturacion, atender al cliente y, con su consentimiento, para enviar comunicaciones comerciales.\n\nNo comercializamos ni cedemos datos personales a terceros ajenos al proceso logistico y comercial. Para mas detalles, consulte nuestra Politica de Privacidad.\n\nEl Cliente puede en cualquier momento solicitar acceso, rectificacion o supresion de sus datos escribiendo a hola@enrola.shop.`,
   },
   {
-    title: "14. Legislacion Aplicable y Jurisdiccion",
+    title: "14. Asistente automatico (Dana)",
+    content: `Dana es un asistente conversacional automatico impulsado por inteligencia artificial que responde consultas en nuestros canales de WhatsApp y chat. Sus respuestas tienen caracter ORIENTATIVO y NO constituyen ofertas vinculantes.\n\nLas ofertas vinculantes son unicamente las publicadas en este Sitio (precios, disponibilidad, plazos de entrega) y aquellas confirmadas expresamente por nuestro equipo humano. En caso de discrepancia entre la informacion proporcionada por Dana y la publicada oficialmente, prevalece esta ultima.\n\nDana no procesa pagos, no crea ni modifica cuentas, ni puede acceder a informacion de terceros distintos al titular de la conversacion. Para asuntos que requieran decision vinculante o atencion personalizada, el Cliente puede escribir AGENTE en cualquier momento del chat para ser atendido por un miembro de nuestro equipo.\n\nEl procesamiento conversacional de Dana se apoya en proveedores tecnologicos terceros, lo que implica transferencia internacional de datos. Los detalles de estos proveedores y el tratamiento de los datos conversacionales estan descritos en nuestra Politica de Privacidad.`,
+  },
+  {
+    title: "15. Legislacion Aplicable y Jurisdiccion",
     content: `Los presentes Terminos y Condiciones se rigen e interpretan conforme a las leyes de la Republica Bolivariana de Venezuela.\n\nPara la resolucion de cualquier controversia o reclamacion que surja con motivo de la relacion comercial, las partes se someten expresamente a la jurisdiccion y competencia de los tribunales ordinarios de la ciudad de Valencia, estado Carabobo, renunciando a cualquier otro fuero que pudiera corresponderles.\n\nSi alguna disposicion de estos Terminos fuere declarada invalida o inejecutable por autoridad competente, las demas disposiciones permaneceran en pleno vigor.`,
   },
   {
-    title: "15. Modificaciones",
+    title: "16. Modificaciones",
     content: `Enrola Shop se reserva el derecho de modificar, total o parcialmente, estos Terminos y Condiciones en cualquier momento. Las modificaciones seran efectivas a partir de su publicacion en el Sitio. Es responsabilidad del Cliente revisar periodicamente el contenido de esta pagina.\n\nEl uso continuado del Sitio luego de publicadas las modificaciones implica la aceptacion de las mismas.`,
   },
   {
-    title: "16. Contacto",
+    title: "17. Contacto",
     content: `Para consultas sobre estos Terminos, peticiones formales, reclamos o ejercicio de derechos, puede contactarnos en:\n\n- Correo electronico: hola@enrola.shop\n- Instagram: @ryo.smoke\n\nAtendemos consultas en horario comercial, dentro de los plazos razonables de respuesta.`,
   },
 ];
