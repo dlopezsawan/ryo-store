@@ -5,6 +5,7 @@ import { TopBar } from "@/components/layout/TopBar"
 import { CommandPalette } from "@/components/layout/CommandPalette"
 import {
   listOrders, listProducts, listInventoryItems, listReturns, listSocialPosts,
+  listDanaConversations,
 } from "@/lib/medusa"
 
 /**
@@ -23,12 +24,16 @@ export default async function PanelLayout({
   const session = await getSession()
   if (!session) redirect("/login")
 
-  const [pendingOrdersR, draftProductsR, inventoryR, returnsR, socialR] = await Promise.allSettled([
+  const [pendingOrdersR, draftProductsR, inventoryR, returnsR, socialR, danaR] = await Promise.allSettled([
     listOrders({ limit: 1, payment_status: ["awaiting", "not_paid"], fields: "id" }),
     listProducts({ limit: 1, status: ["draft"] }),
     listInventoryItems({ limit: 100, q: undefined }),
     listReturns({ limit: 50 }),
     listSocialPosts(),
+    // Solo necesitamos `human_active_count` para el badge — pedimos
+    // limit=1 (la lista en sí no se usa) y dejamos que el endpoint
+    // devuelva el contador agregado.
+    listDanaConversations({ limit: 1, status: "human_active" }),
   ])
 
   const pendingOrders = pendingOrdersR.status === "fulfilled" ? pendingOrdersR.value.count : 0
@@ -59,6 +64,8 @@ export default async function PanelLayout({
     ? socialR.value.posts.filter((p) => p.status === "in_review" || p.status === "draft").length
     : 0
 
+  const danaHumanActive = danaR.status === "fulfilled" ? danaR.value.human_active_count : 0
+
   return (
     <div className="flex min-h-screen">
       <Sidebar
@@ -69,6 +76,7 @@ export default async function PanelLayout({
           lowStockItems,
           pendingReturns,
           postsInReview,
+          danaHumanActive,
         }}
       />
       <main className="panel-main flex-1 flex flex-col min-w-0">

@@ -360,6 +360,113 @@ export async function getConversationHistory(phone: string, limit = 20) {
   return r.rows.reverse() // oldest first
 }
 
+// ─── Admin panel queries ────────────────────────────────────────────────────
+//
+// Used by /admin/dana/* routes that power the operator panel. These are
+// kept separate from the bot's own helpers (getRecentConversations,
+// getConversationHistory) because the panel needs richer payloads:
+// pagination, status filtering, search, last-message preview. The bot
+// only ever needs a fixed-N tail of the latest messages.
+
+/**
+ * Paginated, filterable list of conversations for the panel left rail.
+ * Returns the conversation row + a small derived payload:
+ *   - last_message: text of the most recent message (any role)
+ *   - last_message_role: who sent it (user | assistant | human)
+ *   - message_count: total messages in the thread
+ *
+ * Filters:
+ *   - status: "bot_active" | "human_active" | "all"
+ *   - q: substring match against phone OR customer_name (case-insensitive)
+ */
+export async function listConversationsForPanel(args: {
+  limit?: number
+  offset?: number
+  status?: "bot_active" | "human_active" | "all"
+  q?: string
+}) {
+  const limit = Math.min(Math.max(1, args.limit ?? 50), 200)
+  const offset = Math.max(0, args.offset ?? 0)
+  const status = args.status ?? "all"
+  const q = (args.q ?? "").trim()
+
+  const where: string[] = []
+  const params: unknown[] = []
+  if (status !== "all") {
+    params.push(status)
+    where.push(`c.session_status = $${params.length}`)
+  }
+  if (q) {
+    params.push(`%${q}%`)
+    where.push(`(c.phone ILIKE $${params.length} OR c.customer_name ILIKE $${params.length})`)
+  }
+  const whereClause = where.length ? `WHERE ${where.join(" AND ")}` : ""
+
+  params.push(limit)
+  const limitIdx = params.length
+  params.push(offset)
+  const offsetIdx = params.length
+
+  const rowsQ = await pool.query(
+    `SELECT c.*,
+            (SELECT m.content FROM wa_messages m WHERE m.phone = c.phone ORDER BY m.created_at DESC LIMIT 1) AS last_message,
+            (SELECT m.role FROM wa_messages m WHERE m.phone = c.phone ORDER BY m.created_at DESC LIMIT 1) AS last_message_role,
+            (SELECT COUNT(*)::int FROM wa_messages m WHERE m.phone = c.phone) AS message_count
+     FROM wa_conversations c
+     ${whereClause}
+     ORDER BY c.last_message_at DESC NULLS LAST
+     LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
+    params
+  )
+  const countQ = await pool.query(
+    `SELECT COUNT(*)::int AS total FROM wa_conversations c ${whereClause}`,
+    params.slice(0, params.length - 2)
+  )
+  return {
+    conversations: rowsQ.rows,
+    total: countQ.rows[0]?.total ?? 0,
+    limit,
+    offset,
+  }
+}
+
+/**
+ * Full message thread for one phone, newest-last (chat order). Used by
+ * /admin/dana/conversations/:phone. Limit defaults to 200 — enough for
+ * any practical conversation; older history can be requested with
+ * `before_id` if we ever need infinite scroll.
+ */
+export async function listMessagesForPanel(phone: string, args: { limit?: number; before_id?: number } = {}) {
+  const limit = Math.min(Math.max(1, args.limit ?? 200), 500)
+  const params: unknown[] = [phone]
+  let beforeClause = ""
+  if (args.before_id) {
+    params.push(args.before_id)
+    beforeClause = `AND id < $${params.length}`
+  }
+  params.push(limit)
+  const limitIdx = params.length
+  const r = await pool.query(
+    `SELECT id, role, content, message_id, created_at
+     FROM wa_messages
+     WHERE phone = $1 ${beforeClause}
+     ORDER BY created_at DESC
+     LIMIT $${limitIdx}`,
+    params
+  )
+  return r.rows.reverse()
+}
+
+/** Count of conversations currently in human_active mode. Used for the
+ *  panel sidebar badge so operators see at a glance how many threads
+ *  they've taken control of. */
+export async function getHumanActiveCount(): Promise<number> {
+  const r = await pool.query(
+    `SELECT COUNT(*)::int AS n FROM wa_conversations WHERE session_status = 'human_active'`
+  )
+  return r.rows[0]?.n ?? 0
+}
+
 // ─── Session cleanup ────────────────────────────────────────────────────────
 
 export async function closeInactiveSessions(humanMinutes: number, botMinutes: number) {

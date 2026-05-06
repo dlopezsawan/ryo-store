@@ -3291,3 +3291,148 @@ export async function getDashboardStats(period: DashboardPeriod = 30): Promise<D
     ordersCount30d: ordersCount,
   }
 }
+
+// ─── Custom: Dana (panel module — /admin/dana/*) ─────────────────────
+
+export interface DanaConversation {
+  id: number
+  phone: string
+  channel: string
+  customer_name: string | null
+  customer_email: string | null
+  session_status: "bot_active" | "human_active"
+  last_message_at: string
+  created_at: string
+  updated_at: string
+  welcomed_at: string | null
+  last_message: string | null
+  last_message_role: "user" | "assistant" | "human" | null
+  message_count: number
+  order_data: Record<string, unknown> | null
+}
+
+export interface DanaMessage {
+  id: number
+  role: "user" | "assistant" | "human"
+  content: string
+  message_id: string | null
+  created_at: string
+}
+
+export interface DanaConversationsResponse {
+  conversations: DanaConversation[]
+  total: number
+  limit: number
+  offset: number
+  human_active_count: number
+}
+
+export async function listDanaConversations(args?: {
+  limit?: number
+  offset?: number
+  status?: "bot_active" | "human_active" | "all"
+  q?: string
+}) {
+  return medusaFetch<DanaConversationsResponse>("GET", "/dana/conversations", {
+    query: {
+      limit: args?.limit ?? 50,
+      offset: args?.offset ?? 0,
+      status: args?.status ?? "all",
+      q: args?.q,
+    },
+  })
+}
+
+export async function getDanaConversation(phone: string, args?: { limit?: number; before_id?: number }) {
+  return medusaFetch<{ conversation: DanaConversation; messages: DanaMessage[] }>(
+    "GET",
+    `/dana/conversations/${encodeURIComponent(phone)}`,
+    { query: { limit: args?.limit, before_id: args?.before_id } }
+  )
+}
+
+export async function setDanaConversationStatus(phone: string, status: "bot_active" | "human_active") {
+  return medusaFetch<{ ok: true; conversation: DanaConversation }>(
+    "PATCH",
+    `/dana/conversations/${encodeURIComponent(phone)}/status`,
+    { body: { status } }
+  )
+}
+
+/**
+ * Pasa el draft del operador por DeepSeek y devuelve el preview en
+ * voz Dana. Si DeepSeek no está disponible, `used_llm` es false y el
+ * `rewritten` viene igual al `original` — el panel debe mostrar un
+ * warning ("rewrite no disponible") y permitir enviar tal cual.
+ */
+export async function previewDanaStyle(phone: string, text: string) {
+  return medusaFetch<{
+    original: string
+    rewritten: string
+    used_llm: boolean
+    error?: string
+  }>(
+    "POST",
+    `/dana/conversations/${encodeURIComponent(phone)}/dana-style-preview`,
+    { body: { text } }
+  )
+}
+
+/**
+ * Envía a la conversación. mode="human" silencia a Dana
+ * (session_status → human_active) y manda tal cual; mode="as-dana"
+ * pasa el texto por el rewriter y manda como Dana sin tocar el status.
+ *
+ * Si mode="as-dana" pero DeepSeek falla, el endpoint devuelve 503 con
+ * `error: "dana_rewrite_unavailable"` — el panel lo cacha y propone
+ * al operador mandar como humano o reconfigurar la key.
+ */
+export async function sendDanaMessage(phone: string, text: string, mode: "human" | "as-dana") {
+  return medusaFetch<{
+    ok: true
+    sent: { role: "human" | "assistant"; content: string; message_id: string | null; used_llm: boolean }
+    conversation: DanaConversation
+  }>(
+    "POST",
+    `/dana/conversations/${encodeURIComponent(phone)}/send`,
+    { body: { text, mode } }
+  )
+}
+
+export interface DanaConfig {
+  enabled: string
+  bot_name: string
+  maintenance_mode: string
+  human_timeout: string
+  bot_timeout: string
+  owner_phone: string
+  telegram_messages_chat_id: string
+  telegram_bot_token: string
+  wasender_key: string
+  deepseek_key: string
+  groq_key: string
+  pago_movil_banco: string
+  pago_movil_cedula: string
+  pago_movil_telefono: string
+  delivery_whatsapp_group: string
+  google_maps_key: string
+  ig_enabled: string
+  ig_comment_trigger: string
+  ig_welcome_message: string
+  system_prompt_override: string
+}
+
+export async function getDanaConfig() {
+  return medusaFetch<{ config: DanaConfig; has_system_prompt_override: boolean }>(
+    "GET",
+    "/dana/config"
+  )
+}
+
+export async function updateDanaConfig(updates: Partial<DanaConfig>) {
+  return medusaFetch<{
+    config: DanaConfig
+    has_system_prompt_override: boolean
+    updated_keys: string[]
+  }>("PATCH", "/dana/config", { body: updates })
+}
