@@ -76,6 +76,14 @@ services:
       MAIL_IMAP_PORT: ${MAIL_IMAP_PORT:-143}
       MAIL_SMTP_HOST: ${MAIL_SMTP_HOST:-mailserver}
       MAIL_SMTP_PORT: ${MAIL_SMTP_PORT:-587}
+      # PostHog admin (server-side queries) — Personal API Key with
+      # read scope. Without these, /admin/dev/posthog/* endpoints
+      # respond `configured: false` and the panel renders the
+      # "POSTHOG NO CONFIGURADO" banner. Empty defaults so the
+      # container starts even if .env hasn't set them.
+      POSTHOG_HOST: ${POSTHOG_HOST:-https://us.i.posthog.com}
+      POSTHOG_PROJECT_ID: ${POSTHOG_PROJECT_ID:-}
+      POSTHOG_PERSONAL_API_KEY: ${POSTHOG_PERSONAL_API_KEY:-}
     volumes:
       - medusa_uploads:/app/static
     labels:

@@ -418,3 +418,206 @@ export async function getBehaviorForDistinctIds(
     top_products_viewed: topProducts,
   }
 }
+
+// ─── Session Recordings (replays) ───────────────────────────────────────────
+
+export type SessionRecording = {
+  id: string
+  distinct_id: string
+  start_time: string
+  end_time: string
+  duration: number
+  click_count?: number
+  keypress_count?: number
+  console_error_count?: number
+  start_url?: string
+  person_email: string | null
+  person_name: string | null
+  url: string
+}
+
+/**
+ * List session recordings via the PostHog Recordings API.
+ *
+ * Filters:
+ *   - distinct_id: scope to one user (used by User 360)
+ *   - search: free-text — passed to PostHog `search` param which
+ *     matches across distinct_ids + URLs
+ *   - days: how far back (default 7)
+ *
+ * The PostHog endpoint is `/api/environments/:project_id/session_recordings/`
+ * for newer projects; older projects still use `/api/projects/:id/session_recordings/`.
+ * We try the newer one first and fall back. Both accept the same query
+ * shape — if PostHog rolls them under one alias later, both stop working
+ * and we'll need to refresh — but today both are live.
+ */
+export async function listSessionRecordings(args: {
+  distinctId?: string
+  search?: string
+  days?: number
+  limit?: number
+}): Promise<SessionRecording[]> {
+  if (!isAdminConfigured()) return []
+  const days = args.days ?? 7
+  const limit = Math.min(Math.max(1, args.limit ?? 30), 100)
+
+  const since = new Date(Date.now() - days * 86_400_000).toISOString()
+  const params = new URLSearchParams()
+  params.set("limit", String(limit))
+  params.set("date_from", since)
+  if (args.distinctId) params.set("distinct_id", args.distinctId)
+  if (args.search) params.set("search", args.search)
+
+  // Try newer "environments" path first, fall back to "projects".
+  const tryPaths = [
+    `/api/environments/${PROJECT_ID}/session_recordings/?${params}`,
+    `/api/projects/${PROJECT_ID}/session_recordings/?${params}`,
+  ]
+  let raw: { results?: PostHogRawRecording[] } | null = null
+  for (const p of tryPaths) {
+    raw = await phAdminFetch<{ results?: PostHogRawRecording[] }>(p)
+    if (raw?.results) break
+  }
+  if (!raw?.results) return []
+
+  const projectUrl = getPosthogProjectUrl()
+  return raw.results.map((r) => ({
+    id: r.id,
+    distinct_id: r.distinct_id || r.person?.distinct_ids?.[0] || "",
+    start_time: r.start_time,
+    end_time: r.end_time,
+    duration: Number(r.recording_duration || 0),
+    click_count: r.click_count,
+    keypress_count: r.keypress_count,
+    console_error_count: r.console_error_count,
+    start_url: r.start_url || undefined,
+    person_email: (r.person?.properties?.email as string) || null,
+    person_name:
+      [r.person?.properties?.first_name, r.person?.properties?.last_name].filter(Boolean).join(" ") ||
+      null,
+    url: `${projectUrl}/replay/${r.id}`,
+  }))
+}
+
+type PostHogRawRecording = {
+  id: string
+  distinct_id?: string
+  start_time: string
+  end_time: string
+  recording_duration?: number
+  click_count?: number
+  keypress_count?: number
+  console_error_count?: number
+  start_url?: string | null
+  person?: {
+    distinct_ids?: string[]
+    properties?: Record<string, unknown>
+  } | null
+}
+
+// ─── Heatmap (autocapture click aggregations) ───────────────────────────────
+
+export type HeatmapClick = {
+  page: string
+  selector: string
+  text: string
+  click_count: number
+  rage_count: number
+  dead_count: number
+  unique_users: number
+}
+
+/**
+ * Heatmap data via HogQL — PostHog doesn't have a clean public REST
+ * endpoint for heatmap aggregations, but $autocapture click events
+ * carry everything we need (selector, $el_text, $current_url) and the
+ * `rageclick` / `dead_click` events are emitted separately.
+ *
+ * The `page` filter, when provided, scopes by exact URL match. When
+ * empty we aggregate across all pages — useful for the "top elements
+ * site-wide" view in the panel.
+ */
+export async function getHeatmapClicks(args: {
+  page?: string
+  days?: number
+  limit?: number
+}): Promise<{ clicks: HeatmapClick[]; pages: Array<{ page: string; views: number; users: number }> }> {
+  if (!isAdminConfigured()) return { clicks: [], pages: [] }
+  const days = args.days ?? 7
+  const limit = Math.min(Math.max(1, args.limit ?? 30), 100)
+  const pageFilter = args.page ? `AND properties.$current_url = '${args.page.replace(/'/g, "''")}'` : ""
+
+  // Top click targets — only from $autocapture clicks, joined with rage/dead
+  // counts via subqueries so the main scan stays cheap.
+  const clicksQ = await phAdminFetch<{ results: unknown[][] }>(
+    `/api/projects/${PROJECT_ID}/query/`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        query: {
+          kind: "HogQLQuery",
+          query: `
+            SELECT
+              properties.$current_url AS page,
+              properties.$el_text AS text,
+              properties.$ce_version AS selector,
+              count() AS click_count,
+              countIf(event = '$rageclick') AS rage_count,
+              countIf(event = '$dead_click') AS dead_count,
+              count(DISTINCT distinct_id) AS unique_users
+            FROM events
+            WHERE event IN ('$autocapture', '$rageclick', '$dead_click')
+              AND properties.$event_type = 'click'
+              ${pageFilter}
+              AND timestamp >= now() - INTERVAL ${days} DAY
+            GROUP BY page, text, selector
+            ORDER BY click_count DESC
+            LIMIT ${limit}
+          `,
+        },
+      }),
+    }
+  )
+  const clicks: HeatmapClick[] = (clicksQ?.results || []).map((r) => ({
+    page: String(r[0] || ""),
+    text: String(r[1] || "").slice(0, 80),
+    selector: String(r[2] || ""),
+    click_count: Number(r[3] || 0),
+    rage_count: Number(r[4] || 0),
+    dead_count: Number(r[5] || 0),
+    unique_users: Number(r[6] || 0),
+  }))
+
+  // List of pages with traffic — feeds the "Todas las páginas" select
+  // in the panel so the operator can pick a specific page to drill into.
+  const pagesQ = await phAdminFetch<{ results: unknown[][] }>(
+    `/api/projects/${PROJECT_ID}/query/`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        query: {
+          kind: "HogQLQuery",
+          query: `
+            SELECT properties.$current_url AS page,
+                   count() AS views,
+                   count(DISTINCT distinct_id) AS users
+            FROM events
+            WHERE event = '$pageview'
+              AND timestamp >= now() - INTERVAL ${days} DAY
+              AND properties.$current_url IS NOT NULL
+            GROUP BY page
+            ORDER BY views DESC
+            LIMIT 50
+          `,
+        },
+      }),
+    }
+  )
+  const pages = (pagesQ?.results || []).map((r) => ({
+    page: String(r[0] || ""),
+    views: Number(r[1] || 0),
+    users: Number(r[2] || 0),
+  }))
+
+  return { clicks, pages }
+}
