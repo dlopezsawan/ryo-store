@@ -23,7 +23,7 @@ export default async function DanaConfigPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="p-7 flex flex-col gap-4">
       <PageHeader
         title="Configuración de Dana"
         description="Comportamiento del bot, credenciales y system prompt"

@@ -37,7 +37,12 @@ export default async function DanaPage({ searchParams }: { searchParams: Promise
   }
 
   return (
-    <div className="flex flex-col gap-4 h-[calc(100vh-7rem)] min-h-0">
+    // p-7 matches the rest of the panel pages (finanzas, orders, etc.)
+    // The fixed height keeps the chat thread scrollable inside without
+    // pushing the whole page beyond the viewport — without it the
+    // sidebar list grew to fit all conversations and the body
+    // overflowed instead of the inner thread.
+    <div className="p-7 flex flex-col gap-4 h-[calc(100vh-3rem)] min-h-0">
       <PageHeader
         title="Dana"
         description={
