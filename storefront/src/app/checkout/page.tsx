@@ -25,6 +25,7 @@ import {
   trackPaymentProofUploaded,
   trackCouponApplied,
   trackCouponFailed,
+  identifyCustomer,
 } from "@/lib/posthog";
 
 type LoyaltyReward = {
@@ -189,6 +190,7 @@ export default function CheckoutPage() {
   const [loyaltyRewards, setLoyaltyRewards] = useState<LoyaltyReward[]>([]);
   const [selectedRewards, setSelectedRewards] = useState<LoyaltyReward[]>([]);
   const checkoutTrackedRef = useRef(false);
+  const identifiedEmailRef = useRef<string | null>(null);
 
   // Track checkout_started once per session (on first load with a populated cart)
   useEffect(() => {
@@ -199,6 +201,31 @@ export default function CheckoutPage() {
       subtotal: cart.subtotal ?? 0,
     });
   }, [cart?.id, cart?.item_count, cart?.subtotal]);
+
+  // Identify the visitor in PostHog as soon as we have a syntactically
+  // valid email — for guest checkouts (no NextAuth session) this is the
+  // only chance to tie the anonymous distinct_id back to a person we
+  // can find later by email in /admin/remarketing/user360. Without this,
+  // every guest order shows up as "Usuario no identificado en PostHog"
+  // even though we have all their behavioral data tied to the cookie
+  // distinct_id. Calling identify with email-as-distinct-id merges the
+  // anonymous person into the email-keyed person on PostHog's side.
+  // Idempotent — we only call once per unique email per page load.
+  useEffect(() => {
+    const e = email?.trim().toLowerCase();
+    if (!e) return;
+    // Cheap email shape check — don't fire identify on every keystroke
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return;
+    if (identifiedEmailRef.current === e) return;
+    identifiedEmailRef.current = e;
+    identifyCustomer({
+      id: e,
+      email: e,
+      first_name: firstName?.trim() || undefined,
+      last_name: lastName?.trim() || undefined,
+      phone: phone?.trim() || undefined,
+    });
+  }, [email, firstName, lastName, phone]);
 
   // NOTA: la auto-aplicación de códigos COMBO/WHOLESALE fue removida.
   // Ahora el backend aplica los descuentos como line-item adjustments
@@ -732,6 +759,21 @@ export default function CheckoutPage() {
         }
         const order = completeData.order;
         const emailToUse = order?.email ?? email?.trim();
+        // Last-chance identify — covers visitors who reached order
+        // placement without having triggered the email-typed-in
+        // useEffect above (paste from password manager into a hidden
+        // field, autofilled in one shot, etc.). No-op if we already
+        // identified them earlier this session.
+        if (emailToUse) {
+          const e = emailToUse.toLowerCase();
+          identifyCustomer({
+            id: e,
+            email: e,
+            first_name: firstName?.trim() || undefined,
+            last_name: lastName?.trim() || undefined,
+            phone: phone?.trim() || undefined,
+          });
+        }
         trackOrderPlaced({
           order_id: order.id,
           total: order.total ?? cart?.subtotal ?? 0,
