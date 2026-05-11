@@ -36,7 +36,7 @@
     "@medusajs/medusa": "2.13.1",
     "@tiptap/extension-color": "^2.11.7",
     "@tiptap/extension-font-family": "^2.11.7",
-    "@tiptap/extension-link": "^2.11.7",
+    "@tiptap/extension-link": "^3.23.1",
     "@tiptap/extension-text-align": "^2.11.7",
     "@tiptap/extension-text-style": "^2.11.7",
     "@tiptap/extension-underline": "^2.11.7",
