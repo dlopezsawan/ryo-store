@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, useTransition } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import {
   Search, MessageCircle, User, Bot, AlertCircle, CheckCircle2,
-  Send, Sparkles, Hand, Edit3,
+  Send, Sparkles, Hand, Edit3, ArrowLeft,
 } from "lucide-react"
 import type { DanaConversation, DanaMessage } from "@/lib/medusa"
 import { setStatusAction, sendMessageAction, previewAsDanaAction } from "./actions"
@@ -119,11 +119,22 @@ export function DanaWorkspace({
     return () => clearInterval(id)
   }, [activePhone, fetchThread])
 
+  // Master-detail responsive: en móvil (<md) solo una vista a la vez.
+  //   - Sin conversación seleccionada → lista a pantalla completa.
+  //   - Con conversación → chat a pantalla completa, header tiene
+  //     botón "← Lista" que limpia activePhone.
+  // En desktop (≥md) se ven ambos lado a lado como antes. Usamos
+  // utility classes de Tailwind para no duplicar el árbol — `hidden
+  // md:flex` en la lista cuando hay phone, y `hidden md:flex` en el
+  // canvas cuando NO hay phone (sin esto el grid se rompe).
+  const showListOnMobile = !activePhone
+  const showChatOnMobile = !!activePhone
+
   return (
     <div className="flex gap-3 flex-1 min-h-0">
       {/* ─── LISTA ─────────────────────────────────────────────── */}
       <aside
-        className="w-[320px] shrink-0 flex flex-col bg-page rounded-md overflow-hidden"
+        className={`${showListOnMobile ? "flex" : "hidden md:flex"} w-full md:w-[320px] shrink-0 flex-col bg-page rounded-md overflow-hidden`}
         style={{ border: "1.5px solid var(--border)", boxShadow: "3px 3px 0 0 var(--shadow-color)" }}
       >
         <div className="p-3 border-b" style={{ borderColor: "var(--border)" }}>
@@ -180,7 +191,7 @@ export function DanaWorkspace({
 
       {/* ─── CHAT VIEW ─────────────────────────────────────────── */}
       <main
-        className="flex-1 flex flex-col bg-page rounded-md overflow-hidden min-w-0"
+        className={`${showChatOnMobile ? "flex" : "hidden md:flex"} flex-1 flex-col bg-page rounded-md overflow-hidden min-w-0`}
         style={{ border: "1.5px solid var(--border)", boxShadow: "3px 3px 0 0 var(--shadow-color)" }}
       >
         {!activeConv ? (
@@ -190,6 +201,7 @@ export function DanaWorkspace({
             conv={activeConv}
             messages={messages}
             loading={threadLoading}
+            onBack={() => selectPhone(undefined)}
             onStatusChanged={(c) => {
               setActiveConv(c)
               setConversations((cs) => cs.map((x) => (x.phone === c.phone ? { ...x, session_status: c.session_status } : x)))
@@ -264,6 +276,7 @@ function ChatView({
   loading,
   onStatusChanged,
   onSent,
+  onBack,
   flash,
 }: {
   conv: DanaConversation
@@ -271,6 +284,10 @@ function ChatView({
   loading: boolean
   onStatusChanged: (c: DanaConversation) => void
   onSent: () => void
+  /** Cuando se llama, limpia activePhone — en móvil regresa a la lista.
+   *  En desktop el botón "← Lista" no se muestra (media query) así que
+   *  la prop solo se activa en móvil. */
+  onBack: () => void
   flash: (k: "ok" | "err", m: string) => void
 }) {
   const [pending, startTransition] = useTransition()
@@ -333,12 +350,22 @@ function ChatView({
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b shrink-0" style={{ borderColor: "var(--border)" }}>
-        <div className="min-w-0">
-          <h2 className="font-display font-black text-[16px] text-ink truncate">
+      <div className="flex items-center justify-between gap-2 px-3 md:px-4 py-3 border-b shrink-0" style={{ borderColor: "var(--border)" }}>
+        {/* Back-to-list — solo móvil */}
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="Volver a la lista"
+          className="md:hidden flex items-center justify-center w-9 h-9 rounded-md bg-cream text-ink hover:bg-cream-2 shrink-0"
+          style={{ border: "1.5px solid var(--border)" }}
+        >
+          <ArrowLeft size={14} strokeWidth={2.5} />
+        </button>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-display font-black text-[14px] md:text-[16px] text-ink truncate">
             {conv.customer_name || conv.phone}
           </h2>
-          <p className="text-[11px] text-ink-3 num">
+          <p className="text-[10px] md:text-[11px] text-ink-3 num truncate">
             {conv.phone}
             {conv.customer_email && <> · {conv.customer_email}</>}
           </p>
@@ -347,12 +374,15 @@ function ChatView({
           type="button"
           onClick={toggleControl}
           disabled={pending}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-[10px] font-display font-bold uppercase tracking-wider transition-all ${
+          className={`flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-2 rounded-md text-[10px] font-display font-bold uppercase tracking-wider transition-all shrink-0 ${
             isHuman ? "bg-primary text-white" : "bg-cream text-ink hover:bg-cream-2"
           }`}
           style={{ border: "1.5px solid var(--border)", boxShadow: "3px 3px 0 0 var(--shadow-color)" }}
         >
-          {isHuman ? <><Hand size={11} strokeWidth={2.5} /> Soltar control</> : <><Hand size={11} strokeWidth={2.5} /> Tomar control</>}
+          <Hand size={11} strokeWidth={2.5} />
+          {/* Label corto en móvil, completo en desktop */}
+          <span className="hidden sm:inline">{isHuman ? "Soltar control" : "Tomar control"}</span>
+          <span className="sm:hidden">{isHuman ? "Soltar" : "Tomar"}</span>
         </button>
       </div>
 
@@ -417,31 +447,40 @@ function ChatView({
           style={{ border: "1.5px solid var(--border)" }}
         />
 
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] text-ink-3">{draft.length}/4000 chars · ⌘+Enter para enviar</span>
+        {/* Counter arriba, botones full-width abajo en móvil — en
+            desktop vuelven a la disposición horizontal original. */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <span className="text-[10px] text-ink-3 hidden md:inline">{draft.length}/4000 chars · ⌘+Enter para enviar</span>
+          <span className="text-[10px] text-ink-3 md:hidden">{draft.length}/4000 chars</span>
           <div className="flex items-center gap-2">
             {!isHuman && !preview && (
               <button
                 type="button"
                 onClick={rewriteAsDana}
                 disabled={pending || previewLoading || !draft.trim()}
-                className="flex items-center gap-1.5 px-3 py-2 bg-cream rounded-md text-[10px] font-display font-bold uppercase tracking-wider text-ink hover:bg-cream-2 disabled:opacity-50"
+                className="flex-1 md:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-cream rounded-md text-[10px] font-display font-bold uppercase tracking-wider text-ink hover:bg-cream-2 disabled:opacity-50"
                 style={{ border: "1.5px solid var(--border)", boxShadow: "3px 3px 0 0 var(--shadow-color)" }}
               >
-                {previewLoading ? "Reescribiendo…" : <><Sparkles size={11} strokeWidth={2.5} /> Reescribir como Dana</>}
+                {previewLoading ? "Reescribiendo…" : (
+                  <>
+                    <Sparkles size={11} strokeWidth={2.5} />
+                    <span className="hidden sm:inline">Reescribir como Dana</span>
+                    <span className="sm:hidden">Reescribir</span>
+                  </>
+                )}
               </button>
             )}
             <button
               type="button"
               onClick={sendDirect}
               disabled={pending || !draft.trim()}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-[10px] font-display font-bold uppercase tracking-wider transition-all disabled:opacity-50 ${
+              className={`flex-1 md:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-[10px] font-display font-bold uppercase tracking-wider transition-all disabled:opacity-50 ${
                 preview && !previewWarning ? "bg-orange text-dark" : "bg-secondary text-cream"
               }`}
               style={{ border: "2px solid #1A1A1A", boxShadow: "4px 4px 0 0 var(--shadow-color)" }}
             >
               <Send size={11} strokeWidth={3} />
-              {preview && !previewWarning ? "Enviar como Dana" : <>Enviar como tú</>}
+              {preview && !previewWarning ? "Enviar como Dana" : "Enviar como tú"}
             </button>
           </div>
         </div>
