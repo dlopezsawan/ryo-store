@@ -200,8 +200,41 @@ async function sendTelegramOrderAlert(args: DispatchArgs): Promise<boolean> {
   lines.push(`<b>💰 TOTAL:</b> €${currentTotal.toFixed(2)}${bsLine}`)
 
   // ─── Optional links ───────────────────────────────────────────────────────
-  const mapsLine = meta.maps_url
-    ? `\n📍 <a href="${escapeHtml(String(meta.maps_url))}">Ver dirección en Maps</a>`
+  // Two sources of a Maps link, in priority order:
+  //   1. delivery_maps_url / delivery_lat+lng — set by the checkout
+  //      ONLY for inmediato Valencia orders, from the exact lat/lng
+  //      the customer either picked off the autocomplete suggestion
+  //      list or shared via the GPS button. This is the iron-clad
+  //      pin that the courier should follow.
+  //   2. maps_url — historical field, comes from Google Places
+  //      `place.url` which is a more generic "search this address on
+  //      Maps" link. Less precise (resolves to street-level, not
+  //      house-level) but useful as a fallback.
+  //
+  // For inmediato Valencia (the workflow that lives or dies on
+  // precision), we PREFER (1) and append "Pin GPS exacto" to the
+  // label so the messenger knows it's the lat/lng coords not a search.
+  let mapsLine = ""
+  if (meta.delivery_lat != null && meta.delivery_lng != null) {
+    const lat = Number(meta.delivery_lat)
+    const lng = Number(meta.delivery_lng)
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      const url = `https://www.google.com/maps?q=${lat},${lng}`
+      mapsLine = `\n📍 <a href="${escapeHtml(url)}">Pin GPS exacto en Maps</a>`
+    }
+  } else if (meta.delivery_maps_url) {
+    mapsLine = `\n📍 <a href="${escapeHtml(String(meta.delivery_maps_url))}">Pin GPS exacto en Maps</a>`
+  } else if (meta.maps_url) {
+    mapsLine = `\n📍 <a href="${escapeHtml(String(meta.maps_url))}">Ver dirección en Maps</a>`
+  }
+
+  // Next-day flag — set by the checkout when the customer placed an
+  // inmediato order after the 21:15 cutoff and explicitly accepted
+  // next-day delivery. Surfacing it in the alert prevents the team
+  // from rushing a courier out at 10pm for a pedido that's not due
+  // until tomorrow morning.
+  const scheduledLine = meta.scheduled_for_next_day
+    ? `\n⏰ <b>Entrega:</b> mañana después de 9am (cliente aceptó programado)`
     : ""
 
   // MRW office (auto-detected from customer address if shipping_type=mrw)
@@ -255,7 +288,7 @@ async function sendTelegramOrderAlert(args: DispatchArgs): Promise<boolean> {
     `${flowHeader}\n` +
     `🛒 <b>Pedido #${order.display_id}</b>\n\n` +
     `${peopleSection}\n` +
-    `🏠 ${escapeHtml(address)}${mapsLine}${mrwOfficeLine}\n\n` +
+    `🏠 ${escapeHtml(address)}${mapsLine}${mrwOfficeLine}${scheduledLine}\n\n` +
     `📦 <b>Productos:</b>\n${itemLines}\n\n` +
     `${lines.join("\n")}` +
     `${proofLine}${sourceLine}`

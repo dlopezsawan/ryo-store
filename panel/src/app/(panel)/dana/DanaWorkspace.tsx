@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, useTransition } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import {
   Search, MessageCircle, User, Bot, AlertCircle, CheckCircle2,
-  Send, Sparkles, Hand, Edit3,
+  Send, Sparkles, Hand, Edit3, ArrowLeft, Eye, FileText, Receipt, Image as ImageIcon, MapPin, IdCard,
 } from "lucide-react"
 import type { DanaConversation, DanaMessage } from "@/lib/medusa"
 import { setStatusAction, sendMessageAction, previewAsDanaAction } from "./actions"
@@ -119,11 +119,22 @@ export function DanaWorkspace({
     return () => clearInterval(id)
   }, [activePhone, fetchThread])
 
+  // Master-detail responsive: en móvil (<md) solo una vista a la vez.
+  //   - Sin conversación seleccionada → lista a pantalla completa.
+  //   - Con conversación → chat a pantalla completa, header tiene
+  //     botón "← Lista" que limpia activePhone.
+  // En desktop (≥md) se ven ambos lado a lado como antes. Usamos
+  // utility classes de Tailwind para no duplicar el árbol — `hidden
+  // md:flex` en la lista cuando hay phone, y `hidden md:flex` en el
+  // canvas cuando NO hay phone (sin esto el grid se rompe).
+  const showListOnMobile = !activePhone
+  const showChatOnMobile = !!activePhone
+
   return (
     <div className="flex gap-3 flex-1 min-h-0">
       {/* ─── LISTA ─────────────────────────────────────────────── */}
       <aside
-        className="w-[320px] shrink-0 flex flex-col bg-page rounded-md overflow-hidden"
+        className={`${showListOnMobile ? "flex" : "hidden md:flex"} w-full md:w-[320px] shrink-0 flex-col bg-page rounded-md overflow-hidden`}
         style={{ border: "1.5px solid var(--border)", boxShadow: "3px 3px 0 0 var(--shadow-color)" }}
       >
         <div className="p-3 border-b" style={{ borderColor: "var(--border)" }}>
@@ -180,7 +191,7 @@ export function DanaWorkspace({
 
       {/* ─── CHAT VIEW ─────────────────────────────────────────── */}
       <main
-        className="flex-1 flex flex-col bg-page rounded-md overflow-hidden min-w-0"
+        className={`${showChatOnMobile ? "flex" : "hidden md:flex"} flex-1 flex-col bg-page rounded-md overflow-hidden min-w-0`}
         style={{ border: "1.5px solid var(--border)", boxShadow: "3px 3px 0 0 var(--shadow-color)" }}
       >
         {!activeConv ? (
@@ -190,6 +201,7 @@ export function DanaWorkspace({
             conv={activeConv}
             messages={messages}
             loading={threadLoading}
+            onBack={() => selectPhone(undefined)}
             onStatusChanged={(c) => {
               setActiveConv(c)
               setConversations((cs) => cs.map((x) => (x.phone === c.phone ? { ...x, session_status: c.session_status } : x)))
@@ -264,6 +276,7 @@ function ChatView({
   loading,
   onStatusChanged,
   onSent,
+  onBack,
   flash,
 }: {
   conv: DanaConversation
@@ -271,6 +284,10 @@ function ChatView({
   loading: boolean
   onStatusChanged: (c: DanaConversation) => void
   onSent: () => void
+  /** Cuando se llama, limpia activePhone — en móvil regresa a la lista.
+   *  En desktop el botón "← Lista" no se muestra (media query) así que
+   *  la prop solo se activa en móvil. */
+  onBack: () => void
   flash: (k: "ok" | "err", m: string) => void
 }) {
   const [pending, startTransition] = useTransition()
@@ -333,12 +350,22 @@ function ChatView({
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b shrink-0" style={{ borderColor: "var(--border)" }}>
-        <div className="min-w-0">
-          <h2 className="font-display font-black text-[16px] text-ink truncate">
+      <div className="flex items-center justify-between gap-2 px-3 md:px-4 py-3 border-b shrink-0" style={{ borderColor: "var(--border)" }}>
+        {/* Back-to-list — solo móvil */}
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="Volver a la lista"
+          className="md:hidden flex items-center justify-center w-9 h-9 rounded-md bg-cream text-ink hover:bg-cream-2 shrink-0"
+          style={{ border: "1.5px solid var(--border)" }}
+        >
+          <ArrowLeft size={14} strokeWidth={2.5} />
+        </button>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-display font-black text-[14px] md:text-[16px] text-ink truncate">
             {conv.customer_name || conv.phone}
           </h2>
-          <p className="text-[11px] text-ink-3 num">
+          <p className="text-[10px] md:text-[11px] text-ink-3 num truncate">
             {conv.phone}
             {conv.customer_email && <> · {conv.customer_email}</>}
           </p>
@@ -347,12 +374,15 @@ function ChatView({
           type="button"
           onClick={toggleControl}
           disabled={pending}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-[10px] font-display font-bold uppercase tracking-wider transition-all ${
+          className={`flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-2 rounded-md text-[10px] font-display font-bold uppercase tracking-wider transition-all shrink-0 ${
             isHuman ? "bg-primary text-white" : "bg-cream text-ink hover:bg-cream-2"
           }`}
           style={{ border: "1.5px solid var(--border)", boxShadow: "3px 3px 0 0 var(--shadow-color)" }}
         >
-          {isHuman ? <><Hand size={11} strokeWidth={2.5} /> Soltar control</> : <><Hand size={11} strokeWidth={2.5} /> Tomar control</>}
+          <Hand size={11} strokeWidth={2.5} />
+          {/* Label corto en móvil, completo en desktop */}
+          <span className="hidden sm:inline">{isHuman ? "Soltar control" : "Tomar control"}</span>
+          <span className="sm:hidden">{isHuman ? "Soltar" : "Tomar"}</span>
         </button>
       </div>
 
@@ -417,31 +447,40 @@ function ChatView({
           style={{ border: "1.5px solid var(--border)" }}
         />
 
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] text-ink-3">{draft.length}/4000 chars · ⌘+Enter para enviar</span>
+        {/* Counter arriba, botones full-width abajo en móvil — en
+            desktop vuelven a la disposición horizontal original. */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <span className="text-[10px] text-ink-3 hidden md:inline">{draft.length}/4000 chars · ⌘+Enter para enviar</span>
+          <span className="text-[10px] text-ink-3 md:hidden">{draft.length}/4000 chars</span>
           <div className="flex items-center gap-2">
             {!isHuman && !preview && (
               <button
                 type="button"
                 onClick={rewriteAsDana}
                 disabled={pending || previewLoading || !draft.trim()}
-                className="flex items-center gap-1.5 px-3 py-2 bg-cream rounded-md text-[10px] font-display font-bold uppercase tracking-wider text-ink hover:bg-cream-2 disabled:opacity-50"
+                className="flex-1 md:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-cream rounded-md text-[10px] font-display font-bold uppercase tracking-wider text-ink hover:bg-cream-2 disabled:opacity-50"
                 style={{ border: "1.5px solid var(--border)", boxShadow: "3px 3px 0 0 var(--shadow-color)" }}
               >
-                {previewLoading ? "Reescribiendo…" : <><Sparkles size={11} strokeWidth={2.5} /> Reescribir como Dana</>}
+                {previewLoading ? "Reescribiendo…" : (
+                  <>
+                    <Sparkles size={11} strokeWidth={2.5} />
+                    <span className="hidden sm:inline">Reescribir como Dana</span>
+                    <span className="sm:hidden">Reescribir</span>
+                  </>
+                )}
               </button>
             )}
             <button
               type="button"
               onClick={sendDirect}
               disabled={pending || !draft.trim()}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-[10px] font-display font-bold uppercase tracking-wider transition-all disabled:opacity-50 ${
+              className={`flex-1 md:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-[10px] font-display font-bold uppercase tracking-wider transition-all disabled:opacity-50 ${
                 preview && !previewWarning ? "bg-orange text-dark" : "bg-secondary text-cream"
               }`}
               style={{ border: "2px solid #1A1A1A", boxShadow: "4px 4px 0 0 var(--shadow-color)" }}
             >
               <Send size={11} strokeWidth={3} />
-              {preview && !previewWarning ? "Enviar como Dana" : <>Enviar como tú</>}
+              {preview && !previewWarning ? "Enviar como Dana" : "Enviar como tú"}
             </button>
           </div>
         </div>
@@ -471,6 +510,9 @@ function MessageBubble({ msg }: { msg: DanaMessage }) {
     LabelIcon = Edit3
   }
 
+  const analysis = msg.metadata?.image_analysis
+  const imageUrl = typeof msg.metadata?.image_url === "string" ? msg.metadata.image_url : undefined
+
   return (
     <div className={`flex flex-col ${align} gap-0.5`}>
       {label && (
@@ -484,7 +526,83 @@ function MessageBubble({ msg }: { msg: DanaMessage }) {
       >
         {msg.content}
       </div>
+      {analysis && <ImageAnalysisChip analysis={analysis} imageUrl={imageUrl} />}
       <span className="text-[9px] text-ink-3 num px-1">{formatTime(msg.created_at)}</span>
+    </div>
+  )
+}
+
+/**
+ * Pequeño card debajo del mensaje cuando llegó imagen analizada por
+ * vision. Muestra: tipo, descripción semántica, texto extraído (si lo
+ * hay), confianza, y link al archivo original. El operador puede
+ * comparar lo que Dana "vio" vs la imagen real para debug.
+ */
+function ImageAnalysisChip({
+  analysis,
+  imageUrl,
+}: {
+  analysis: NonNullable<DanaMessage["metadata"]>["image_analysis"]
+  imageUrl?: string
+}) {
+  if (!analysis) return null
+
+  const TYPE_META: Record<string, { label: string; Icon: typeof Eye; bg: string; fg: string }> = {
+    handwriting:   { label: "Manuscrito",   Icon: FileText,  bg: "bg-orange/10",    fg: "text-orange" },
+    receipt:       { label: "Comprobante",  Icon: Receipt,   bg: "bg-secondary/10", fg: "text-secondary" },
+    product_photo: { label: "Producto",     Icon: ImageIcon, bg: "bg-secondary/10", fg: "text-secondary" },
+    screenshot:    { label: "Screenshot",   Icon: ImageIcon, bg: "bg-cream-2",      fg: "text-ink" },
+    map:           { label: "Mapa",         Icon: MapPin,    bg: "bg-orange/10",    fg: "text-orange" },
+    id_document:   { label: "Cédula",       Icon: IdCard,    bg: "bg-primary/10",   fg: "text-primary" },
+    other:         { label: "Otro",         Icon: Eye,       bg: "bg-cream-2",      fg: "text-ink-3" },
+  }
+  const meta = TYPE_META[analysis.type] ?? TYPE_META.other
+
+  const confColor =
+    analysis.confidence === "high" ? "text-secondary" :
+    analysis.confidence === "medium" ? "text-orange" :
+    "text-primary"
+
+  return (
+    <div
+      className={`mt-1 max-w-[75%] px-2.5 py-1.5 rounded-md text-[10px] ${meta.bg}`}
+      style={{ border: "1px dashed var(--border-soft)" }}
+    >
+      <div className="flex items-center gap-1.5 mb-0.5">
+        <meta.Icon size={11} strokeWidth={2.5} className={meta.fg} />
+        <span className={`font-display font-bold uppercase tracking-wider ${meta.fg}`}>
+          👁 Dana leyó: {meta.label}
+        </span>
+        <span className={`ml-auto font-display font-bold uppercase ${confColor}`}>
+          {analysis.confidence}
+        </span>
+      </div>
+      {analysis.description && (
+        <p className="text-ink-2 leading-snug italic mb-1">
+          {analysis.description}
+        </p>
+      )}
+      {analysis.text_content && (
+        <details className="cursor-pointer">
+          <summary className="text-ink-3 hover:text-ink">Texto extraído</summary>
+          <pre className="text-[10px] text-ink whitespace-pre-wrap mt-1 font-mono">
+            {analysis.text_content}
+          </pre>
+        </details>
+      )}
+      <div className="flex items-center gap-2 text-ink-3 mt-1">
+        <span className="text-[9px]">vía {analysis.provider}</span>
+        {imageUrl && (
+          <a
+            href={imageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[9px] underline hover:text-orange"
+          >
+            Ver original
+          </a>
+        )}
+      </div>
     </div>
   )
 }

@@ -25,6 +25,7 @@ import {
   trackPaymentProofUploaded,
   trackCouponApplied,
   trackCouponFailed,
+  identifyCustomer,
 } from "@/lib/posthog";
 
 type LoyaltyReward = {
@@ -44,6 +45,41 @@ type ShippingOption = {
   amount?: number;
   calculated_price?: { calculated_amount?: number };
 };
+
+/**
+ * Cutoff de pedidos inmediatos en Valencia. Después de las 21:15 hora
+ * de Caracas (UTC-4), un inmediato ya no puede salir esa noche — el
+ * cliente debe aceptar entrega next-day o cambiar a MRW nacional.
+ *
+ * El grace de 15 min sobre las 9pm es para clientes que llevan rato
+ * en el checkout: no queremos kickearlos por completar a las 21:03.
+ *
+ * Computado client-side con Intl.DateTimeFormat (zona explícita en
+ * vez de fiarnos del reloj del cliente, que puede estar mal o estar
+ * en otro huso). La hora exacta del servidor no nos importa: el
+ * mensajero opera por el reloj del operador y aceptamos cierto
+ * skew para que el cliente no vea inconsistencias raras según
+ * dónde tenga el celular.
+ */
+function isAfterImmediateCutoff(now: Date = new Date()): boolean {
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Caracas",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  // Parts gives us numeric hour + minute in Caracas tz.
+  const parts = fmt.formatToParts(now);
+  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? 0);
+  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? 0);
+  // After 21:15 OR any time after 22:00, OR before 6am (madrugada).
+  // 6am cutoff on the morning side prevents someone at 3am ordering
+  // "inmediato" expecting same-night delivery from the night before.
+  if (hour < 6) return true;
+  if (hour > 21) return true;
+  if (hour === 21 && minute >= 15) return true;
+  return false;
+}
 
 function selectShippingOption(
   options: ShippingOption[],
@@ -131,6 +167,10 @@ export default function CheckoutPage() {
   const [province, setProvince] = useState("");
   const [mapsUrl, setMapsUrl] = useState("");
   const [addressCoords, setAddressCoords] = useState<{ lat: number; lng: number } | null>(null);
+  // Acepta entrega mañana cuando el cliente marca inmediato después
+  // de las 21:15 hora Venezuela. Sin esta aceptación bloqueamos el
+  // submit — ver handleSubmit.
+  const [acceptedScheduledNextDay, setAcceptedScheduledNextDay] = useState(false);
 
   // ─── MRW recipient + cedula validation (only relevant when shippingType=mrw) ─
   // The buyer (logged-in account / payer) and the recipient (who picks up at MRW)
@@ -189,6 +229,7 @@ export default function CheckoutPage() {
   const [loyaltyRewards, setLoyaltyRewards] = useState<LoyaltyReward[]>([]);
   const [selectedRewards, setSelectedRewards] = useState<LoyaltyReward[]>([]);
   const checkoutTrackedRef = useRef(false);
+  const identifiedEmailRef = useRef<string | null>(null);
 
   // Track checkout_started once per session (on first load with a populated cart)
   useEffect(() => {
@@ -199,6 +240,31 @@ export default function CheckoutPage() {
       subtotal: cart.subtotal ?? 0,
     });
   }, [cart?.id, cart?.item_count, cart?.subtotal]);
+
+  // Identify the visitor in PostHog as soon as we have a syntactically
+  // valid email — for guest checkouts (no NextAuth session) this is the
+  // only chance to tie the anonymous distinct_id back to a person we
+  // can find later by email in /admin/remarketing/user360. Without this,
+  // every guest order shows up as "Usuario no identificado en PostHog"
+  // even though we have all their behavioral data tied to the cookie
+  // distinct_id. Calling identify with email-as-distinct-id merges the
+  // anonymous person into the email-keyed person on PostHog's side.
+  // Idempotent — we only call once per unique email per page load.
+  useEffect(() => {
+    const e = email?.trim().toLowerCase();
+    if (!e) return;
+    // Cheap email shape check — don't fire identify on every keystroke
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return;
+    if (identifiedEmailRef.current === e) return;
+    identifiedEmailRef.current = e;
+    identifyCustomer({
+      id: e,
+      email: e,
+      first_name: firstName?.trim() || undefined,
+      last_name: lastName?.trim() || undefined,
+      phone: phone?.trim() || undefined,
+    });
+  }, [email, firstName, lastName, phone]);
 
   // NOTA: la auto-aplicación de códigos COMBO/WHOLESALE fue removida.
   // Ahora el backend aplica los descuentos como line-item adjustments
@@ -489,6 +555,36 @@ export default function CheckoutPage() {
       setError("Cargando datos del carrito, espera un momento e intenta de nuevo.");
       return;
     }
+    // Inmediato Valencia: ubicación exacta es obligatoria. Sin coords
+    // el mensajero pierde tiempo buscando la casa y los pedidos se
+    // atrasan — política que pidió el dueño. El cliente puede tipear
+    // la dirección y elegir una sugerencia (que devuelve lat/lng) o
+    // usar el botón "Compartir mi ubicación GPS" del autocomplete.
+    if (shippingType === "inmediato" && !addressCoords) {
+      setError(
+        "Para envío inmediato en Valencia necesitamos tu ubicación exacta. " +
+        "Escribe tu dirección y selecciona una sugerencia del mapa, o usa el " +
+        "botón 'Compartir mi ubicación GPS'."
+      );
+      return;
+    }
+    // 21:15 cutoff con alternativa: si el cliente marca inmediato
+    // después de las 21:15 (hora Venezuela), pedirle que confirme
+    // explícitamente que su pedido se entregará MAÑANA, no esta
+    // noche. Sin esa confirmación, no dejamos pasar — para que un
+    // cliente apurado no descubra a las 10pm que su pedido no llega.
+    if (
+      shippingType === "inmediato" &&
+      isAfterImmediateCutoff() &&
+      !acceptedScheduledNextDay
+    ) {
+      setError(
+        "Los pedidos inmediatos se entregan hasta las 9pm. Como ya pasó esa hora, " +
+        "tu pedido se programará para mañana después de las 9am. Marca la casilla " +
+        '"Acepto entrega mañana" o cambia a envío nacional (MRW).'
+      );
+      return;
+    }
     if (!proofFile) {
       setError("Debes subir la captura del pago");
       return;
@@ -599,6 +695,32 @@ export default function CheckoutPage() {
         }
       }
 
+      // Inmediato: persist coords + maps URL on the order so the
+      // Telegram notification (order-whatsapp-notify subscriber) can
+      // render a "📍 Ver en Maps" link for the courier. The MRW path
+      // already saves these via mrw_office_*, but inmediato hits a
+      // different metadata block.
+      const inmediatoLocationMeta: Record<string, unknown> =
+        shippingType === "inmediato" && addressCoords
+          ? {
+              delivery_lat: addressCoords.lat,
+              delivery_lng: addressCoords.lng,
+              delivery_maps_url: `https://www.google.com/maps?q=${addressCoords.lat},${addressCoords.lng}`,
+            }
+          : {};
+
+      // Next-day flag — surfaced by Telegram + the operator panel so a
+      // pedido placed at 22:30 doesn't get expedited by mistake. The
+      // submit gate ahead enforces that the customer accepted this
+      // explicitly when `isAfterImmediateCutoff()` is true.
+      const scheduledMeta: Record<string, unknown> =
+        shippingType === "inmediato" && isAfterImmediateCutoff()
+          ? {
+              scheduled_for_next_day: true,
+              scheduled_delivery_window: "next_day_after_9am",
+            }
+          : {};
+
       const updateRes = await fetch("/api/checkout/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -614,6 +736,8 @@ export default function CheckoutPage() {
             tos_accepted_at: new Date().toISOString(),
             ...(mapsUrl ? { maps_url: mapsUrl } : {}),
             ...mrwOfficeMeta,
+            ...inmediatoLocationMeta,
+            ...scheduledMeta,
             ...mrwIdMeta,
             // Free-shipping promo flags — surfaced by the bot + finance module
             ...(isInmediatoFree
@@ -732,6 +856,21 @@ export default function CheckoutPage() {
         }
         const order = completeData.order;
         const emailToUse = order?.email ?? email?.trim();
+        // Last-chance identify — covers visitors who reached order
+        // placement without having triggered the email-typed-in
+        // useEffect above (paste from password manager into a hidden
+        // field, autofilled in one shot, etc.). No-op if we already
+        // identified them earlier this session.
+        if (emailToUse) {
+          const e = emailToUse.toLowerCase();
+          identifyCustomer({
+            id: e,
+            email: e,
+            first_name: firstName?.trim() || undefined,
+            last_name: lastName?.trim() || undefined,
+            phone: phone?.trim() || undefined,
+          });
+        }
         trackOrderPlaced({
           order_id: order.id,
           total: order.total ?? cart?.subtotal ?? 0,
@@ -1027,7 +1166,14 @@ export default function CheckoutPage() {
                 </div>
               </div>
               <div className="mt-4">
-                <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">Dirección *</label>
+                <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">
+                  Dirección *
+                  {shippingType === "inmediato" && (
+                    <span className="ml-1.5 text-orange font-normal normal-case tracking-normal">
+                      con ubicación exacta
+                    </span>
+                  )}
+                </label>
                 <AddressAutocomplete
                   value={address1}
                   onChange={setAddress1}
@@ -1049,6 +1195,42 @@ export default function CheckoutPage() {
                   required
                   placeholder="Empieza a escribir tu dirección..."
                 />
+                {/* Inmediato Valencia — ubicación obligatoria. Banner
+                    rojo cuando falta, verde cuando ya tenemos coords.
+                    El cliente tiene dos formas de cumplir: tipear la
+                    dirección y elegir una sugerencia (devuelve coords)
+                    o el botón "Mi ubicación" del autocomplete que usa
+                    navigator.geolocation. */}
+                {shippingType === "inmediato" && (
+                  <div
+                    className={`mt-2 p-2.5 text-xs font-medium border-2 ${
+                      addressCoords
+                        ? "border-secondary/40 bg-secondary/10 text-dark"
+                        : "border-primary bg-primary/5 text-primary"
+                    }`}
+                  >
+                    {addressCoords ? (
+                      <>
+                        ✓ Ubicación confirmada — el mensajero te ubicará en el mapa
+                        <a
+                          href={`https://www.google.com/maps?q=${addressCoords.lat},${addressCoords.lng}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ml-2 underline hover:text-orange"
+                        >
+                          Ver pin
+                        </a>
+                      </>
+                    ) : (
+                      <>
+                        Para envío inmediato necesitamos tu ubicación exacta.
+                        Elige una sugerencia del mapa o usa el botón
+                        <strong> &quot;Mi ubicación&quot; </strong>
+                        arriba.
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="mt-4">
                 <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-2">Referencia (opcional)</label>
@@ -1094,8 +1276,16 @@ export default function CheckoutPage() {
                       className="accent-primary"
                     />
                     <div>
-                      <p className="font-bold text-sm text-dark">Inmediato</p>
-                      <p className="text-xs text-muted">Solo Valencia</p>
+                      <p className="font-bold text-sm text-dark">
+                        Inmediato
+                        {isAfterImmediateCutoff() && shippingType === "inmediato" && (
+                          <span className="ml-1 text-orange normal-case">· mañana</span>
+                        )}
+                      </p>
+                      <p className="text-xs text-muted">
+                        Solo Valencia
+                        {isAfterImmediateCutoff() && " · hasta 9pm"}
+                      </p>
                     </div>
                   </label>
                   <label className={`flex-1 flex items-center gap-3 p-3 border-2 cursor-pointer transition-all ${shippingType === "mrw" ? "border-primary bg-primary/5" : "border-dark/20 hover:border-dark"}`}>
@@ -1113,6 +1303,42 @@ export default function CheckoutPage() {
                     </div>
                   </label>
                 </div>
+
+                {/* 21:15 cutoff. Si seleccionó inmediato fuera del
+                    horario válido (después de 21:15 o antes de 6am
+                    hora Caracas), exigir confirmación explícita de
+                    que su pedido se entrega MAÑANA. Sin checkbox
+                    marcado, handleSubmit bloquea. Ofrece también la
+                    salida alternativa (cambiar a MRW). */}
+                {shippingType === "inmediato" && isAfterImmediateCutoff() && (
+                  <div
+                    className="mt-3 p-3 border-2 border-orange bg-orange/5"
+                    role="alert"
+                  >
+                    <p className="text-sm font-bold text-dark mb-2">
+                      ⏰ Pedidos inmediatos hasta las 9:00pm
+                    </p>
+                    <p className="text-xs text-dark/80 mb-3 leading-relaxed">
+                      Ya cerramos por hoy. Tu pedido inmediato se
+                      programará para mañana después de las 9am, o
+                      puedes cambiar a envío nacional MRW.
+                    </p>
+                    <label className="flex items-start gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={acceptedScheduledNextDay}
+                        onChange={(e) =>
+                          setAcceptedScheduledNextDay(e.target.checked)
+                        }
+                        className="mt-0.5 w-4 h-4 accent-orange flex-shrink-0"
+                      />
+                      <span className="text-xs text-dark font-medium">
+                        Acepto que mi pedido se entregue{" "}
+                        <strong>mañana después de 9am</strong>
+                      </span>
+                    </label>
+                  </div>
+                )}
               </div>
 
               {/* MRW recipient + cedula block — only shown when MRW selected */}

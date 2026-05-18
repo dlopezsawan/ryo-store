@@ -42,7 +42,7 @@ export default async function DanaPage({ searchParams }: { searchParams: Promise
     // pushing the whole page beyond the viewport — without it the
     // sidebar list grew to fit all conversations and the body
     // overflowed instead of the inner thread.
-    <div className="p-7 flex flex-col gap-4 h-[calc(100vh-3rem)] min-h-0">
+    <div className="p-3 md:p-7 flex flex-col gap-3 md:gap-4 h-[calc(100vh-3rem)] min-h-0">
       <PageHeader
         title="Dana"
         description={

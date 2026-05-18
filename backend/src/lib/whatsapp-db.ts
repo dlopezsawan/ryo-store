@@ -102,6 +102,12 @@ export async function ensureTables() {
     ALTER TABLE wa_conversations ADD COLUMN IF NOT EXISTS channel VARCHAR(20) DEFAULT 'whatsapp';
     ALTER TABLE wa_conversations ADD COLUMN IF NOT EXISTS welcomed_at TIMESTAMPTZ;
 
+    -- wa_messages.metadata — JSONB para guardar análisis de imagen,
+    -- transcripción de audio, etc. Permite que el panel /dana
+    -- muestre chips informativos junto al mensaje sin tener que
+    -- re-analizar la imagen. Null = mensaje de texto plano.
+    ALTER TABLE wa_messages ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT NULL;
+
     -- Phone uniqueness must now be per-channel (same IG user could coincidentally match a WA phone)
     DO $$ BEGIN
       ALTER TABLE wa_conversations DROP CONSTRAINT IF EXISTS wa_conversations_phone_key;
@@ -307,10 +313,16 @@ export async function getRecentConversations(limit = 30) {
 
 // ─── Messages ───────────────────────────────────────────────────────────────
 
-export async function saveMessage(phone: string, role: string, content: string, messageId?: string) {
+export async function saveMessage(
+  phone: string,
+  role: string,
+  content: string,
+  messageId?: string,
+  metadata?: Record<string, unknown> | null
+) {
   await pool.query(
-    "INSERT INTO wa_messages (phone, role, content, message_id) VALUES ($1, $2, $3, $4)",
-    [phone, role, content, messageId || null]
+    "INSERT INTO wa_messages (phone, role, content, message_id, metadata) VALUES ($1, $2, $3, $4, $5)",
+    [phone, role, content, messageId || null, metadata ? JSON.stringify(metadata) : null]
   )
   // Update conversation timestamp
   await pool.query(
@@ -447,7 +459,7 @@ export async function listMessagesForPanel(phone: string, args: { limit?: number
   params.push(limit)
   const limitIdx = params.length
   const r = await pool.query(
-    `SELECT id, role, content, message_id, created_at
+    `SELECT id, role, content, message_id, created_at, metadata
      FROM wa_messages
      WHERE phone = $1 ${beforeClause}
      ORDER BY created_at DESC
