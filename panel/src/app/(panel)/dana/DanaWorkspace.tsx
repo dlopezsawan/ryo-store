@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, useTransition } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import {
   Search, MessageCircle, User, Bot, AlertCircle, CheckCircle2,
-  Send, Sparkles, Hand, Edit3, ArrowLeft,
+  Send, Sparkles, Hand, Edit3, ArrowLeft, Eye, FileText, Receipt, Image as ImageIcon, MapPin, IdCard,
 } from "lucide-react"
 import type { DanaConversation, DanaMessage } from "@/lib/medusa"
 import { setStatusAction, sendMessageAction, previewAsDanaAction } from "./actions"
@@ -510,6 +510,9 @@ function MessageBubble({ msg }: { msg: DanaMessage }) {
     LabelIcon = Edit3
   }
 
+  const analysis = msg.metadata?.image_analysis
+  const imageUrl = typeof msg.metadata?.image_url === "string" ? msg.metadata.image_url : undefined
+
   return (
     <div className={`flex flex-col ${align} gap-0.5`}>
       {label && (
@@ -523,7 +526,83 @@ function MessageBubble({ msg }: { msg: DanaMessage }) {
       >
         {msg.content}
       </div>
+      {analysis && <ImageAnalysisChip analysis={analysis} imageUrl={imageUrl} />}
       <span className="text-[9px] text-ink-3 num px-1">{formatTime(msg.created_at)}</span>
+    </div>
+  )
+}
+
+/**
+ * Pequeño card debajo del mensaje cuando llegó imagen analizada por
+ * vision. Muestra: tipo, descripción semántica, texto extraído (si lo
+ * hay), confianza, y link al archivo original. El operador puede
+ * comparar lo que Dana "vio" vs la imagen real para debug.
+ */
+function ImageAnalysisChip({
+  analysis,
+  imageUrl,
+}: {
+  analysis: NonNullable<DanaMessage["metadata"]>["image_analysis"]
+  imageUrl?: string
+}) {
+  if (!analysis) return null
+
+  const TYPE_META: Record<string, { label: string; Icon: typeof Eye; bg: string; fg: string }> = {
+    handwriting:   { label: "Manuscrito",   Icon: FileText,  bg: "bg-orange/10",    fg: "text-orange" },
+    receipt:       { label: "Comprobante",  Icon: Receipt,   bg: "bg-secondary/10", fg: "text-secondary" },
+    product_photo: { label: "Producto",     Icon: ImageIcon, bg: "bg-secondary/10", fg: "text-secondary" },
+    screenshot:    { label: "Screenshot",   Icon: ImageIcon, bg: "bg-cream-2",      fg: "text-ink" },
+    map:           { label: "Mapa",         Icon: MapPin,    bg: "bg-orange/10",    fg: "text-orange" },
+    id_document:   { label: "Cédula",       Icon: IdCard,    bg: "bg-primary/10",   fg: "text-primary" },
+    other:         { label: "Otro",         Icon: Eye,       bg: "bg-cream-2",      fg: "text-ink-3" },
+  }
+  const meta = TYPE_META[analysis.type] ?? TYPE_META.other
+
+  const confColor =
+    analysis.confidence === "high" ? "text-secondary" :
+    analysis.confidence === "medium" ? "text-orange" :
+    "text-primary"
+
+  return (
+    <div
+      className={`mt-1 max-w-[75%] px-2.5 py-1.5 rounded-md text-[10px] ${meta.bg}`}
+      style={{ border: "1px dashed var(--border-soft)" }}
+    >
+      <div className="flex items-center gap-1.5 mb-0.5">
+        <meta.Icon size={11} strokeWidth={2.5} className={meta.fg} />
+        <span className={`font-display font-bold uppercase tracking-wider ${meta.fg}`}>
+          👁 Dana leyó: {meta.label}
+        </span>
+        <span className={`ml-auto font-display font-bold uppercase ${confColor}`}>
+          {analysis.confidence}
+        </span>
+      </div>
+      {analysis.description && (
+        <p className="text-ink-2 leading-snug italic mb-1">
+          {analysis.description}
+        </p>
+      )}
+      {analysis.text_content && (
+        <details className="cursor-pointer">
+          <summary className="text-ink-3 hover:text-ink">Texto extraído</summary>
+          <pre className="text-[10px] text-ink whitespace-pre-wrap mt-1 font-mono">
+            {analysis.text_content}
+          </pre>
+        </details>
+      )}
+      <div className="flex items-center gap-2 text-ink-3 mt-1">
+        <span className="text-[9px]">vía {analysis.provider}</span>
+        {imageUrl && (
+          <a
+            href={imageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[9px] underline hover:text-orange"
+          >
+            Ver original
+          </a>
+        )}
+      </div>
     </div>
   )
 }

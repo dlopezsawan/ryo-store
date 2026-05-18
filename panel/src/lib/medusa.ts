@@ -3311,12 +3311,30 @@ export interface DanaConversation {
   order_data: Record<string, unknown> | null
 }
 
+export interface DanaImageAnalysis {
+  type: "handwriting" | "receipt" | "product_photo" | "screenshot" | "map" | "id_document" | "other"
+  text_content: string
+  description: string
+  confidence: "high" | "medium" | "low"
+  provider: "deepseek-vision" | "tesseract+deepseek" | "tesseract-only" | "failed"
+  raw_ocr?: string
+  error?: string
+}
+
 export interface DanaMessage {
   id: number
   role: "user" | "assistant" | "human"
   content: string
   message_id: string | null
   created_at: string
+  /** Set when the message included an image processed by the vision
+   *  pipeline. The chat view renders a chip under the bubble so the
+   *  operator can see exactly what Dana extracted vs the raw image. */
+  metadata?: {
+    image_analysis?: DanaImageAnalysis
+    image_url?: string
+    [k: string]: unknown
+  } | null
 }
 
 export interface DanaConversationsResponse {

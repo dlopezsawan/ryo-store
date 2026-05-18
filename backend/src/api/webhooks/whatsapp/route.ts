@@ -29,6 +29,7 @@ import {
 } from "../../../lib/whatsapp-db"
 import { chat, buildGreeting } from "../../../lib/whatsapp-bot"
 import { sendWhatsApp } from "../../../lib/whatsapp-sender"
+import { analyzeImage, buildPlaceholderForAnalysis, type ImageAnalysis } from "../../../lib/whatsapp-vision"
 
 let tablesReady = false
 
@@ -239,12 +240,19 @@ async function transcribeAudio(
 
 // ─── Image download ─────────────────────────────────────────────────────────
 
+/**
+ * Returns shape:
+ *   - string "ENCRYPTED_IMAGE" → got the bytes but couldn't decrypt
+ *   - { publicUrl, localPath } → both the URL Dana logs and the local
+ *     filesystem path the vision pipeline needs to read the bytes
+ *   - null → couldn't get any image at all
+ */
 async function downloadAndSaveImage(
   _imageUrl: string,
   phone: string,
   messageId?: string,
   imageMessage?: Record<string, unknown>
-): Promise<string | null> {
+): Promise<{ publicUrl: string; localPath: string } | "ENCRYPTED_IMAGE" | null> {
   try {
     let buffer: Buffer | null = null
 
@@ -318,7 +326,7 @@ async function downloadAndSaveImage(
 
     const publicUrl = `https://api.enrola.shop/static/wa-proofs/${filename}`
     console.log("[wa-webhook] 📸 Image saved:", publicUrl, `(${buffer.length} bytes, ${isJpeg ? "JPEG" : "PNG"})`)
-    return publicUrl
+    return { publicUrl, localPath: filePath }
   } catch (err) {
     console.error("[wa-webhook] Image download failed:", err)
     return null
@@ -398,17 +406,47 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       }
     }
 
-    // ── Image: download immediately (temp URLs expire) ────────────────────
+    // ── Image: download + analyze with vision pipeline ───────────────────
+    // We pass the image through analyzeImage() so Dana receives a
+    // semantic placeholder (e.g. [IMAGEN_TEXTO_MANUSCRITO: "..."])
+    // instead of an opaque URL she'd have to guess about. The
+    // analysis result is also persisted to wa_messages.metadata so
+    // the operator panel can show what Dana "saw".
+    let imageAnalysis: ImageAnalysis | null = null
+    let imagePublicUrl: string | null = null
     const imageMsg = message.imageMessage as Record<string, unknown> | undefined
     if (imageMsg && !fromMe) {
       const imageUrl = String(imageMsg.url || imageMsg.directPath || "")
       const caption = String(imageMsg.caption || "")
       if (imageUrl || imageMsg.mediaKey) {
-        const localUrl = await downloadAndSaveImage(imageUrl, phone, messageId, imageMsg)
-        if (localUrl === "ENCRYPTED_IMAGE") {
-          text = `[IMAGEN_RECIBIDA: imagen_enviada_por_cliente]${caption ? ` ${caption}` : ""}`
-        } else if (localUrl) {
-          text = `[IMAGEN_RECIBIDA: ${localUrl}]${caption ? ` ${caption}` : ""}`
+        const downloadResult = await downloadAndSaveImage(imageUrl, phone, messageId, imageMsg)
+        if (downloadResult === "ENCRYPTED_IMAGE") {
+          // Couldn't decrypt — Dana sees only that an image came in,
+          // can ask the customer to send it again or describe it.
+          text = `[IMAGEN_RECIBIDA: encriptada, sin contenido legible]${caption ? ` ${caption}` : ""}`
+        } else if (downloadResult) {
+          imagePublicUrl = downloadResult.publicUrl
+          // Run the vision pipeline. Never throws — falls through to
+          // tesseract-only or "failed" if everything breaks. We cap
+          // analysis time at 25s (built into analyzeImage); the bot
+          // already runs inside withPhoneLock so worst case the
+          // customer waits a moment longer for the reply.
+          try {
+            imageAnalysis = await analyzeImage(downloadResult.localPath)
+          } catch (err) {
+            console.error("[wa-webhook] analyzeImage threw unexpectedly:", err)
+          }
+          if (imageAnalysis && imageAnalysis.provider !== "failed") {
+            text = buildPlaceholderForAnalysis(imageAnalysis)
+            if (caption) text += ` Caption del cliente: ${JSON.stringify(caption)}`
+            console.log(
+              `[wa-webhook] 🖼 Vision: ${imageAnalysis.type} (${imageAnalysis.confidence}, via ${imageAnalysis.provider}) — ${imageAnalysis.description.slice(0, 80)}`
+            )
+          } else {
+            // All vision paths failed — fall back to the legacy
+            // "imagen recibida" placeholder so Dana at least acknowledges.
+            text = `[IMAGEN_RECIBIDA: ${downloadResult.publicUrl}]${caption ? ` ${caption}` : ""}`
+          }
         }
       }
     }
@@ -457,7 +495,18 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       const conversation = await getOrCreateConversation(phone)
 
       if (replyJid && replyJid.includes("@")) await saveJid(phone, replyJid)
-      await saveMessage(phone, "user", text, messageId)
+      // Attach image analysis (if any) as JSONB metadata. The /dana
+      // panel reads `metadata.image_analysis` to render a chip showing
+      // what Dana actually "saw" — invaluable for debug when the bot
+      // misreads handwriting or a low-confidence receipt.
+      const userMsgMeta: Record<string, unknown> | undefined =
+        imageAnalysis || imagePublicUrl
+          ? {
+              ...(imageAnalysis ? { image_analysis: imageAnalysis } : {}),
+              ...(imagePublicUrl ? { image_url: imagePublicUrl } : {}),
+            }
+          : undefined
+      await saveMessage(phone, "user", text, messageId, userMsgMeta)
 
       const lowerText = text.toLowerCase()
 
