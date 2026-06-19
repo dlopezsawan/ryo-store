@@ -2,6 +2,19 @@ import { loadEnv, defineConfig } from '@medusajs/framework/utils'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
+// Secretos de firma de tokens. NUNCA caer a un literal público ("supersecret"):
+// con ese fallback cualquiera podía forjar JWTs admin/customer válidos. En
+// producción fallamos al arrancar si faltan, en vez de arrancar inseguros.
+const IS_PROD = (process.env.NODE_ENV || 'development') === 'production'
+const JWT_SECRET = process.env.JWT_SECRET
+const COOKIE_SECRET = process.env.COOKIE_SECRET
+if (IS_PROD && (!JWT_SECRET || !COOKIE_SECRET)) {
+  throw new Error(
+    '[medusa-config] JWT_SECRET y COOKIE_SECRET son obligatorios en producción. ' +
+      'Genera valores fuertes (openssl rand -hex 32) y setéalos en el .env del VPS.'
+  )
+}
+
 module.exports = defineConfig({
   admin: {
     path: "/dashboard",
@@ -14,8 +27,9 @@ module.exports = defineConfig({
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
       authCors: process.env.AUTH_CORS!,
-      jwtSecret: process.env.JWT_SECRET || "supersecret",
-      cookieSecret: process.env.COOKIE_SECRET || "supersecret",
+      // En dev caemos a un valor local explícito (no secreto en prod por el guard de arriba).
+      jwtSecret: JWT_SECRET || "dev-only-insecure-jwt-secret",
+      cookieSecret: COOKIE_SECRET || "dev-only-insecure-cookie-secret",
     }
   },
   modules: [

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { trackCartViewed, trackProductRemovedFromCart } from "@/lib/posthog";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -89,8 +89,13 @@ export default function CarritoPage() {
   const { cart, loading, updateQuantity, removeItem } = useCart();
   const isEmpty = !cart?.items?.length;
 
+  // cart_viewed debe dispararse UNA vez al abrir la página, no en cada
+  // cambio de item_count (eso inflaba el denominador del funnel cart→checkout).
+  const cartViewedFired = useRef(false);
   useEffect(() => {
+    if (cartViewedFired.current) return;
     if (cart?.item_count) {
+      cartViewedFired.current = true;
       trackCartViewed({
         item_count: cart.item_count,
         subtotal: cart.subtotal ?? 0,
