@@ -196,7 +196,9 @@ export function LiveOrdersClient() {
   }
 
   function manualRefresh() {
-    setPaused(false)
+    // No hacemos setPaused(false) aquí: eso re-lanzaría el useEffect de polling
+    // y generaría un double-fetch (efecto + este fetch inline → flicker).
+    // Si el usuario quiere reanudar el polling, usa el botón Pausar/Reanudar.
     setLoading(true)
     isInitialLoadRef.current = true  // no notif on manual
     fetch("/api/orders/live", { cache: "no-store" })

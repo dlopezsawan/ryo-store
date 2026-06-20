@@ -17,8 +17,14 @@ export default async function ForecastPage() {
 
   let errorMsg: string | null = null
   const pagoMovils = pmR.status === "fulfilled" ? pmR.value.pago_movils : []
+  const pagoMovilCount = pmR.status === "fulfilled" ? pmR.value.count : 0
   const expenses = expR.status === "fulfilled" ? expR.value.expenses : []
   const runway: FinanzasRunwayReport | null = runwayR.status === "fulfilled" ? runwayR.value : null
+
+  // Fix #4: detectar truncación — el forecast se basa en datos incompletos si
+  // el backend tiene más registros que los devueltos.
+  const pagoMovilTruncated = pagoMovilCount > pagoMovils.length
+
   if ([pmR, expR, runwayR].some((r) => r.status === "rejected" && r.reason instanceof MedusaError && r.reason.status === 401)) {
     errorMsg = "Sesión expirada. Recarga la página."
   }
@@ -55,6 +61,22 @@ export default async function ForecastPage() {
       {errorMsg && (
         <div className="stamp-card p-4 bg-primary/5" style={{ borderColor: "#BB3B2E" }}>
           <p className="text-[13px] font-medium text-primary">{errorMsg}</p>
+        </div>
+      )}
+
+      {/* Fix #4: aviso de truncación — el forecast usa datos parciales */}
+      {pagoMovilTruncated && (
+        <div className="stamp-card p-4 bg-orange/5 flex items-start gap-3" style={{ borderColor: "#FF3B27" }}>
+          <AlertTriangle size={16} className="text-orange flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+          <div>
+            <p className="font-display font-bold text-[12px] uppercase tracking-wider text-orange">
+              Forecast basado en datos parciales
+            </p>
+            <p className="text-[11px] text-ink-2 mt-1 font-mono">
+              Solo se cargaron {pagoMovils.length} de {pagoMovilCount} pedidos. Las proyecciones de revenue
+              y margen pueden estar subestimadas.
+            </p>
+          </div>
         </div>
       )}
 

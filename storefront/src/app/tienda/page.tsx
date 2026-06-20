@@ -19,6 +19,7 @@ export default async function TiendaPage({ searchParams }: Props) {
       products={products}
       categories={categories}
       selectedCategoryId={category ?? null}
+      activeQuery={q ?? null}
     />
   );
 }

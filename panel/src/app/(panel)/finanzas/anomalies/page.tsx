@@ -14,7 +14,14 @@ export default async function AnomaliesPage() {
 
   let errorMsg: string | null = null
   const pagoMovils = pmR.status === "fulfilled" ? pmR.value.pago_movils : []
+  const pagoMovilCount = pmR.status === "fulfilled" ? pmR.value.count : 0
   const expenses = expR.status === "fulfilled" ? expR.value.expenses : []
+
+  // Fix #4: detectar truncación — las anomalías se detectan sobre el histórico
+  // filtrado localmente; si hay más pedidos que los devueltos, algunas tendencias
+  // pueden no detectarse correctamente.
+  const pagoMovilTruncated = pagoMovilCount > pagoMovils.length
+
   if ([pmR, expR].some((r) => r.status === "rejected" && r.reason instanceof MedusaError && r.reason.status === 401)) {
     errorMsg = "Sesión expirada. Recarga la página."
   }
@@ -58,6 +65,22 @@ export default async function AnomaliesPage() {
       {errorMsg && (
         <div className="stamp-card p-4 bg-primary/5" style={{ borderColor: "#BB3B2E" }}>
           <p className="text-[13px] font-medium text-primary">{errorMsg}</p>
+        </div>
+      )}
+
+      {/* Fix #4: aviso de truncación — detección de anomalías puede estar incompleta */}
+      {pagoMovilTruncated && (
+        <div className="stamp-card p-4 bg-orange/5 flex items-start gap-3" style={{ borderColor: "#FF3B27" }}>
+          <AlertTriangle size={16} className="text-orange flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+          <div>
+            <p className="font-display font-bold text-[12px] uppercase tracking-wider text-orange">
+              Análisis de anomalías basado en datos parciales
+            </p>
+            <p className="text-[11px] text-ink-2 mt-1 font-mono">
+              Se cargaron {pagoMovils.length} de {pagoMovilCount} pedidos totales. Tendencias y revenue
+              histórico pueden estar incompletos — algunas anomalías pueden no detectarse.
+            </p>
+          </div>
         </div>
       )}
 

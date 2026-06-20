@@ -92,13 +92,15 @@ export default async function FiresPage({ searchParams }: { searchParams: Promis
             return <FilterChip key={s} label={`${m.label} (${n})`} active={params.status === s} href={buildHref(params, { status: s })} />
           })}
           <span className="flex-1" />
-          <select defaultValue={params.hours ?? "168"} className="px-2 py-1 bg-cream rounded-md text-[10px] font-display font-bold uppercase tracking-wider"
-            style={{ border: "1.5px solid var(--border)" }}>
-            <option value="24">24h</option>
-            <option value="72">3 días</option>
-            <option value="168">7 días</option>
-            <option value="720">30 días</option>
-          </select>
+          {/* Hours filter: links controlados (mirrors FilterChip pattern) */}
+          {([["24", "24h"], ["72", "3 días"], ["168", "7 días"], ["720", "30 días"]] as const).map(([val, lbl]) => (
+            <FilterChip
+              key={val}
+              label={lbl}
+              active={(params.hours ?? "168") === val}
+              href={buildHref(params, { hours: val })}
+            />
+          ))}
         </div>
         {params.rule_key && (
           <div className="mt-2 text-[10px] font-mono text-ink-3">
