@@ -77,8 +77,10 @@ export async function bulkCapturePaymentsAction(orderIds: string[]): Promise<Bul
       const { order } = await retrieveOrder(id)
       const collection = order.payment_collections?.[0]
       if (!collection) throw new Error("sin payment collection")
+      // Ya capturado/autorizado → idempotente: contamos como éxito en lugar
+      // de fallar con "ya estaba X" que confunde el conteo de errores.
       if (collection.status === "captured" || collection.status === "authorized") {
-        throw new Error(`ya estaba ${collection.status}`)
+        return  // success: skip
       }
       await markPaymentPaid(collection.id, id)
     }),

@@ -62,8 +62,9 @@ export function SplitsBreakdown({ summary }: { summary: FinanzasSummary }) {
           <Coins size={14} strokeWidth={2.5} />
           <h3 className="font-display font-black text-[14px] uppercase tracking-wider">Desglose · {monthLabel}</h3>
         </div>
+        {/* Fix #5: mostrar EUR y USDT con etiquetas de moneda explícitas */}
         <div className="text-[10px] font-mono text-cream/60">
-          €{totalEur.toFixed(2)} · ${totalUsdt.toFixed(2)} repartidos · {summary.totals.orders} ped.
+          {totalEur.toFixed(2)} EUR · {totalUsdt.toFixed(2)} USDT repartidos · {summary.totals.orders} ped.
         </div>
       </div>
 
@@ -133,17 +134,19 @@ export function SplitsBreakdown({ summary }: { summary: FinanzasSummary }) {
       </div>
 
       {/* Bottom summary */}
+      {/* Fix #5: etiquetas hacen explícita la moneda (USDT ≠ EUR) para evitar
+          confusión — el revenue en EUR está arriba, aquí todo es USDT de caja. */}
       <div className="px-5 py-3 bg-cream-2/40 grid grid-cols-3 gap-4 text-[11px]" style={{ borderTop: "1.5px solid var(--border)" }}>
         <div className="flex items-baseline justify-between">
-          <span className="text-ink-3 font-mono">Total revenue mes</span>
+          <span className="text-ink-3 font-mono">≈ USDT repartidos</span>
           <span className="font-display font-bold num">${totalUsdt.toFixed(2)}</span>
         </div>
         <div className="flex items-baseline justify-between">
-          <span className="text-ink-3 font-mono">Gastado del mes</span>
+          <span className="text-ink-3 font-mono">USDT gastados</span>
           <span className="font-display font-bold num text-primary">−${totalSpent.toFixed(2)}</span>
         </div>
         <div className="flex items-baseline justify-between">
-          <span className="text-ink-3 font-mono font-bold">Disponible aún</span>
+          <span className="text-ink-3 font-mono font-bold">USDT disponible</span>
           <span className={`font-display font-black num text-[13px] ${totalRemaining < 0 ? "text-primary" : "text-secondary"}`}>
             ${totalRemaining.toFixed(2)}
           </span>

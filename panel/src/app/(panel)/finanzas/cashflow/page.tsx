@@ -2,22 +2,29 @@ import Link from "next/link"
 import { ArrowLeft, ArrowDown, ArrowUp, AlertTriangle } from "lucide-react"
 import { PageHeader, PageWatermark } from "@/components/layout/PageHeader"
 import { FinanzasNav } from "../FinanzasNav"
-import { listPagoMovil, listFinanzasExpenses, listFinanzasConversions, MedusaError } from "@/lib/medusa"
+import { listPagoMovil, listFinanzasExpenses, listFinanzasConversions, getFinanzasSummary, MedusaError } from "@/lib/medusa"
 import { weeklyFlow, gatewayBreakdown, type WeeklyFlow } from "../_lib"
 import { fmtEur } from "@/lib/utils"
 
 export default async function CashflowPage() {
-  const [pmR, expR, convR] = await Promise.allSettled([
+  // Determinar mes actual para el summary all-time aggregate
+  const now = new Date()
+  const currentMonth = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`
+
+  const [pmR, expR, convR, summaryR] = await Promise.allSettled([
     listPagoMovil({ limit: 1000 }),
     listFinanzasExpenses({ limit: 500 }),
     listFinanzasConversions({ limit: 200 }),
+    // Fix #1: usamos el aggregate del backend para la reconciliación, no la lista truncada
+    getFinanzasSummary(currentMonth),
   ])
 
   let errorMsg: string | null = null
   const pagoMovils = pmR.status === "fulfilled" ? pmR.value.pago_movils : []
   const expenses = expR.status === "fulfilled" ? expR.value.expenses : []
   const conversions = convR.status === "fulfilled" ? convR.value.conversions : []
-  if ([pmR, expR, convR].some((r) => r.status === "rejected" && r.reason instanceof MedusaError && r.reason.status === 401)) {
+  const summary = summaryR.status === "fulfilled" ? summaryR.value : null
+  if ([pmR, expR, convR, summaryR].some((r) => r.status === "rejected" && r.reason instanceof MedusaError && r.reason.status === 401)) {
     errorMsg = "Sesión expirada. Recarga la página."
   }
 
@@ -29,16 +36,22 @@ export default async function CashflowPage() {
   // Gateway breakdown
   const gateways = gatewayBreakdown(pagoMovils, conversions)
 
-  // Reconciliación de Bs
-  const totalBs = pagoMovils.reduce((s, p) => s + (Number(p.amount_bs_total) || 0), 0)
-  const totalBsConverted = pagoMovils.reduce((s, p) => s + (Number(p.bs_converted_total) || 0), 0)
-  const totalBsPending = pagoMovils.reduce((s, p) => s + (Number(p.bs_pending) || 0), 0)
+  // Fix #1: Reconciliación de Bs — usar totales del backend (all-time) cuando disponibles,
+  // no la suma de la lista truncada a 1000 filas.
+  const totalBs = summary
+    ? summary.totals.revenue_bs
+    : pagoMovils.reduce((s, p) => s + (Number(p.amount_bs_total) || 0), 0)
+  const totalBsPending = summary
+    ? summary.totals.bs_pending
+    : pagoMovils.reduce((s, p) => s + (Number(p.bs_pending) || 0), 0)
+  const totalBsConverted = totalBs - totalBsPending
   const conversionPct = totalBs > 0 ? (totalBsConverted / totalBs) * 100 : 0
 
-  // Pendientes de reconciliar (>30 días sin convertir)
-  const now = Date.now()
+  // Pendientes de reconciliar (>30 días sin convertir) — sigue usando la lista local
+  // (solo para mostrar el detalle por fila; el % de reconciliación ya viene del backend)
+  const nowMs = Date.now()
   const oldPending = pagoMovils.filter((p) => {
-    return Number(p.bs_pending) > 0 && (now - new Date(p.created_at).getTime()) > 30 * 86400 * 1000
+    return Number(p.bs_pending) > 0 && (nowMs - new Date(p.created_at).getTime()) > 30 * 86400 * 1000
   })
 
   return (
@@ -179,7 +192,7 @@ export default async function CashflowPage() {
             </thead>
             <tbody>
               {oldPending.slice(0, 20).map((p) => {
-                const days = Math.floor((now - new Date(p.created_at).getTime()) / (86400 * 1000))
+                const days = Math.floor((nowMs - new Date(p.created_at).getTime()) / (86400 * 1000))
                 return (
                   <tr key={p.id} className="row-zebra row-hover border-b border-warm-200/50 last:border-b-0">
                     <td className="px-3 py-2">

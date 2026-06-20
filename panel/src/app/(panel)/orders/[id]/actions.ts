@@ -197,8 +197,10 @@ export async function refundOrderAction(
 
 /**
  * Marca un fulfillment como enviado, registrando los tracking labels.
- * Si labels está vacío, igual marca el shipment (Medusa lo permite,
- * útil para envíos físicos sin tracking, ej. mensajero local).
+ * Se requiere número de tracking no vacío para evitar que un pedido
+ * quede marcado como enviado sin información de rastreo para el cliente.
+ * Si el envío genuinamente no tiene tracking (mensajero local, etc.),
+ * pasa trackingNumber="SIN-TRACKING" y la nota queda en el label.
  */
 export async function addTrackingAction(args: {
   orderId: string
@@ -207,12 +209,17 @@ export async function addTrackingAction(args: {
   trackingUrl?: string
 }): Promise<ActionResult> {
   try {
-    const labels = args.trackingNumber.trim()
-      ? [{
-          tracking_number: args.trackingNumber.trim(),
-          tracking_url: args.trackingUrl?.trim() || undefined,
-        }]
-      : []
+    const trackingNumber = args.trackingNumber.trim()
+    if (!trackingNumber) {
+      return {
+        ok: false,
+        error: "Número de tracking requerido. Si no hay tracking, usa 'SIN-TRACKING' como valor.",
+      }
+    }
+    const labels = [{
+      tracking_number: trackingNumber,
+      tracking_url: args.trackingUrl?.trim() || undefined,
+    }]
     await shipFulfillment({
       orderId: args.orderId,
       fulfillmentId: args.fulfillmentId,
@@ -422,6 +429,13 @@ export interface OrderNote {
  * Las notas viven en `order.metadata.notes` como array de objetos. Cada
  * actualización lee → mergea → escribe el array completo (Medusa metadata
  * es un blob JSON, no soporta JSON-patch).
+ *
+ * RIESGO RESIDUAL: hay una ventana de race read-modify-write inherente al
+ * modelo de Medusa (metadata es un blob opaco, no existe JSON-patch ni
+ * OCC). Mitigación: re-leemos el order justo antes del write para minimizar
+ * la ventana. Con tráfico normal (operadores humanos) es suficiente. Si en
+ * el futuro el volumen de notas concurrentes sube, migrar a una entidad
+ * dedicada o usar un mutex externo (Redis SETNX).
  */
 export async function addOrderNoteAction(orderId: string, text: string): Promise<ActionResult> {
   try {
@@ -430,19 +444,24 @@ export async function addOrderNoteAction(orderId: string, text: string): Promise
     const session = await getSession()
     const author = session?.email ?? "anónimo"
 
-    const { order } = await retrieveOrder(orderId)
-    const existing: OrderNote[] = Array.isArray(order.metadata?.notes)
-      ? (order.metadata!.notes as OrderNote[])
-      : []
     const note: OrderNote = {
       id: `note_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
       text: trimmed,
       author,
       created_at: new Date().toISOString(),
     }
+
+    // Re-leemos inmediatamente antes del write para minimizar la ventana de
+    // race (last-write-wins). Otro agente que escriba entre este retrieve y
+    // el updateOrder de abajo todavía puede sobrescribir, pero la probabilidad
+    // se reduce al mínimo práctico sin un mecanismo de locking externo.
+    const { order: freshOrder } = await retrieveOrder(orderId)
+    const existing: OrderNote[] = Array.isArray(freshOrder.metadata?.notes)
+      ? (freshOrder.metadata!.notes as OrderNote[])
+      : []
     const next = [...existing, note]
     await updateOrder(orderId, {
-      metadata: { ...(order.metadata ?? {}), notes: next },
+      metadata: { ...(freshOrder.metadata ?? {}), notes: next },
     })
     revalidatePath(`/orders/${orderId}`)
     return { ok: true }

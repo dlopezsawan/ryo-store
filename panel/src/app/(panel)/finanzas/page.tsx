@@ -33,16 +33,33 @@ export default async function FinanzasPage({ searchParams }: { searchParams: Pro
   //  2. Si no, intentar el mes actual; si está vacío, fallback al último con data
   let monthToShow: string | undefined = params.month
   if (!monthToShow) {
-    // Intentar mes actual primero
+    // Fix #7: en lugar de probar de forma secuencial (hasta 13 awaits en cadena),
+    // lanzamos mes actual + los 3 meses anteriores en paralelo y elegimos el
+    // más reciente con orders > 0. Si ninguno tiene órdenes seguimos con el mes
+    // actual como fallback (comportamiento anterior conservado).
     const now = new Date()
     const currentMonth = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`
-    const probe = await getFinanzasSummary(currentMonth).catch(() => null)
-    if (probe && probe.totals.orders > 0) {
-      monthToShow = currentMonth
+
+    // Generar los candidatos: mes actual + 3 meses atrás (4 probes en paralelo)
+    const LOOK_BACK = 3
+    const candidates = Array.from({ length: LOOK_BACK + 1 }, (_, i) => {
+      const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1))
+      return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`
+    })
+
+    const probeResults = await Promise.all(
+      candidates.map((m) => getFinanzasSummary(m).catch(() => null))
+    )
+
+    // Elegir el más reciente (menor índice) con orders > 0
+    const firstHit = probeResults.findIndex((r) => r && r.totals.orders > 0)
+    if (firstHit !== -1) {
+      monthToShow = candidates[firstHit]
     } else {
-      // Buscar hacia atrás hasta encontrar un mes con orders > 0 (max 12 meses)
-      for (let i = 1; i <= 12; i++) {
-        const d = new Date(now.getUTCFullYear(), now.getUTCMonth() - i, 1)
+      // Si los 4 primeros no tienen órdenes, intentar meses adicionales
+      // de forma secuencial (casos extremos — base de datos nueva o vacía)
+      for (let i = LOOK_BACK + 1; i <= 12; i++) {
+        const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1))
         const candidate = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`
         const probe2 = await getFinanzasSummary(candidate).catch(() => null)
         if (probe2 && probe2.totals.orders > 0) {

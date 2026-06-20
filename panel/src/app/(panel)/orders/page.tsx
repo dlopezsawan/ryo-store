@@ -17,6 +17,7 @@ interface SearchParams {
   date_from?: string
   date_to?: string
   payment_status?: string
+  fulfillment_status?: string
 }
 
 const PAGE_SIZE = 20
@@ -42,6 +43,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   const offset = (page - 1) * PAGE_SIZE
   const status = params.status === "all" || !params.status ? undefined : [params.status]
   const payment_status = params.payment_status === "all" || !params.payment_status ? undefined : [params.payment_status]
+  const fulfillment_status = params.fulfillment_status === "all" || !params.fulfillment_status ? undefined : [params.fulfillment_status]
   const q = params.q?.trim() || undefined
   const date_from = params.date_from?.trim() || undefined
   const date_to = params.date_to?.trim() || undefined
@@ -57,19 +59,17 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
 
   try {
     const res = await listOrders({
-      limit: PAGE_SIZE, offset, q, status, payment_status,
+      limit: PAGE_SIZE, offset, q, status, payment_status, fulfillment_status,
       created_at_gte, created_at_lte,
     })
     orders = res.orders
     totalCount = res.count
-    if (!status && !q && !payment_status && !date_from && !date_to) {
-      total30dRevenue = orders.reduce((s, o) => s + (Number(o.total) || 0), 0)
-    } else {
-      const since = new Date()
-      since.setDate(since.getDate() - 30)
-      const all = await listOrders({ limit: 200, created_at_gte: since.toISOString() })
-      total30dRevenue = all.orders.reduce((s, o) => s + (Number(o.total) || 0), 0)
-    }
+    // Siempre calculamos el revenue de 30 días de forma independiente a la paginación
+    // para no sumar sólo la primera página (fix: fast-path eliminado)
+    const since = new Date()
+    since.setDate(since.getDate() - 30)
+    const rev30 = await listOrders({ limit: 500, created_at_gte: since.toISOString() })
+    total30dRevenue = rev30.orders.reduce((s, o) => s + (Number(o.total) || 0), 0)
   } catch (e) {
     if (e instanceof MedusaError && e.status === 401) {
       errorMsg = "Sesión expirada. Recarga para volver a iniciar sesión."
@@ -95,11 +95,12 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   if (params.q) exportSp.set("q", params.q)
   if (params.status && params.status !== "all") exportSp.set("status", params.status)
   if (params.payment_status && params.payment_status !== "all") exportSp.set("payment_status", params.payment_status)
+  if (params.fulfillment_status && params.fulfillment_status !== "all") exportSp.set("fulfillment_status", params.fulfillment_status)
   if (params.date_from) exportSp.set("date_from", params.date_from)
   if (params.date_to) exportSp.set("date_to", params.date_to)
   const exportQuery = exportSp.toString()
 
-  const hasAnyFilter = !!(params.q || (params.status && params.status !== "all") || (params.payment_status && params.payment_status !== "all") || params.date_from || params.date_to)
+  const hasAnyFilter = !!(params.q || (params.status && params.status !== "all") || (params.payment_status && params.payment_status !== "all") || (params.fulfillment_status && params.fulfillment_status !== "all") || params.date_from || params.date_to)
 
   return (
     <div className="p-7 space-y-5 relative">
@@ -145,6 +146,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
         {/* Search form + filtros avanzados */}
         <form className="space-y-2 pt-1" method="GET" action="/orders">
           {params.status && <input type="hidden" name="status" value={params.status} />}
+          {params.fulfillment_status && <input type="hidden" name="fulfillment_status" value={params.fulfillment_status} />}
           <div className="flex items-center gap-2">
             <div className="flex-1 relative">
               <Search size={14} strokeWidth={2} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-3" />
@@ -233,6 +235,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
           status={params.status}
           q={params.q}
           payment_status={params.payment_status}
+          fulfillment_status={params.fulfillment_status}
           date_from={params.date_from}
           date_to={params.date_to}
         />
@@ -242,11 +245,11 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
 }
 
 function Pagination({
-  current, total, status, q, payment_status, date_from, date_to,
+  current, total, status, q, payment_status, fulfillment_status, date_from, date_to,
 }: {
   current: number; total: number
   status?: string; q?: string
-  payment_status?: string; date_from?: string; date_to?: string
+  payment_status?: string; fulfillment_status?: string; date_from?: string; date_to?: string
 }) {
   const buildHref = (p: number) => {
     const sp = new URLSearchParams()
@@ -254,6 +257,7 @@ function Pagination({
     if (status) sp.set("status", status)
     if (q) sp.set("q", q)
     if (payment_status) sp.set("payment_status", payment_status)
+    if (fulfillment_status) sp.set("fulfillment_status", fulfillment_status)
     if (date_from) sp.set("date_from", date_from)
     if (date_to) sp.set("date_to", date_to)
     const s = sp.toString()

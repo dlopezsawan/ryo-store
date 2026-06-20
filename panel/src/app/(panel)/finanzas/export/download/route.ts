@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { listPagoMovil, listFinanzasExpenses, listFinanzasConversions, MedusaError } from "@/lib/medusa"
+import { listPagoMovil, listFinanzasExpenses, listFinanzasConversions, listFinanzasExpenseCategories, MedusaError } from "@/lib/medusa"
 import { getSession } from "@/lib/auth"
 
 /**
@@ -37,14 +37,23 @@ export async function GET(req: Request) {
   }
 
   try {
-    const [pmR, expR, convR] = await Promise.allSettled([
+    const [pmR, expR, convR, catR] = await Promise.allSettled([
       listPagoMovil({ limit: 1000 }),
       listFinanzasExpenses({ limit: 500 }),
       listFinanzasConversions({ limit: 200 }),
+      // Fix #6: cargar categorías para mapear category_id → name en el CSV
+      listFinanzasExpenseCategories(),
     ])
     const pagoMovils = pmR.status === "fulfilled" ? pmR.value.pago_movils.filter((p) => inMonth(p.created_at)) : []
     const expenses = expR.status === "fulfilled" ? expR.value.expenses.filter((e) => inMonth(e.expense_date)) : []
     const conversions = convR.status === "fulfilled" ? convR.value.conversions.filter((c) => inMonth(c.converted_at)) : []
+    // Fix #6: mapa UUID → nombre de categoría
+    const categoryMap: Record<string, string> = {}
+    if (catR.status === "fulfilled") {
+      for (const cat of catR.value.categories) {
+        categoryMap[cat.id] = cat.name
+      }
+    }
 
     if (format === "json") {
       const payload: Record<string, unknown> = {}
@@ -100,10 +109,14 @@ export async function GET(req: Request) {
       lines.push("# EGRESOS (Gastos)")
       lines.push(row("Fecha", "Descripción", "Categoría", "USDT", "Bs", "Estado", "Notas"))
       for (const e of expenses) {
+        // Fix #6: exportar nombre de categoría en lugar del UUID
+        const categoryName = (e.category_id && categoryMap[e.category_id])
+          ? categoryMap[e.category_id]
+          : (e.category_id ?? "")
         lines.push(row(
           fmtDate(e.expense_date),
           e.description,
-          e.category_id ?? "",
+          categoryName,
           fmt(Number(e.amount_usdt) || 0),
           fmt(Number(e.amount_bs ?? 0) || 0),
           e.status,

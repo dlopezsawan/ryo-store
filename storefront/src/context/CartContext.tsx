@@ -29,6 +29,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // Internal error state: tracks the last cart-mutation error for debugging.
+  // Not yet surfaced in UI — a toast layer can read this when one is wired up.
+  const [_cartError, setCartError] = useState<string | null>(null);
 
   const openDrawer = useCallback(() => setDrawerOpen(true), []);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
@@ -66,15 +69,41 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const updateQuantity = useCallback(async (lineItemId: string, quantity: number) => {
     const id = cartApi.getCartId();
     if (!id || !cart) return;
-    const updated = await cartApi.updateLineItem(id, lineItemId, quantity);
-    if (updated) setCart(updated);
+    try {
+      const updated = await cartApi.updateLineItem(id, lineItemId, quantity);
+      if (updated) {
+        setCart(updated);
+        setCartError(null);
+      } else {
+        const msg = `updateQuantity: no se recibió carrito actualizado (lineItem=${lineItemId}, qty=${quantity})`;
+        console.error("[CartContext]", msg);
+        setCartError(msg);
+      }
+    } catch (err) {
+      const msg = `updateQuantity falló: ${String(err)}`;
+      console.error("[CartContext]", msg);
+      setCartError(msg);
+    }
   }, [cart]);
 
   const removeItem = useCallback(async (lineItemId: string) => {
     const id = cartApi.getCartId();
     if (!id) return;
-    const updated = await cartApi.removeLineItem(id, lineItemId);
-    if (updated) setCart(updated);
+    try {
+      const updated = await cartApi.removeLineItem(id, lineItemId);
+      if (updated) {
+        setCart(updated);
+        setCartError(null);
+      } else {
+        const msg = `removeItem: no se recibió carrito actualizado (lineItem=${lineItemId})`;
+        console.error("[CartContext]", msg);
+        setCartError(msg);
+      }
+    } catch (err) {
+      const msg = `removeItem falló: ${String(err)}`;
+      console.error("[CartContext]", msg);
+      setCartError(msg);
+    }
   }, []);
 
   return (

@@ -9,23 +9,38 @@ import type {
 
 // ─── Date helpers ────────────────────────────────────────────────────
 
+/**
+ * Fix #3: Todas las operaciones de bucketing mensual usan UTC para que los
+ * pedidos de fin de mes no caigan en el mes incorrecto cuando el servidor
+ * corre en un timezone distinto de UTC (ej: Europe/Vilnius en el VPS de
+ * Hostinger Lithuania).
+ */
 export function monthKey(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`
 }
 
 export function startOfMonth(d: Date): Date {
-  const x = new Date(d.getFullYear(), d.getMonth(), 1)
-  x.setHours(0, 0, 0, 0)
-  return x
+  // Devuelve el primer ms del mes en UTC
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1))
 }
 
 export function lastNMonths(n: number, ref: Date = new Date()): Date[] {
   const out: Date[] = []
   for (let i = n - 1; i >= 0; i--) {
-    out.push(new Date(ref.getFullYear(), ref.getMonth() - i, 1))
+    // Fix #3: construimos en UTC para no depender del locale del servidor
+    out.push(new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth() - i, 1)))
   }
   return out
 }
+
+// Fix #2: Factor de conversión USDT → EUR.
+// USDT≈USD, y USD/EUR flota típicamente 0.90–0.96. Usamos 0.93 como
+// aproximación razonable para el contexto venezolano donde la operación es
+// pequeña; el error relativo es <3% vs la paridad 1:1 que antes generaba
+// un sesgo del 8-12%.
+// TODO: sustituir por la tasa real del BCV cuando esté disponible como campo
+// en FinanzasSummary o como endpoint /finanzas/rates.
+export const USDT_TO_EUR_RATE = 0.93
 
 // ─── Aggregations ────────────────────────────────────────────────────
 
@@ -46,7 +61,8 @@ export function aggregateByMonth(
   months: Date[],
 ): MonthlyAgg[] {
   return months.map((m) => {
-    const next = new Date(m.getFullYear(), m.getMonth() + 1, 1)
+    // Fix #3: bucket boundaries en UTC — next month start también en UTC
+    const next = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1))
     const inMonth = (date: string) => {
       const t = new Date(date).getTime()
       return t >= m.getTime() && t < next.getTime()
@@ -58,15 +74,20 @@ export function aggregateByMonth(
     const revenue = monthPM.reduce((s, p) => s + (Number(p.amount_eur_total) || 0), 0)
     const cogs    = monthPM.reduce((s, p) => s + (Number(p.amount_eur_cogs)  || 0), 0)
     const margin  = monthPM.reduce((s, p) => s + (Number(p.amount_eur_margin) || 0), 0)
-    // Expenses están en USDT ≈ USD ≈ EUR para simplificar (asumimos paridad rough);
-    // si quisiéramos exacto deberíamos tener tasa USDT/EUR del momento. Para
-    // operación venezolana esto es aceptable.
-    const expensesEur = monthExp.reduce((s, e) => s + (Number(e.amount_usdt) || 0), 0)
+    // Fix #2: Expenses están en USDT. Aplicamos factor USDT→EUR en lugar de
+    // asumir paridad 1:1 (que producía un sesgo del 8-12% en el net margin).
+    const expensesEur = monthExp.reduce((s, e) => s + (Number(e.amount_usdt) || 0), 0) * USDT_TO_EUR_RATE
     const net = margin - expensesEur
+
+    // Fix #3: label derivado de UTC para que coincida con el monthKey
+    const label = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth(), 1))
+      .toLocaleDateString("es-VE", { month: "short", timeZone: "UTC" })
+      .toUpperCase()
+      .replace(/\.$/, "")
 
     return {
       month: monthKey(m),
-      label: m.toLocaleDateString("es-VE", { month: "short" }).toUpperCase().replace(/\.$/, ""),
+      label,
       revenue,
       cogs,
       margin,

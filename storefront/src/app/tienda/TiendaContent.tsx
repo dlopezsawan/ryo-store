@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { trackCategoryViewed, trackFilterApplied } from "@/lib/posthog";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -139,13 +140,13 @@ function FilterPanel({
             className="px-2 py-0.5 bg-dark text-cream text-[10px] font-black tabular-nums border-2 border-dark"
             style={{ boxShadow: "2px 2px 0 0 var(--orange)" }}
           >
-            ${effectiveMin}
+            €{effectiveMin}
           </span>
           <span
             className="px-2 py-0.5 bg-dark text-cream text-[10px] font-black tabular-nums border-2 border-dark"
             style={{ boxShadow: "2px 2px 0 0 var(--orange)" }}
           >
-            ${effectiveMax}
+            €{effectiveMax}
           </span>
         </div>
 
@@ -206,11 +207,14 @@ export default function TiendaContent({
   products,
   categories,
   selectedCategoryId,
+  activeQuery,
 }: {
   products: Product[];
   categories: ProductCategoryItem[];
   selectedCategoryId: string | null;
+  activeQuery?: string | null;
 }) {
+  const router = useRouter();
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
   const [selectedMaterial, setSelectedMaterial] = useState<string>("all");
   const [sortBy, setSortBy] = useState<SortOption>("relevance");
@@ -297,6 +301,7 @@ export default function TiendaContent({
   }, [products, priceRange, selectedMaterial, priceBounds, sortBy]);
 
   const hasActiveFilters =
+    !!activeQuery ||
     selectedMaterial !== "all" ||
     (priceRange[0] > 0 && priceRange[0] > priceBounds.min) ||
     (priceRange[1] > 0 && priceRange[1] < priceBounds.max);
@@ -304,6 +309,10 @@ export default function TiendaContent({
   function handleClear() {
     setPriceRange([0, 0]);
     setSelectedMaterial("all");
+    // If there's an active search query, navigate back to /tienda to drop it
+    if (activeQuery) {
+      router.push("/tienda");
+    }
   }
 
   const filterPanelProps = {
@@ -410,6 +419,26 @@ export default function TiendaContent({
                 <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="var(--dark)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </div>
             </div>
+
+            {/* Active search query chip */}
+            {activeQuery && (
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs text-muted font-bold uppercase tracking-widest">Búsqueda:</span>
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-dark text-cream text-[11px] font-black uppercase tracking-widest border-2 border-dark"
+                  style={{ boxShadow: "2px 2px 0 0 var(--orange)" }}
+                >
+                  {activeQuery}
+                  <button
+                    onClick={handleClear}
+                    aria-label="Limpiar búsqueda"
+                    className="ml-0.5 hover:text-orange transition-colors"
+                  >
+                    <X size={11} strokeWidth={3} />
+                  </button>
+                </span>
+              </div>
+            )}
 
             {/* Product grid */}
             {filtered.length === 0 ? (

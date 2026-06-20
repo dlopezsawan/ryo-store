@@ -42,11 +42,18 @@ export async function medusaRegister(
   const { token } = await authRes.json();
 
   // Step 2: create customer profile
-  await fetch(`${BACKEND_URL}/store/customers`, {
+  // If this call fails the auth identity exists but has no customer record,
+  // which causes medusaGetMe to always return null and makes login impossible.
+  const profileRes = await fetch(`${BACKEND_URL}/store/customers`, {
     method: "POST",
     headers: medusaHeaders(token),
     body: JSON.stringify({ email, first_name: firstName, last_name: lastName, ...(phone ? { phone } : {}) }),
   });
+  if (!profileRes.ok) {
+    const err = await profileRes.json().catch(() => ({}));
+    console.error("[medusaRegister] profile create failed:", profileRes.status, JSON.stringify(err));
+    throw new Error(err?.message || "Error al crear el perfil de cliente");
+  }
 
   return token as string;
 }

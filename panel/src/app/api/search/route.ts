@@ -23,6 +23,16 @@ export async function GET(req: Request) {
       listCustomers({ q, limit: 5 }),
     ])
 
+    // Si cualquiera de los queries rechazó con 401, la sesión expiró →
+    // devolvemos 401 para que el cliente redirija al login.
+    const allResults = [oRes, pRes, cRes]
+    const first401 = allResults.find(
+      (r) => r.status === "rejected" && r.reason instanceof MedusaError && r.reason.status === 401
+    )
+    if (first401) {
+      return NextResponse.json({ error: "session_expired" }, { status: 401 })
+    }
+
     return NextResponse.json({
       orders: oRes.status === "fulfilled"
         ? oRes.value.orders.map((o) => ({

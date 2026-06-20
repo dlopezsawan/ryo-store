@@ -2,7 +2,7 @@ import Link from "next/link"
 import { PageHeader, PageWatermark } from "@/components/layout/PageHeader"
 import { Store, Globe2, Network, KeyRound, Users, Megaphone, Tag, Map, Wrench, Percent, CreditCard, ChevronRight } from "lucide-react"
 import { getSession } from "@/lib/auth"
-import { getMaintenanceStatus, MedusaError } from "@/lib/medusa"
+import { getMaintenanceStatus } from "@/lib/medusa"
 import { MaintenanceToggle } from "./MaintenanceToggle"
 
 interface SettingCard {
@@ -40,7 +40,10 @@ export default async function SettingsPage() {
     maintenanceEnabled = m.enabled
     maintenanceMessage = m.message ?? null
   } catch (e) {
-    if (!(e instanceof MedusaError)) maintenanceError = true
+    // Cualquier excepción (incluido MedusaError 401/404/500) indica que no
+    // podemos confirmar el estado → mostramos error en lugar de un falso verde.
+    maintenanceError = true
+    console.error("[settings] getMaintenanceStatus failed:", e instanceof Error ? e.message : e)
   }
 
   const buildVersion = process.env.NEXT_PUBLIC_BUILD_VERSION ?? "v1.0"
@@ -103,12 +106,14 @@ export default async function SettingsPage() {
         <div className="grid grid-cols-4 gap-4 relative">
           <StatusBlock
             label="Status sistema"
-            value={maintenanceEnabled ? (
+            value={maintenanceError ? (
+              <><span className="w-2 h-2 bg-orange rounded-full streak inline-block mr-2" />DESCONOCIDO</>
+            ) : maintenanceEnabled ? (
               <><span className="w-2 h-2 bg-primary rounded-full streak inline-block mr-2" />MANTENIMIENTO</>
             ) : (
               <><span className="w-2 h-2 bg-secondary rounded-full streak inline-block mr-2" />OPERATIVO</>
             )}
-            sub={maintenanceEnabled ? "tienda offline" : "tienda online"}
+            sub={maintenanceError ? "no se pudo verificar" : maintenanceEnabled ? "tienda offline" : "tienda online"}
           />
           <StatusBlock
             label="Versión panel"

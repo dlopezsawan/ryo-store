@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowLeft, TrendingUp, TrendingDown } from "lucide-react"
+import { ArrowLeft, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react"
 import { PageHeader, PageWatermark } from "@/components/layout/PageHeader"
 import { FinanzasNav } from "../FinanzasNav"
 import { listPagoMovil, listFinanzasExpenses, MedusaError } from "@/lib/medusa"
@@ -19,7 +19,12 @@ export default async function PLPage({ searchParams }: { searchParams: Promise<{
 
   let errorMsg: string | null = null
   const pagoMovils = pmR.status === "fulfilled" ? pmR.value.pago_movils : []
+  const pagoMovilCount = pmR.status === "fulfilled" ? pmR.value.count : 0
   const expenses = expR.status === "fulfilled" ? expR.value.expenses : []
+
+  // Fix #4: detectar truncación — si el backend tiene más registros que los devueltos
+  // los totales del P&L estarán incompletos.
+  const pagoMovilTruncated = pagoMovilCount > pagoMovils.length
 
   if ([pmR, expR].some((r) => r.status === "rejected" && r.reason instanceof MedusaError && r.reason.status === 401)) {
     errorMsg = "Sesión expirada. Recarga la página."
@@ -86,6 +91,22 @@ export default async function PLPage({ searchParams }: { searchParams: Promise<{
       {errorMsg && (
         <div className="stamp-card p-4 bg-primary/5" style={{ borderColor: "#BB3B2E" }}>
           <p className="text-[13px] font-medium text-primary">{errorMsg}</p>
+        </div>
+      )}
+
+      {/* Fix #4: Aviso de truncación — los totales pueden estar incompletos */}
+      {pagoMovilTruncated && (
+        <div className="stamp-card p-4 bg-orange/5 flex items-start gap-3" style={{ borderColor: "#FF3B27" }}>
+          <AlertTriangle size={16} className="text-orange flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+          <div>
+            <p className="font-display font-bold text-[12px] uppercase tracking-wider text-orange">
+              Datos parciales — P&amp;L puede estar subestimado
+            </p>
+            <p className="text-[11px] text-ink-2 mt-1 font-mono">
+              La consulta devolvió {pagoMovils.length} de {pagoMovilCount} pedidos totales (límite alcanzado).
+              Los totales de revenue y margen reflejan solo ese subconjunto. Para ver el P&amp;L completo usa el filtro por mes o aumenta el límite del endpoint.
+            </p>
+          </div>
         </div>
       )}
 

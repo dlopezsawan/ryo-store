@@ -31,10 +31,10 @@ export default function QuantityInput({
       aria-label={ariaLabel}
       onFocus={(e) => e.target.select()}
       onChange={(e) => {
+        // Only update local draft; onCommit fires on blur/Enter to avoid
+        // intermediate-value commits (e.g. typing "24" used to fire onCommit(2) first)
         const raw = e.target.value.replace(/[^0-9]/g, "");
         setDraft(raw);
-        const n = parseInt(raw, 10);
-        if (!Number.isNaN(n) && n >= min && n <= max && n !== value) onCommit(n);
       }}
       onBlur={() => {
         const n = parseInt(draft, 10);

@@ -16,6 +16,15 @@ const headers = () => ({
 const EXCLUDED_TAGS = new Set(["combo", "featured"]);
 
 export async function GET(request: NextRequest) {
+  // Guard: without a publishable key the backend will reject every request;
+  // return empty suggestions silently rather than letting all requests fail.
+  if (!PUBLISHABLE_KEY) {
+    console.warn(
+      "[search/suggestions] NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY is not set — returning empty suggestions."
+    );
+    return NextResponse.json({ products: [], keywords: [] });
+  }
+
   const q = request.nextUrl.searchParams.get("q")?.trim().toLowerCase() ?? "";
   if (!q) {
     return NextResponse.json({ products: [], keywords: [] });
