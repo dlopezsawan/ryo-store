@@ -168,6 +168,12 @@ services:
       RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY}
       BCV_EUR_RATE: ${BCV_EUR_RATE:-510.49}
       RESEND_API_KEY: ${RESEND_API_KEY}
+      # Verificación de cédula (MRW). Credenciales solo desde el .env del VPS —
+      # ya no hardcodeadas en el código. Si faltan, el route degrada a
+      # service_unavailable (no crashea).
+      CEDULA_API_APP_ID: ${CEDULA_API_APP_ID}
+      CEDULA_API_TOKEN: ${CEDULA_API_TOKEN}
+      STOREFRONT_INTERNAL_SECRET: ${STOREFRONT_INTERNAL_SECRET}
       PEDIDOS_EMAIL: ${PEDIDOS_EMAIL:-pedidos@enrola.shop}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}

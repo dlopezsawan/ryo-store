@@ -35,10 +35,10 @@ export interface DeliveryQuote {
 }
 
 // ── Pin de la tienda ────────────────────────────────────────────────────
-// Default: Valencia centro. ⚠️ AJUSTAR al pin real del local de Enrola
-// (o setear NEXT_PUBLIC_STORE_LAT / NEXT_PUBLIC_STORE_LNG en el build).
-const STORE_LAT = Number(process.env.NEXT_PUBLIC_STORE_LAT) || 10.1620;
-const STORE_LNG = Number(process.env.NEXT_PUBLIC_STORE_LNG) || -68.0077;
+// Default: CC Las Chimeneas, Valencia (origen de los deliveries de Enrola).
+// Override opcional vía NEXT_PUBLIC_STORE_LAT / NEXT_PUBLIC_STORE_LNG en build.
+const STORE_LAT = Number(process.env.NEXT_PUBLIC_STORE_LAT) || 10.2020523;
+const STORE_LNG = Number(process.env.NEXT_PUBLIC_STORE_LNG) || -68.0001945;
 export const STORE_COORDS: Coords = { lat: STORE_LAT, lng: STORE_LNG };
 
 // ── Constantes de tarifa (EUR) ──────────────────────────────────────────
