@@ -11,7 +11,7 @@ import ComboTierBanner from "@/components/combo/ComboTierBanner";
 import UpsellSection from "@/components/cart/UpsellSection";
 import QuantityInput from "@/components/form/QuantityInput";
 import { applyComboDiscount } from "@/lib/combo-tiers";
-import { trackCartViewed, trackProductRemovedFromCart } from "@/lib/posthog";
+import { trackCartViewed, trackProductRemovedFromCart, trackCartAbandoned } from "@/lib/posthog";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "";
 const FREE_SHIPPING_THRESHOLD = 10;
@@ -47,6 +47,24 @@ export default function CartDrawer() {
     return () => { document.body.style.overflow = ""; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawerOpen]);
+
+  // cart_abandoned: la señal de remarketing más valiosa (carrito con items
+  // que se deja). Disparamos UNA vez cuando la pestaña se oculta con el
+  // carrito no vacío (cierre/cambio de tab). Antes no existía ningún hook.
+  const abandonFired = useRef(false);
+  useEffect(() => {
+    const onHidden = () => {
+      if (document.visibilityState !== "hidden") return;
+      if (abandonFired.current) return;
+      const count = cart?.item_count ?? 0;
+      if (count <= 0) return;
+      abandonFired.current = true;
+      trackCartAbandoned({ item_count: count, subtotal: cart?.subtotal ?? 0 });
+    };
+    document.addEventListener("visibilitychange", onHidden);
+    return () => document.removeEventListener("visibilitychange", onHidden);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart?.item_count, cart?.subtotal]);
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {

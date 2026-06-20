@@ -62,23 +62,34 @@ export function getCartId(): string | null {
 }
 
 export async function getOrCreateCartId(): Promise<string | null> {
-  let id = getCartId();
+  const id = getCartId();
   if (id) {
-    const ok = await verifyCart(id);
-    if (ok) return id;
-    if (typeof window !== "undefined") localStorage.removeItem(CART_ID_KEY);
+    const status = await verifyCart(id);
+    if (status === "ok") return id;
+    // Solo borramos el cart cuando el backend confirma que NO existe (404/410).
+    // Ante un error de red o 5xx (deploy, cold start) PRESERVAMOS el cart —
+    // borrarlo vaciaba el carrito del cliente durante caídas transitorias.
+    if (status === "not_found") {
+      if (typeof window !== "undefined") localStorage.removeItem(CART_ID_KEY);
+    } else {
+      // "error": mantener el cart actual y reintentar luego.
+      return id;
+    }
   }
   const regionId = await getRegionId();
   if (!regionId) return null;
   return createCart(regionId);
 }
 
-async function verifyCart(cartId: string): Promise<boolean> {
+/** "ok" = existe · "not_found" = el backend dice 404/410 · "error" = red/5xx (incierto). */
+async function verifyCart(cartId: string): Promise<"ok" | "not_found" | "error"> {
   try {
     const res = await fetch(`${API}?cartId=${encodeURIComponent(cartId)}`);
-    return res.ok;
+    if (res.ok) return "ok";
+    if (res.status === 404 || res.status === 410) return "not_found";
+    return "error";
   } catch {
-    return false;
+    return "error";
   }
 }
 

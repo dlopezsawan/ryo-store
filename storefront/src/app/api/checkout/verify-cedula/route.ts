@@ -21,8 +21,11 @@
 import { NextRequest, NextResponse } from "next/server"
 
 const API_URL = "https://api.cedula.com.ve/api/v1"
-const APP_ID = process.env.CEDULA_API_APP_ID || "2120"
-const TOKEN = process.env.CEDULA_API_TOKEN || "c7cbea6bffe53d0b97debef1fb691e20"
+// Credenciales SOLO desde env — no hardcodear (cualquiera con read access
+// consumía la cuota de la cuenta del dueño). Si faltan, la ruta degrada a
+// service_unavailable (ver guard en el handler).
+const APP_ID = process.env.CEDULA_API_APP_ID || ""
+const TOKEN = process.env.CEDULA_API_TOKEN || ""
 const TIMEOUT_MS = 9000
 
 // Local cache fallback — when the primary API is rate-limited or down, we hit
@@ -127,6 +130,17 @@ export async function GET(req: NextRequest) {
   }
   if (nacionalidad !== "V" && nacionalidad !== "E") {
     return NextResponse.json({ valid: null, reason: "not_supported" })
+  }
+
+  // Sin credenciales configuradas: no llamar al upstream. Intentar cache y,
+  // si no hay, degradar a service_unavailable (la UI no muestra nada).
+  if (!APP_ID || !TOKEN) {
+    console.warn("[verify-cedula] CEDULA_API_APP_ID/TOKEN no configurados — usando solo cache")
+    const cached = await fetchFromCache(cedulaRaw)
+    if (cached) {
+      return NextResponse.json({ valid: true, name: cached.name, place: cached.place, source: "cache" })
+    }
+    return NextResponse.json({ valid: null, reason: "service_unavailable" })
   }
 
   // Primary path is rate-limit gated. If exhausted, skip directly to cache.

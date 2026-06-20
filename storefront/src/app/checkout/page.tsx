@@ -8,10 +8,12 @@ import { useCart } from "@/context/CartContext";
 import { centsToDisplay } from "@/lib/price";
 import { formatPrice } from "@/lib/format";
 import * as cartApi from "@/lib/cart";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, X, Star, UserPlus, MapPin, Plus, Gift } from "lucide-react";
 import AddressAutocomplete from "@/components/address/AddressAutocomplete";
+import DeliveryLocationPicker from "@/components/address/DeliveryLocationPicker";
+import { computeFee, quoteByDistance, FREE_MIN_EUR, type DeliveryQuote } from "@/lib/delivery";
 import WhatsAppPhoneInput from "@/components/form/WhatsAppPhoneInput";
 import { useSession } from "next-auth/react";
 import ComboTierBanner from "@/components/combo/ComboTierBanner";
@@ -23,6 +25,7 @@ import {
   trackCheckoutStep,
   trackOrderPlaced,
   trackPaymentProofUploaded,
+  trackPaymentMethodSelected,
   trackCouponApplied,
   trackCouponFailed,
   identifyCustomer,
@@ -167,6 +170,9 @@ export default function CheckoutPage() {
   const [province, setProvince] = useState("");
   const [mapsUrl, setMapsUrl] = useState("");
   const [addressCoords, setAddressCoords] = useState<{ lat: number; lng: number } | null>(null);
+  // Municipio detectado por reverse-geocode (Valencia / San Diego / …).
+  // Necesario para la tarifa de delivery por km y la exclusión de San Diego.
+  const [addressMunicipality, setAddressMunicipality] = useState("");
   // Acepta entrega mañana cuando el cliente marca inmediato después
   // de las 21:15 hora Venezuela. Sin esta aceptación bloqueamos el
   // submit — ver handleSubmit.
@@ -210,6 +216,20 @@ export default function CheckoutPage() {
   const [proofPreview, setProofPreview] = useState<string | null>(null);
   const [wrongRegion, setWrongRegion] = useState<boolean | null>(null);
   const [bcvRate, setBcvRate] = useState<number | null>(null);
+
+  // Tarifa de delivery por distancia (solo "inmediato"). Gratis si el
+  // subtotal ≥ €10 EXCEPTO San Diego (siempre cobra por km). Desacoplado
+  // del pago: solo alimenta el total mostrado + la metadata de la orden,
+  // igual que en Vovo — no toca payment-collection ni pago_movil.
+  const deliveryQuote: DeliveryQuote | null = useMemo(() => {
+    if (shippingType !== "inmediato") return null;
+    return computeFee({
+      coords: addressCoords,
+      municipality: addressMunicipality,
+      cartTotal: cart?.subtotal ?? 0,
+    });
+  }, [shippingType, addressCoords, addressMunicipality, cart?.subtotal]);
+
   const formLoadTime = useRef<number>(Date.now());
   const [honeypot, setHoneypot] = useState("");
   const [subscribeNewsletter, setSubscribeNewsletter] = useState(true);
@@ -468,6 +488,10 @@ export default function CheckoutPage() {
     }
     setError(null);
     setProofFile(f);
+    // payment_method_selected: pago_movil es el único método hoy; lo marcamos
+    // al subir el comprobante (señal fuerte de elección de método) para que el
+    // funnel tenga el paso de selección de pago.
+    trackPaymentMethodSelected({ method: "pago_movil", total: cart?.subtotal });
     trackPaymentProofUploaded({ method: "pago_movil", file_size_kb: Math.round(f.size / 1024) });
     const reader = new FileReader();
     reader.onload = () => setProofPreview(reader.result as string);
@@ -660,20 +684,17 @@ export default function CheckoutPage() {
         }
       }
 
-      // Inmediato shipping has 2 underlying Medusa shipping_options:
-      //   - "Inmediato (Valencia) - $3"  (amount: 3) → used when subtotal < €10
-      //   - "Inmediato (Valencia) - Gratis" (amount: 0) → used when subtotal ≥ €10
-      // The storefront already swaps between them via selectShippingOption(), so
-      // order_summary.shipping_total ends up as 0 or 3 correctly. We track the
-      // "free shipping rule applied" event here as metadata so Telegram + the
-      // finance dashboard can surface "ahorro de €3 por la promoción" instead
-      // of showing a plain €0 with no context.
-      const FREE_SHIPPING_THRESHOLD_EUR = 10;
-      const FULL_SHIPPING_PRICE_EUR = 3;
-      const isInmediatoFree =
-        shippingType === "inmediato" && cart.subtotal >= FREE_SHIPPING_THRESHOLD_EUR;
+      // Inmediato shipping ahora cobra por DISTANCIA (delivery por km),
+      // calculado client-side en `deliveryQuote` (lib/delivery). Reglas:
+      //   - Valencia  → tarifa por km; GRATIS si subtotal ≥ €10.
+      //   - San Diego → EXCLUIDO del envío gratis; siempre cobra por km.
+      // El fee va al total mostrado + a la metadata (igual que Vovo); el
+      // operador reconcilia el pago_movil contra ese total. NO toca el
+      // pipeline de pago. La metadata alimenta Telegram + finanzas.
+      const FREE_SHIPPING_THRESHOLD_EUR = FREE_MIN_EUR;
+      const isInmediatoFree = shippingType === "inmediato" && (deliveryQuote?.free ?? false);
       const shippingCost =
-        shippingType === "inmediato" && cart.subtotal < FREE_SHIPPING_THRESHOLD_EUR ? FULL_SHIPPING_PRICE_EUR : 0;
+        shippingType === "inmediato" ? Number(deliveryQuote?.fee ?? 0) : 0;
 
       // For MRW orders: try to find the closest MRW office to the customer's
       // address so the team in Telegram sees a clickable pin (with agency name
@@ -706,6 +727,13 @@ export default function CheckoutPage() {
               delivery_lat: addressCoords.lat,
               delivery_lng: addressCoords.lng,
               delivery_maps_url: `https://www.google.com/maps?q=${addressCoords.lat},${addressCoords.lng}`,
+              // Delivery por km: fee + zona + municipio para que el operador
+              // cobre el monto correcto y finanzas lo concilie.
+              delivery_fee: Number(deliveryQuote?.fee ?? 0),
+              delivery_zone: deliveryQuote?.zone ?? "unknown",
+              delivery_municipality: addressMunicipality || "",
+              delivery_road_km: deliveryQuote?.roadKm ?? null,
+              delivery_label: deliveryQuote?.label ?? "",
             }
           : {};
 
@@ -739,12 +767,15 @@ export default function CheckoutPage() {
             ...inmediatoLocationMeta,
             ...scheduledMeta,
             ...mrwIdMeta,
-            // Free-shipping promo flags — surfaced by the bot + finance module
+            // Free-shipping promo flags — surfaced by the bot + finance module.
+            // savings = la tarifa por km que se habría cobrado de no superar
+            // el umbral (ahorro real del cliente).
             ...(isInmediatoFree
               ? {
                   free_shipping_applied: true,
                   free_shipping_threshold_eur: FREE_SHIPPING_THRESHOLD_EUR,
-                  free_shipping_savings_eur: FULL_SHIPPING_PRICE_EUR,
+                  free_shipping_savings_eur:
+                    addressCoords ? quoteByDistance(addressCoords).feeEur : 0,
                 }
               : {}),
             ...(selectedRewards.length > 0 ? {
@@ -871,13 +902,16 @@ export default function CheckoutPage() {
             phone: phone?.trim() || undefined,
           });
         }
+        // Orden del funnel: el step "completed" va ANTES de order_placed
+        // para que los funnels de orden estricto (started → step → placed)
+        // no se rompan por timestamps invertidos.
+        trackCheckoutStep({ step: "completed", item_count: cart?.item_count, subtotal: cart?.subtotal });
         trackOrderPlaced({
           order_id: order.id,
           total: order.total ?? cart?.subtotal ?? 0,
           items: cart?.item_count ?? 0,
           payment_method: "pago_movil",
         });
-        trackCheckoutStep({ step: "completed", item_count: cart?.item_count, subtotal: cart?.subtotal });
         if (emailToUse) {
           fetch("/api/checkout/send-confirmation", {
             method: "POST",
@@ -1174,27 +1208,44 @@ export default function CheckoutPage() {
                     </span>
                   )}
                 </label>
-                <AddressAutocomplete
-                  value={address1}
-                  onChange={setAddress1}
-                  onSelect={(components) => {
-                    setAddress1(components.address_1);
-                    if (components.city) setCity(components.city);
-                    if (components.province) setProvince(components.province);
-                    if (components.country_code) setCountryCode(components.country_code.toUpperCase());
-                    if (components.maps_url) setMapsUrl(components.maps_url);
-                    if (
-                      typeof components.lat === "number" &&
-                      typeof components.lng === "number"
-                    ) {
-                      setAddressCoords({ lat: components.lat, lng: components.lng });
-                    } else {
-                      setAddressCoords(null);
-                    }
-                  }}
-                  required
-                  placeholder="Empieza a escribir tu dirección..."
-                />
+                {shippingType === "inmediato" ? (
+                  /* Mapa Leaflet + autocomplete + GPS (sin Google key).
+                     Setea coords + municipio → habilita la tarifa por km y
+                     la exclusión de San Diego del envío gratis. */
+                  <DeliveryLocationPicker
+                    onUpdate={(loc) => {
+                      setAddress1(loc.shortAddr || loc.address || address1);
+                      if (loc.city) setCity(loc.city);
+                      if (loc.state) setProvince(loc.state);
+                      setCountryCode("VE");
+                      setMapsUrl(loc.mapsUrl);
+                      setAddressCoords({ lat: loc.lat, lng: loc.lng });
+                      setAddressMunicipality(loc.municipality);
+                    }}
+                  />
+                ) : (
+                  <AddressAutocomplete
+                    value={address1}
+                    onChange={setAddress1}
+                    onSelect={(components) => {
+                      setAddress1(components.address_1);
+                      if (components.city) setCity(components.city);
+                      if (components.province) setProvince(components.province);
+                      if (components.country_code) setCountryCode(components.country_code.toUpperCase());
+                      if (components.maps_url) setMapsUrl(components.maps_url);
+                      if (
+                        typeof components.lat === "number" &&
+                        typeof components.lng === "number"
+                      ) {
+                        setAddressCoords({ lat: components.lat, lng: components.lng });
+                      } else {
+                        setAddressCoords(null);
+                      }
+                    }}
+                    required
+                    placeholder="Empieza a escribir tu dirección..."
+                  />
+                )}
                 {/* Inmediato Valencia — ubicación obligatoria. Banner
                     rojo cuando falta, verde cuando ya tenemos coords.
                     El cliente tiene dos formas de cumplir: tipear la
@@ -1220,6 +1271,11 @@ export default function CheckoutPage() {
                         >
                           Ver pin
                         </a>
+                        {deliveryQuote && (
+                          <span className="block mt-1 font-bold normal-case">
+                            🛵 Delivery: {deliveryQuote.label}
+                          </span>
+                        )}
                       </>
                     ) : (
                       <>
@@ -1744,25 +1800,42 @@ export default function CheckoutPage() {
                     </>
                   );
                 })()}
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted font-medium uppercase">
-                    Envío
-                    {shippingType === "inmediato" &&
-                      (cart.subtotal >= 10 ? " (gratis)" : " (+$3)")}
-                    {shippingType === "mrw" && " (cobro a destino)"}
-                  </span>
-                  <span className="font-bold">
-                    {shippingType === "inmediato"
-                      ? cart.subtotal >= 10
-                        ? "$0.00"
-                        : "$3.00"
-                      : "—"}
-                  </span>
-                </div>
+                {(() => {
+                  // Delivery por km (inmediato). Para MRW el envío se cobra a
+                  // destino. Si aún no hay ubicación, mostramos "por calcular".
+                  const deliveryFee =
+                    shippingType === "inmediato" ? Number(deliveryQuote?.fee ?? 0) : 0;
+                  const envioText =
+                    shippingType === "mrw"
+                      ? "—"
+                      : !addressCoords
+                        ? "por calcular"
+                        : deliveryQuote?.free
+                          ? "€0.00"
+                          : `€${deliveryFee.toFixed(2)}`;
+                  const envioNote =
+                    shippingType === "mrw"
+                      ? " (cobro a destino)"
+                      : deliveryQuote?.free
+                        ? " (gratis)"
+                        : deliveryQuote?.zone === "san_diego"
+                          ? " (San Diego · por km)"
+                          : " (por km)";
+                  return (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted font-medium uppercase">
+                        Envío
+                        {shippingType === "inmediato" && envioNote}
+                        {shippingType === "mrw" && envioNote}
+                      </span>
+                      <span className="font-bold">{envioText}</span>
+                    </div>
+                  );
+                })()}
                 {(() => {
                   const combo = applyComboDiscount(cart.subtotal, cart.item_count, cart.items.map(i => ({ quantity: i.quantity, unit_price: centsToDisplay(i.unit_price), variant_id: i.variant_id })));
                   const base = combo.activeTier ? combo.discountedTotal : cart.subtotal;
-                  const shipping = shippingType === "inmediato" && cart.subtotal < 10 ? 3 : 0;
+                  const shipping = shippingType === "inmediato" ? Number(deliveryQuote?.fee ?? 0) : 0;
                   return (
                     <div className="flex justify-between text-lg font-black pt-2 border-t border-dark/10">
                       <span className="uppercase">Total</span>
@@ -1775,13 +1848,14 @@ export default function CheckoutPage() {
                 {bcvRate && (() => {
                   const combo = applyComboDiscount(cart.subtotal, cart.item_count, cart.items.map(i => ({ quantity: i.quantity, unit_price: centsToDisplay(i.unit_price), variant_id: i.variant_id })));
                   const base = combo.activeTier ? combo.discountedTotal : cart.subtotal;
-                  const totalUsd = base + (shippingType === "inmediato" && cart.subtotal < 10 ? 3 : 0);
-                  const totalBs = totalUsd * bcvRate;
+                  const shipping = shippingType === "inmediato" ? Number(deliveryQuote?.fee ?? 0) : 0;
+                  const totalEur = base + shipping;
+                  const totalBs = totalEur * bcvRate;
                   return (
                     <div className="pt-3 mt-2 border-t border-dark/10">
                       <p className="text-xs text-muted mb-1">Equivalente en bolívares (tasa EUR alcamb.io)</p>
                       <p className="text-base font-bold text-dark">
-                        €{totalUsd.toFixed(2)} EUR &asymp;{" "}
+                        €{totalEur.toFixed(2)} EUR &asymp;{" "}
                         {totalBs.toLocaleString("es-VE", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
@@ -1813,7 +1887,14 @@ export default function CheckoutPage() {
               </label>
               <button
                 type="submit"
-                disabled={submitting || !proofFile || wrongRegion === true || !acceptedTos}
+                disabled={
+                  submitting ||
+                  !proofFile ||
+                  wrongRegion === true ||
+                  !acceptedTos ||
+                  !fullCart?.region_id ||
+                  (shippingType === "inmediato" && !addressCoords)
+                }
                 className="block w-full text-center bg-orange text-white py-4 font-black text-sm uppercase tracking-widest border-2 border-dark retro-shadow hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitting ? "Procesando..." : "CONFIRMAR PEDIDO"}

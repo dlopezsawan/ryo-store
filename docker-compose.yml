@@ -135,6 +135,15 @@ services:
         - NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
         - RESEND_API_KEY=${RESEND_API_KEY:-build_placeholder}
         - NEXT_PUBLIC_GOOGLE_ENABLED=${NEXT_PUBLIC_GOOGLE_ENABLED:-false}
+        # PostHog: las vars NEXT_PUBLIC_* se inlinean en BUILD. Sin esto el
+        # snippet nunca se inyecta y los 21 eventos hacen no-op (analytics
+        # apagado en prod). Setear NEXT_PUBLIC_POSTHOG_KEY en el .env del VPS.
+        - NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY}
+        - NEXT_PUBLIC_POSTHOG_HOST=${NEXT_PUBLIC_POSTHOG_HOST:-https://us.i.posthog.com}
+        # Pin del local (delivery por km). Opcional: si no se setea usa el default de lib/delivery.
+        - NEXT_PUBLIC_STORE_LAT=${NEXT_PUBLIC_STORE_LAT:-}
+        - NEXT_PUBLIC_STORE_LNG=${NEXT_PUBLIC_STORE_LNG:-}
+        - NEXT_PUBLIC_FREE_SHIPPING_EUR=${NEXT_PUBLIC_FREE_SHIPPING_EUR:-10}
     restart: unless-stopped
     depends_on:
       - medusa
@@ -151,6 +160,8 @@ services:
       NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY}
       NEXT_PUBLIC_STORE_NAME: RYO Store
       NEXT_PUBLIC_STORE_URL: https://enrola.shop
+      NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY}
+      NEXT_PUBLIC_POSTHOG_HOST: ${NEXT_PUBLIC_POSTHOG_HOST:-https://us.i.posthog.com}
       NEXT_PUBLIC_PRICE_DIVISOR: ${NEXT_PUBLIC_PRICE_DIVISOR:-1}
       CONTACT_EMAIL: ${CONTACT_EMAIL:-hola@enrola.shop}
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}

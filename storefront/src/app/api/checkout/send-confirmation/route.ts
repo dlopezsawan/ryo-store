@@ -128,12 +128,20 @@ export async function POST(request: NextRequest) {
       redeemedRewards
     );
 
-    await sendMail({
-      from: FROM_PEDIDOS,
-      to: to.trim(),
-      subject: `Pedido ${displayId} recibido — ${STORE_NAME}`,
-      html: customerHtml,
-    });
+    // El email al cliente va en su PROPIO try/catch: si Resend falla (key
+    // vacía, dominio no verificado, rate limit) NO debe abortar la ruta y
+    // saltarse la notificación interna + la alerta Telegram al warehouse.
+    // El pedido ya está creado en Medusa; lo crítico es que el equipo se entere.
+    try {
+      await sendMail({
+        from: FROM_PEDIDOS,
+        to: to.trim(),
+        subject: `Pedido ${displayId} recibido — ${STORE_NAME}`,
+        html: customerHtml,
+      });
+    } catch (err) {
+      console.error("[send-confirmation] customer email failed (continuing):", err);
+    }
 
     // ── 2. Internal notification to pedidos@ via Resend ──────────────────────
     try {

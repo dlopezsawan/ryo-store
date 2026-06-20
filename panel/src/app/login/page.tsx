@@ -9,7 +9,10 @@ function LoginForm() {
   const router = useRouter()
   const params = useSearchParams()
   const reason = params.get("reason")
-  const from = params.get("from") || "/dashboard"
+  // Sanitizar `from` contra open-redirect: solo rutas internas. `//evil.com`
+  // o `https://evil.com` redirigirían al operador fuera del sitio (phishing).
+  const fromRaw = params.get("from") || "/dashboard"
+  const from = fromRaw.startsWith("/") && !fromRaw.startsWith("//") ? fromRaw : "/dashboard"
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
