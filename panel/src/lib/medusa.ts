@@ -250,7 +250,7 @@ export async function listOrders(args?: {
       "created_at[gte]": args?.created_at_gte,
       "created_at[lte]": args?.created_at_lte,
       order: args?.order ?? "-created_at",
-      fields: args?.fields ?? "id,display_id,email,status,payment_status,fulfillment_status,total,subtotal,discount_total,currency_code,created_at,metadata,*customer,*shipping_address,*items,*items.variant,*items.variant.product",
+      fields: args?.fields ?? "id,display_id,email,status,payment_status,fulfillment_status,total,subtotal,discount_total,currency_code,created_at,updated_at,metadata,*customer,*shipping_address,*items,*items.variant,*items.variant.product",
     },
   })
 }
