@@ -136,7 +136,7 @@ export async function generateMetadata({
     image: product.image,
     price: product.price,
     currency: "EUR",
-    availability: true,
+    availability: product.inStock,
     category: product.category,
   });
 }
@@ -196,7 +196,7 @@ export default async function ProductPage({ params }: Props) {
           images: [product.image],
           price: product.price,
           currency: "EUR",
-          inStock: true,
+          inStock: baseProduct.inStock,
           category: product.category,
           // ratingValue/reviewCount removidos hasta tener reseñas reales verificables
         }}
@@ -263,7 +263,7 @@ export default async function ProductPage({ params }: Props) {
             )}
 
             {/* Actions — quantity + add to cart FIRST */}
-            {productWithVariant && (
+            {productWithVariant && baseProduct.inStock ? (
               <ProductActions
                 variantId={productWithVariant.variantId}
                 variants={productWithVariant.variants}
@@ -272,7 +272,13 @@ export default async function ProductPage({ params }: Props) {
                 productPrice={product.price}
                 category={baseProduct.category}
               />
-            )}
+            ) : productWithVariant ? (
+              <div className="py-4 px-4 border-2 border-dark bg-cream text-center">
+                <span className="font-black text-sm uppercase tracking-widest text-dark/60">
+                  Agotado — Sin stock disponible
+                </span>
+              </div>
+            ) : null}
 
             {/* Wholesale */}
             {productWithVariant && (
@@ -338,8 +344,8 @@ export default async function ProductPage({ params }: Props) {
 
       <Footer />
 
-      {/* Mobile sticky buy bar */}
-      {productWithVariant && (
+      {/* Mobile sticky buy bar — only shown when in stock */}
+      {productWithVariant && baseProduct.inStock && (
         <StickyBuyBar
           productName={product.name}
           price={product.price}

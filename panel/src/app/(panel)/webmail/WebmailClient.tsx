@@ -23,10 +23,14 @@ import {
   Paperclip, X, ArrowLeft, Star, MailOpen, ChevronDown,
 } from "lucide-react"
 import type {
-  WebmailAccount, WebmailFolder, WebmailMessageSummary, WebmailMessageDetail,
+  WebmailAccount, WebmailFolder, WebmailMessageSummary, WebmailMessageDetail as WebmailMessageDetailBase,
 } from "@/lib/webmail"
 import { fmtRelative } from "@/lib/utils"
 import { DangerConfirm } from "@/components/ui/DangerConfirm"
+
+/** Extends the base type with the RFC-2822 Message-ID header, which the IMAP
+ *  endpoint already returns but wasn't typed here. Used for In-Reply-To threading. */
+type WebmailMessageDetail = WebmailMessageDetailBase & { message_id?: string | null }
 
 interface AccountState {
   email: string
@@ -68,7 +72,7 @@ export function WebmailClient({ initialAccounts }: { initialAccounts: WebmailAcc
   const [loadingMessage, setLoadingMessage] = useState(false)
 
   const [composing, setComposing] = useState(false)
-  const [reply, setReply] = useState<{ to: string; subject: string; inReplyTo?: string } | null>(null)
+  const [reply, setReply] = useState<{ to: string; subject: string; inReplyTo?: string; references?: string } | null>(null)
 
   const [search, setSearch] = useState("")
   const [trashUid, setTrashUid] = useState<number | null>(null)
@@ -367,6 +371,8 @@ export function WebmailClient({ initialAccounts }: { initialAccounts: WebmailAcc
                     setReply({
                       to: openMessage.from,
                       subject: openMessage.subject.startsWith("Re:") ? openMessage.subject : `Re: ${openMessage.subject}`,
+                      inReplyTo: openMessage.message_id ?? undefined,
+                      references: openMessage.message_id ?? undefined,
                     })
                     setComposing(true)
                   }}
@@ -523,7 +529,7 @@ function ComposePane({
 }: {
   fromEmail: string
   token: string
-  reply?: { to: string; subject: string; inReplyTo?: string }
+  reply?: { to: string; subject: string; inReplyTo?: string; references?: string }
   onClose: () => void
   onSent: () => void
 }) {
@@ -545,6 +551,7 @@ function ComposePane({
             subject,
             html: body.replace(/\n/g, "<br>"),
             inReplyTo: reply?.inReplyTo,
+            references: reply?.references,
           }),
         })
         const j = await r.json()

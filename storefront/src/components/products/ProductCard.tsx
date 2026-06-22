@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingBag, Check, Loader2 } from "lucide-react";
+import { ShoppingBag, Check, Loader2, AlertTriangle } from "lucide-react";
 import { formatPrice } from "@/lib/format";
 import { useCart } from "@/context/CartContext";
 
@@ -32,6 +32,7 @@ export default function ProductCard({
   const { addItem } = useCart();
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -39,19 +40,34 @@ export default function ProductCard({
     if (adding || added) return;
 
     setAdding(true);
+    setFailed(false);
     try {
       const res = await fetch(`/api/product-variant?handle=${encodeURIComponent(slug)}`);
-      if (!res.ok) { setAdding(false); return; }
+      if (!res.ok) {
+        setFailed(true);
+        setTimeout(() => setFailed(false), 3000);
+        setAdding(false);
+        return;
+      }
       const data = await res.json();
       const variantId = data.variantId;
-      if (!variantId) { setAdding(false); return; }
+      if (!variantId) {
+        setFailed(true);
+        setTimeout(() => setFailed(false), 3000);
+        setAdding(false);
+        return;
+      }
       const { ok } = await addItem(variantId, 1);
       if (ok) {
         setAdded(true);
         setTimeout(() => setAdded(false), 2000);
+      } else {
+        setFailed(true);
+        setTimeout(() => setFailed(false), 3000);
       }
     } catch {
-      // silently fail
+      setFailed(true);
+      setTimeout(() => setFailed(false), 3000);
     } finally {
       setAdding(false);
     }
@@ -104,14 +120,19 @@ export default function ProductCard({
             className={`flex items-center justify-center gap-1 h-8 px-2.5 border-2 border-dark text-[10px] font-black uppercase tracking-wider transition-all shadow-[2px_2px_0px_0px_#1A1A1A] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#1A1A1A] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex-shrink-0 ${
               added
                 ? "bg-secondary text-white"
-                : "bg-orange text-white"
+                : failed
+                  ? "bg-red-500 text-white"
+                  : "bg-orange text-white"
             }`}
             aria-label="Agregar al carrito"
+            title={failed ? "No se pudo agregar al carrito" : undefined}
           >
             {adding ? (
               <Loader2 size={13} strokeWidth={2.5} className="animate-spin" />
             ) : added ? (
               <Check size={13} strokeWidth={3} />
+            ) : failed ? (
+              <AlertTriangle size={13} strokeWidth={2.5} />
             ) : (
               <ShoppingBag size={13} strokeWidth={2.5} />
             )}

@@ -1262,6 +1262,24 @@ export async function listPaymentProviders() {
   )
 }
 
+export interface AdminFulfillmentProvider {
+  id: string
+  is_enabled?: boolean
+}
+
+/**
+ * Fulfillment providers (NO confundir con payment providers). Las shipping
+ * options de Medusa v2 requieren un `provider_id` de fulfillment; usar un
+ * payment provider acá hace que el backend rechace con 400/422.
+ */
+export async function listFulfillmentProviders() {
+  return medusaFetch<{ fulfillment_providers: AdminFulfillmentProvider[]; count: number }>(
+    "GET",
+    "/fulfillment-providers",
+    { query: { limit: 100 } },
+  )
+}
+
 // ─── Domain types — Products ──────────────────────────────────────────
 
 export interface AdminProduct {
@@ -1933,7 +1951,9 @@ export async function listPagoMovil(args?: { limit?: number; offset?: number; st
 }
 
 export async function listFinanzasExpenses(args?: { limit?: number; status?: string; category_id?: string }) {
-  return medusaFetch<{ expenses: FinanzasExpense[] }>("GET", "/finanzas/expenses", {
+  // `count` es opcional: si el backend lo devuelve, permite detectar truncamiento
+  // (count > expenses.length) para mostrar el banner; si no, queda undefined.
+  return medusaFetch<{ expenses: FinanzasExpense[]; count?: number }>("GET", "/finanzas/expenses", {
     query: { limit: args?.limit ?? 50, status: args?.status, category_id: args?.category_id },
   })
 }

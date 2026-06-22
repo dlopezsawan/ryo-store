@@ -1,7 +1,7 @@
 import { PageHeader, PageWatermark } from "@/components/layout/PageHeader"
 import { Package } from "lucide-react"
 import {
-  listShippingProfiles, listShippingOptions, listStockLocations, listServiceZones, listPaymentProviders, listStores,
+  listShippingProfiles, listShippingOptions, listStockLocations, listServiceZones, listFulfillmentProviders, listStores,
   MedusaError,
   type AdminShippingProfile, type AdminShippingOption,
 } from "@/lib/medusa"
@@ -20,12 +20,12 @@ export default async function ShippingPage() {
       listShippingProfiles(),
       listShippingOptions(),
       listStockLocations().catch(() => ({ stock_locations: [] })),
-      listPaymentProviders().catch(() => ({ payment_providers: [] })),
+      listFulfillmentProviders().catch(() => ({ fulfillment_providers: [] })),
       listStores().catch(() => ({ stores: [] })),
     ])
     profiles = profsRes.shipping_profiles
     options = optsRes.shipping_options
-    providers = provsRes.payment_providers.map((p) => ({ id: p.id }))
+    providers = provsRes.fulfillment_providers.map((p) => ({ id: p.id }))
     const def = storesRes.stores[0]?.supported_currencies?.find((c) => c.is_default)
     defaultCurrency = def?.currency_code ?? storesRes.stores[0]?.default_currency_code ?? "eur"
 
