@@ -445,9 +445,9 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   address_1: shippingAddress?.address_1 ?? "",
                   city: shippingAddress?.city ?? "",
                   province: shippingAddress?.province ?? "",
-                  postal_code: "",
-                  country_code: "",
-                  phone: "",
+                  postal_code: shippingAddress?.postal_code ?? "",
+                  country_code: shippingAddress?.country_code ?? "",
+                  phone: shippingAddress?.phone ?? "",
                 }}
               />
             </div>

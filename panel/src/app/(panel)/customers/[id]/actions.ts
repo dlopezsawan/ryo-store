@@ -55,10 +55,23 @@ export async function addCustomerNoteAction(customerId: string, text: string): P
 
 export async function deleteCustomerNoteAction(customerId: string, noteId: string): Promise<ActionResult> {
   try {
+    const session = await getSession()
+    const currentUser = session?.email ?? null
+
     const { customer } = await retrieveCustomer(customerId)
     const existing: CustomerNote[] = Array.isArray(customer.metadata?.notes)
       ? (customer.metadata!.notes as CustomerNote[])
       : []
+
+    const note = existing.find((n) => n.id === noteId)
+    if (!note) return { ok: false, error: "Nota no encontrada" }
+
+    // Solo el autor original puede borrar su propia nota.
+    // Si la sesión no está disponible aquí, la acción se bloquea por seguridad.
+    if (!currentUser || note.author !== currentUser) {
+      return { ok: false, error: "No tienes permiso para borrar esta nota" }
+    }
+
     await updateCustomer(customerId, {
       metadata: { ...(customer.metadata ?? {}), notes: existing.filter((n) => n.id !== noteId) },
     })

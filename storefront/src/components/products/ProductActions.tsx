@@ -25,7 +25,7 @@ interface Props {
 }
 
 export default function ProductActions({ variantId, variants, productId, productTitle, productPrice, category }: Props) {
-  const { addItem, cart } = useCart();
+  const { addItem, cart, openDrawer } = useCart();
   const [selectedVariantId, setSelectedVariantId] = useState(variantId);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -103,6 +103,7 @@ export default function ProductActions({ variantId, variants, productId, product
     setLoading(false);
     if (ok) {
       setFeedback("success");
+      openDrawer();
       trackAddToCart({
         product_id: productId || "(unknown)",
         variant_id: selectedVariantId,
@@ -110,6 +111,7 @@ export default function ProductActions({ variantId, variants, productId, product
         price: productPrice,
         category,
         quantity,
+        // cart?.item_count is already updated by addItem (context sets new cart)
         cart_size_after: (cart?.item_count ?? 0) + quantity,
       });
       setTimeout(() => setFeedback(null), 2000);

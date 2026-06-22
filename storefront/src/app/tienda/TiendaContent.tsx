@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { trackCategoryViewed, trackFilterApplied } from "@/lib/posthog";
 import Header from "@/components/layout/Header";
@@ -246,14 +246,22 @@ export default function TiendaContent({
     }
   }, [sortBy]);
 
+  // Debounce price_range tracking to avoid flooding PostHog on every slider tick
+  const priceTrackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const trackPriceRange = useCallback((range: [number, number]) => {
+    if (priceTrackTimerRef.current) clearTimeout(priceTrackTimerRef.current);
+    priceTrackTimerRef.current = setTimeout(() => {
+      if (range[0] > 0 || range[1] > 0) {
+        trackFilterApplied({
+          filter_type: "price_range",
+          value: `${range[0]}-${range[1]}`,
+        });
+      }
+    }, 300);
+  }, []);
   useEffect(() => {
-    if (priceRange[0] > 0 || priceRange[1] > 0) {
-      trackFilterApplied({
-        filter_type: "price_range",
-        value: `${priceRange[0]}-${priceRange[1]}`,
-      });
-    }
-  }, [priceRange]);
+    trackPriceRange(priceRange);
+  }, [priceRange, trackPriceRange]);
 
   const materials = useMemo(() => {
     const set = new Set<string>();

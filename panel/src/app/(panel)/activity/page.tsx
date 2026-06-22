@@ -42,6 +42,8 @@ export default async function ActivityPage() {
         tone: "orange",
       })
       if (o.payment_status === "captured") {
+        // Ideal: payment_collections[0].payments[0].captured_at — no disponible en
+        // el listado (requeriría retrieveOrder). Usamos updated_at como mejor aproximación.
         items.push({
           id: `op-${o.id}`,
           ts: o.updated_at ?? o.created_at,
@@ -53,6 +55,8 @@ export default async function ActivityPage() {
         })
       }
       if (o.fulfillment_status === "shipped" || o.fulfillment_status === "fulfilled" || o.fulfillment_status === "delivered") {
+        // Ideal: fulfillments[0].shipped_at — no disponible en el listado.
+        // Usamos updated_at como mejor aproximación al momento del envío.
         items.push({
           id: `os-${o.id}`,
           ts: o.updated_at ?? o.created_at,
