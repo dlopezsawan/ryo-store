@@ -33,7 +33,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: msg }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, cart: data.cart });
+    // Compute discount figures for the coupon_applied PostHog event
+    const cart = data.cart as Record<string, unknown> | undefined;
+    const subtotal = typeof cart?.subtotal === "number" ? cart.subtotal : 0;
+    const discountTotal = typeof cart?.discount_total === "number" ? cart.discount_total : 0;
+    const discount_amount = discountTotal;
+    const discount_pct =
+      subtotal > 0 ? Math.round((discountTotal / subtotal) * 100 * 100) / 100 : 0;
+
+    return NextResponse.json({ success: true, cart: data.cart, discount_amount, discount_pct });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Error al aplicar el descuento";
     return NextResponse.json({ error: msg }, { status: 500 });

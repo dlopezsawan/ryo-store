@@ -290,8 +290,8 @@ function ClubRYOTab({ token }: { token: string }) {
                     {new Date(t.created_at).toLocaleDateString("es-VE", { day: "numeric", month: "short", year: "numeric" })}
                   </p>
                 </div>
-                <span className={`font-black text-base flex-shrink-0 ${t.points > 0 ? "text-green-600" : "text-red-500"}`}>
-                  {t.points > 0 ? "+" : ""}{t.points} pts
+                <span className={`font-black text-base flex-shrink-0 ${(t.points ?? 0) > 0 ? "text-green-600" : "text-red-500"}`}>
+                  {(t.points ?? 0) > 0 ? "+" : ""}{t.points ?? 0} pts
                 </span>
               </div>
             ))}

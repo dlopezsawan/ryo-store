@@ -12,7 +12,7 @@ interface StickyBuyBarProps {
 }
 
 export default function StickyBuyBar({ productName, price, variantId }: StickyBuyBarProps) {
-  const { addItem } = useCart();
+  const { addItem, openDrawer } = useCart();
   const [adding, setAdding] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -22,7 +22,9 @@ export default function StickyBuyBar({ productName, price, variantId }: StickyBu
     setFailed(false);
     const { ok } = await addItem(variantId);
     setAdding(false);
-    if (!ok) {
+    if (ok) {
+      openDrawer();
+    } else {
       setFailed(true);
       setTimeout(() => setFailed(false), 3000);
     }
