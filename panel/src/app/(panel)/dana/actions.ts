@@ -50,7 +50,7 @@ export async function setStatusAction(phone: string, status: "bot_active" | "hum
  * sea idempotente y barata. Si el operador editó el preview, se manda
  * como "human" porque ya no es output puro de Dana.
  */
-export async function sendMessageAction(phone: string, text: string, mode: "human" | "as-dana"): Promise<ActionResult<{ message: string }>> {
+export async function sendMessageAction(phone: string, text: string, mode: "human" | "as-dana" | "as-dana-verbatim"): Promise<ActionResult<{ message: string }>> {
   try {
     const trimmed = text.trim()
     if (!trimmed) return { ok: false, error: "Mensaje vacío" }

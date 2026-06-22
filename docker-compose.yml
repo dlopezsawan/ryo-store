@@ -232,6 +232,10 @@ services:
       # show "no configurado").
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       RESEND_FROM_ADDRESS: ${RESEND_FROM_ADDRESS:-Enrola <hola@enrola.shop>}
+      # DeepSeek — usado por /social/ai-copy (generador de copy). Valor en el
+      # .env del VPS. (Dana usa su propia key guardada en la DB, aparte.)
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-chat}
     depends_on:
       - medusa
     networks:

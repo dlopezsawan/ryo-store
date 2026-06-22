@@ -2,7 +2,7 @@ import Link from "next/link"
 import { PageHeader, PageWatermark } from "@/components/layout/PageHeader"
 import { Mail, ExternalLink } from "lucide-react"
 import {
-  listEmails, listAudiences, isConfigured, defaultFromAddress,
+  listEmails, listAudiences, listContacts, isConfigured, defaultFromAddress,
   ResendError, ResendNotConfigured,
   type ResendEmail, type ResendAudience,
 } from "@/lib/resend"
@@ -43,6 +43,23 @@ export default async function WebmailPage({
       else if (e instanceof ResendNotConfigured) listError = "RESEND_API_KEY no configurado"
       else listError = e instanceof Error ? e.message : "error desconocido"
     }
+  }
+
+  // Conteo de contactos por audiencia (Resend no lo trae en /audiences, hay que
+  // contar /audiences/:id/contacts). Son pocas audiencias → fetch en paralelo.
+  // null = no se pudo obtener (se muestra "—" en vez de un "0" engañoso).
+  const contactCounts: Record<string, number | null> = {}
+  if (configured && audiences.length > 0) {
+    const counts = await Promise.all(
+      audiences.map((a) =>
+        listContacts(a.id)
+          .then((r) => r.data.length)
+          .catch(() => null),
+      ),
+    )
+    audiences.forEach((a, i) => {
+      contactCounts[a.id] = counts[i]
+    })
   }
 
   // Webmail accounts (IMAP buzones del admin)
@@ -148,6 +165,7 @@ export default async function WebmailPage({
         <MarketingPanel
           configured={configured}
           audiences={audiences}
+          contactCounts={contactCounts}
           emails={emails}
           listError={listError}
           defaultFrom={defaultFromAddress()}

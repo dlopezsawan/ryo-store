@@ -3425,7 +3425,7 @@ export async function previewDanaStyle(phone: string, text: string) {
  * `error: "dana_rewrite_unavailable"` — el panel lo cacha y propone
  * al operador mandar como humano o reconfigurar la key.
  */
-export async function sendDanaMessage(phone: string, text: string, mode: "human" | "as-dana") {
+export async function sendDanaMessage(phone: string, text: string, mode: "human" | "as-dana" | "as-dana-verbatim") {
   return medusaFetch<{
     ok: true
     sent: { role: "human" | "assistant"; content: string; message_id: string | null; used_llm: boolean }
