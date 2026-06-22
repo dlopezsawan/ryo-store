@@ -26,7 +26,7 @@ import {
   saveBotMsgId,
 } from "../../../lib/whatsapp-db"
 import { chat, buildGreeting } from "../../../lib/whatsapp-bot"
-import { sendViaReplai } from "../../../lib/replai-sender"
+import { sendViaReplai, resolveReplaiMediaId, downloadReplaiMedia } from "../../../lib/replai-sender"
 
 let tablesReady = false
 const WEBHOOK_SECRET = process.env.REPLAI_WEBHOOK_SECRET || ""
@@ -59,6 +59,60 @@ function verifySignature(rawBody: string, header: string): boolean {
 const GREETING_RE = /^(hola+|hey+|buenas|buenos|saludos|hi+|hello+|qu[ée] tal|ey+|epa|holi+|holis)[\s!¡.¿?❤️🙂🌸👋]*$/i
 // "Quiero hablar con un humano" → handoff (pausa el bot).
 const HUMAN_RE = /\b(humano|persona real|hablar con (alguien|una persona)|atenci[oó]n humana|agente|operador real|no quiero (un )?bot|quiero un humano|gente real)\b/i
+
+/** Transcribe una nota de voz de Replai con Groq Whisper. Devuelve texto o null. */
+async function transcribeReplaiAudio(
+  remoteJid: string,
+  messageId: string,
+  payload: { mediaId?: string; media?: { id?: string } },
+  groqKey: string | null
+): Promise<string | null> {
+  if (!groqKey) {
+    console.warn("[replai-webhook] sin groq_key — no se transcribe el audio")
+    return null
+  }
+  const mediaId =
+    payload.mediaId || payload.media?.id || (await resolveReplaiMediaId(remoteJid, messageId))
+  if (!mediaId) {
+    console.warn("[replai-webhook] no se pudo resolver el mediaId del audio")
+    return null
+  }
+  const media = await downloadReplaiMedia(mediaId)
+  if (!media || media.buffer.length < 100) {
+    console.warn("[replai-webhook] descarga de audio vacía / fallida")
+    return null
+  }
+  try {
+    const mime = media.mimeType.split(";")[0].trim() || "audio/ogg"
+    const ext = mime.includes("ogg")
+      ? "ogg"
+      : mime.includes("m4a") || mime.includes("mp4")
+        ? "m4a"
+        : mime.includes("mpeg") || mime.includes("mp3")
+          ? "mp3"
+          : "ogg"
+    const form = new FormData()
+    form.append("file", new Blob([new Uint8Array(media.buffer)], { type: mime }), `audio.${ext}`)
+    form.append("model", "whisper-large-v3")
+    form.append("language", "es")
+    const r = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${groqKey}` },
+      body: form,
+      signal: AbortSignal.timeout(30000),
+    })
+    if (!r.ok) {
+      console.error("[replai-webhook] Groq Whisper error:", r.status, await r.text().catch(() => ""))
+      return null
+    }
+    const data = (await r.json()) as { text?: string }
+    console.log("[replai-webhook] 🎤 transcrito:", data.text?.slice(0, 80))
+    return (data.text || "").trim() || null
+  } catch (e) {
+    console.error("[replai-webhook] transcripción falló:", e)
+    return null
+  }
+}
 
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
   if (!tablesReady) {
@@ -98,13 +152,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const remoteJid = String(p.remoteJid || "")
   const phone = remoteJid.replace(/@.*/, "").replace(/\D/g, "")
   const messageId = String(p.messageId || "")
-  const text = p.body?.type === "text" ? String(p.body.text || "").trim() : ""
-
-  if (!phone || !text) {
-    return res.status(200).json({ ok: true, skipped: "no_text_or_phone" })
+  const bodyType = p.body?.type || "unknown"
+  if (!phone) {
+    return res.status(200).json({ ok: true, skipped: "no_phone" })
   }
 
-  // Dedup de reintentos (Replai reintenta con backoff sobre la misma entrega).
+  // Dedup de reintentos ANTES de transcribir (no re-procesar la misma entrega).
   if (messageId && (await isBotEcho(messageId))) {
     return res.status(200).json({ ok: true, skipped: "dup" })
   }
@@ -114,8 +167,38 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     return res.status(200).json({ ok: true, skipped: "bot_disabled" })
   }
 
+  // Resolver el texto: directo, o transcribiendo la nota de voz (Groq Whisper).
+  let text = bodyType === "text" ? String(p.body?.text || "").trim() : ""
+  if (!text && bodyType === "audio") {
+    text =
+      (await transcribeReplaiAudio(
+        remoteJid,
+        messageId,
+        p as { mediaId?: string; media?: { id?: string } },
+        await getConfig("groq_key")
+      )) || ""
+  }
+
   try {
     const conversation = await getOrCreateConversation(phone)
+
+    // Sin texto utilizable (audio no transcrito o tipo no soportado: imagen,
+    // ubicación, etc.) → guardar el mensaje y, si el bot está activo, mandar un
+    // fallback amable pidiendo texto. No rompemos el flujo de Dana.
+    if (!text) {
+      await saveMessage(phone, "user", bodyType === "audio" ? "[nota de voz]" : `[${bodyType}]`, messageId)
+      if (conversation.session_status !== "human_active") {
+        const fb =
+          bodyType === "audio"
+            ? "Recibí tu nota de voz 🌸 pero no pude escucharla bien. ¿Me lo escribes porfa?"
+            : "Recibí tu mensaje 🌸 ¿me lo mandas por texto? Así te ayudo mejor."
+        const sent = await sendViaReplai(remoteJid || phone, fb)
+        if (sent && sent !== "sent") await saveBotMsgId(sent)
+        await saveMessage(phone, "assistant", fb, sent || undefined)
+      }
+      return res.status(200).json({ ok: true, action: `fallback_${bodyType}` })
+    }
+
     await saveMessage(phone, "user", text, messageId)
 
     // Operador con control → bot callado.
