@@ -8,12 +8,12 @@ import { useCart } from "@/context/CartContext";
 import { centsToDisplay } from "@/lib/price";
 import { formatPrice } from "@/lib/format";
 import * as cartApi from "@/lib/cart";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, X, Star, UserPlus, MapPin, Plus, Gift } from "lucide-react";
 import AddressAutocomplete from "@/components/address/AddressAutocomplete";
 import DeliveryLocationPicker from "@/components/address/DeliveryLocationPicker";
-import { computeFee, quoteByDistance, FREE_MIN_EUR, type DeliveryQuote } from "@/lib/delivery";
+import { computeFee, quoteByDistance, geocodeAddress, reverseGeocode, FREE_MIN_EUR, type DeliveryQuote } from "@/lib/delivery";
 import WhatsAppPhoneInput from "@/components/form/WhatsAppPhoneInput";
 import { useSession } from "next-auth/react";
 import ComboTierBanner from "@/components/combo/ComboTierBanner";
@@ -214,9 +214,13 @@ export default function CheckoutPage() {
     province?: string;
     phone?: string;
     country_code?: string;
+    // Coords guardadas (cohesión con el mapa Leaflet del checkout).
+    metadata?: { lat?: number; lng?: number; municipality?: string; maps_url?: string } | null;
   };
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  // Seed para re-centrar el mapa del picker al elegir una dirección guardada.
+  const [pickerSeed, setPickerSeed] = useState<{ lat: number; lng: number; key: string } | null>(null);
 
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
@@ -235,6 +239,44 @@ export default function CheckoutPage() {
       cartTotal: cart?.subtotal ?? 0,
     });
   }, [shippingType, addressCoords, addressMunicipality, cart?.subtotal]);
+
+  // Aplica una dirección guardada: rellena los campos Y resuelve coords +
+  // municipio para que el mapa se re-centre y el delivery se calcule de una
+  // (no "por calcular"). Usa las coords guardadas en metadata; si la dirección
+  // es vieja y no las tiene, geocodifica el texto como fallback.
+  const applySavedAddress = useCallback(async (addr: SavedAddress) => {
+    setSelectedAddressId(addr.id);
+    if (addr.first_name) setFirstName(addr.first_name);
+    if (addr.last_name) setLastName(addr.last_name);
+    if (addr.address_1) setAddress1(addr.address_1);
+    setAddress2(addr.address_2 ?? "");
+    if (addr.city) setCity(addr.city);
+    setProvince(addr.province ?? "");
+    if (addr.phone) setPhone(addr.phone);
+
+    const md = addr.metadata || {};
+    if (typeof md.lat === "number" && typeof md.lng === "number") {
+      setAddressCoords({ lat: md.lat, lng: md.lng });
+      setMapsUrl(md.maps_url || `https://www.google.com/maps?q=${md.lat},${md.lng}`);
+      setPickerSeed({ lat: md.lat, lng: md.lng, key: addr.id });
+      if (md.municipality) setAddressMunicipality(md.municipality);
+      else {
+        const rev = await reverseGeocode(md.lat, md.lng);
+        if (rev?.municipality) setAddressMunicipality(rev.municipality);
+      }
+    } else {
+      // Dirección sin coords (legacy): geocodificar el texto para ubicar el pin.
+      const q = [addr.address_1, addr.city, addr.province].filter(Boolean).join(", ");
+      const geo = await geocodeAddress(q);
+      if (geo) {
+        setAddressCoords(geo);
+        setMapsUrl(`https://www.google.com/maps?q=${geo.lat},${geo.lng}`);
+        setPickerSeed({ lat: geo.lat, lng: geo.lng, key: addr.id });
+        const rev = await reverseGeocode(geo.lat, geo.lng);
+        if (rev?.municipality) setAddressMunicipality(rev.municipality);
+      }
+    }
+  }, []);
 
   const formLoadTime = useRef<number>(Date.now());
   const [honeypot, setHoneypot] = useState("");
@@ -481,18 +523,15 @@ export default function CheckoutPage() {
             setCedula(m[2]);
           }
         }
-        // Pre-fill from default/first saved address — always auto-select on load
-        const addrs = c.addresses ?? [];
+        // Pre-fill from default/first saved address — always auto-select on load.
+        // applySavedAddress además resuelve coords (de metadata o geocodificando)
+        // → el mapa se centra y el delivery se calcula sin quedar "por calcular".
+        const addrs = (c.addresses ?? []) as SavedAddress[];
         if (addrs.length > 0) {
           setSavedAddresses(addrs);
-          const a = addrs[0];
-          setSelectedAddressId(a.id);
-          if (a.address_1) setAddress1(a.address_1);
-          if (a.address_2 != null) setAddress2(a.address_2 ?? "");
-          if (a.city) setCity(a.city);
-          if (a.province != null) setProvince(a.province ?? "");
-          // Only use address phone if customer profile has no phone
-          if (!customerPhone && a.phone) setPhone(a.phone);
+          // Solo auto-aplicar si el usuario aún no escribió un teléfono propio,
+          // para no pisar datos que ya venían del perfil.
+          void applySavedAddress(addrs[0]);
         }
       })
       .catch(() => {});
@@ -1135,16 +1174,7 @@ export default function CheckoutPage() {
                         <button
                           key={addr.id}
                           type="button"
-                          onClick={() => {
-                            setSelectedAddressId(addr.id);
-                            if (addr.first_name) setFirstName(addr.first_name);
-                            if (addr.last_name) setLastName(addr.last_name);
-                            if (addr.address_1) setAddress1(addr.address_1);
-                            setAddress2(addr.address_2 ?? "");
-                            if (addr.city) setCity(addr.city);
-                            setProvince(addr.province ?? "");
-                            if (addr.phone) setPhone(addr.phone);
-                          }}
+                          onClick={() => { void applySavedAddress(addr); }}
                           className={`text-left p-2.5 border-2 transition-all flex flex-col gap-1.5 ${
                             isSelected
                               ? "border-orange bg-orange/5 shadow-[3px_3px_0px_0px_var(--orange)]"
@@ -1171,6 +1201,10 @@ export default function CheckoutPage() {
                       onClick={() => {
                         setSelectedAddressId(null);
                         setAddress1(""); setAddress2(""); setCity(""); setProvince("");
+                        // Limpiar coords/municipio → el usuario marcará el punto en el mapa.
+                        setAddressCoords(null);
+                        setAddressMunicipality("");
+                        setPickerSeed(null);
                       }}
                       className={`col-span-2 text-left p-2.5 border-2 transition-all flex items-center gap-2 ${
                         selectedAddressId === null
@@ -1288,6 +1322,7 @@ export default function CheckoutPage() {
                      Setea coords + municipio → habilita la tarifa por km y
                      la exclusión de San Diego del envío gratis. */
                   <DeliveryLocationPicker
+                    seed={pickerSeed}
                     onUpdate={(loc) => {
                       setAddress1(loc.shortAddr || loc.address || address1);
                       if (loc.city) setCity(loc.city);

@@ -9,7 +9,7 @@ import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ReferralSection from "@/components/account/ReferralSection";
-import AddressAutocomplete from "@/components/address/AddressAutocomplete";
+import DeliveryLocationPicker from "@/components/address/DeliveryLocationPicker";
 import WhatsAppPhoneInput from "@/components/form/WhatsAppPhoneInput";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -415,6 +415,8 @@ function MisDatosTab({ token }: { token: string }) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
+  const [nationality, setNationality] = useState<"V" | "E">("V");
+  const [cedula, setCedula] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -429,6 +431,13 @@ function MisDatosTab({ token }: { token: string }) {
           setFirstName(c.first_name ?? "");
           setLastName(c.last_name ?? "");
           setPhone(c.phone ?? "");
+          // Cédula guardada en metadata (formato "V-12345678").
+          const saved = (c.metadata?.cedula as string | undefined) || "";
+          const m = saved.match(/^([VE])-?(\d+)$/i);
+          if (m) {
+            setNationality(m[1].toUpperCase() as "V" | "E");
+            setCedula(m[2]);
+          }
         }
       })
       .catch(() => {})
@@ -440,10 +449,17 @@ function MisDatosTab({ token }: { token: string }) {
     setSaving(true);
     setError("");
     setSuccess(false);
+    const ced = cedula.replace(/\D/g, "");
     const res = await fetch("/api/cuenta/profile", {
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ first_name: firstName.trim(), last_name: lastName.trim(), phone: phone.trim() }),
+      body: JSON.stringify({
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        phone: phone.trim(),
+        // Guardar cédula en metadata → el checkout la auto-rellena.
+        metadata: ced ? { cedula: `${nationality}-${ced}` } : {},
+      }),
     }).catch(() => null);
     if (res?.ok) {
       setSuccess(true);
@@ -475,6 +491,29 @@ function MisDatosTab({ token }: { token: string }) {
         <div>
           <WhatsAppPhoneInput value={phone} onChange={setPhone} required={false} showHelper />
         </div>
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-dark mb-1.5">Cédula</label>
+          <div className="flex gap-2">
+            <select
+              value={nationality}
+              onChange={(e) => setNationality(e.target.value as "V" | "E")}
+              className="vintage-input w-20 flex-shrink-0"
+              aria-label="Nacionalidad"
+            >
+              <option value="V">V</option>
+              <option value="E">E</option>
+            </select>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={cedula}
+              onChange={(e) => setCedula(e.target.value.replace(/\D/g, ""))}
+              placeholder="12345678"
+              className="vintage-input w-full"
+            />
+          </div>
+          <p className="text-[11px] text-dark/50 mt-1">Se usa para tus envíos por MRW y se auto-rellena en el checkout.</p>
+        </div>
 
         {error && <p className="text-red-600 text-sm font-medium bg-red-50 border border-red-200 px-3 py-2">{error}</p>}
 
@@ -504,6 +543,11 @@ function MisDireccionesTab({ token }: { token: string }) {
     first_name: "", last_name: "", address_1: "", address_2: "",
     city: "", province: "", country_code: "VE", phone: "",
   });
+  // Coords del pin en el mapa → se guardan en address.metadata para que el
+  // checkout re-centre el mapa y calcule el delivery al elegir esta dirección.
+  const [coords, setCoords] = useState<
+    { lat: number; lng: number; municipality: string; maps_url: string } | null
+  >(null);
 
   const loadAddresses = () => {
     setLoading(true);
@@ -527,11 +571,15 @@ function MisDireccionesTab({ token }: { token: string }) {
         ...form,
         country_code: form.country_code.toLowerCase(),
         postal_code: "",
+        ...(coords
+          ? { metadata: { lat: coords.lat, lng: coords.lng, municipality: coords.municipality, maps_url: coords.maps_url } }
+          : {}),
       }),
     }).catch(() => null);
     if (res?.ok) {
       setShowForm(false);
       setForm({ first_name: "", last_name: "", address_1: "", address_2: "", city: "", province: "", country_code: "VE", phone: "" });
+      setCoords(null);
       loadAddresses();
     } else {
       const err = await res?.json().catch(() => ({}));
@@ -598,18 +646,25 @@ function MisDireccionesTab({ token }: { token: string }) {
             </div>
           </div>
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-dark mb-1.5">Dirección *</label>
-            <AddressAutocomplete
-              value={form.address_1}
-              onChange={(v) => setField("address_1", v)}
-              onSelect={(components) => {
-                setField("address_1", components.address_1);
-                if (components.city) setField("city", components.city);
-                if (components.province) setField("province", components.province);
-                if (components.country_code) setField("country_code", components.country_code.toLowerCase());
+            <label className="block text-xs font-bold uppercase tracking-wider text-dark mb-1.5">Dirección * <span className="text-dark/40 normal-case font-normal">— marca el punto en el mapa</span></label>
+            {/* Mismo mapa Leaflet que el checkout → guarda coords + municipio en
+                la dirección, para que al elegirla en checkout se calcule el delivery. */}
+            <DeliveryLocationPicker
+              onUpdate={(loc) => {
+                setField("address_1", loc.shortAddr || loc.address || form.address_1);
+                if (loc.city) setField("city", loc.city);
+                if (loc.state) setField("province", loc.state);
+                setField("country_code", "ve");
+                setCoords({ lat: loc.lat, lng: loc.lng, municipality: loc.municipality, maps_url: loc.mapsUrl });
               }}
+            />
+            <input
+              type="text"
               required
-              placeholder="Empieza a escribir tu dirección..."
+              value={form.address_1}
+              onChange={(e) => setField("address_1", e.target.value)}
+              placeholder="Calle / casa / apto (ajusta si hace falta)"
+              className="vintage-input w-full mt-2"
             />
           </div>
           <div>

@@ -32,6 +32,11 @@ export interface DeliveryLocation {
 interface Props {
   onUpdate: (loc: DeliveryLocation) => void;
   className?: string;
+  /**
+   * Punto externo para re-centrar el mapa (p.ej. al elegir una dirección
+   * guardada). Solo dispara cuando cambia `key` → evita loops con onUpdate.
+   */
+  seed?: { lat: number; lng: number; key: string } | null;
 }
 
 const LEAFLET_VER = "1.9.4";
@@ -58,7 +63,7 @@ function loadLeaflet(): Promise<unknown> {
   return leafletPromise;
 }
 
-export default function DeliveryLocationPicker({ onUpdate, className }: Props) {
+export default function DeliveryLocationPicker({ onUpdate, className, seed }: Props) {
   const mapElRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapRef = useRef<any>(null);
@@ -66,6 +71,10 @@ export default function DeliveryLocationPicker({ onUpdate, className }: Props) {
   const markerRef = useRef<any>(null);
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
+  // Último seed aplicado (para no re-aplicarlo) + el pendiente si llega antes
+  // de que el mapa esté listo.
+  const lastSeedKeyRef = useRef<string | null>(null);
+  const pendingSeedRef = useRef<{ lat: number; lng: number } | null>(null);
 
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
@@ -147,6 +156,13 @@ export default function DeliveryLocationPicker({ onUpdate, className }: Props) {
           applyPoint(e.latlng.lat, e.latlng.lng);
         });
         setTimeout(() => map.invalidateSize(), 250);
+        // Si llegó un seed (dirección guardada) antes de que el mapa cargara,
+        // aplicarlo ahora que ya existe el marker.
+        if (pendingSeedRef.current) {
+          const p = pendingSeedRef.current;
+          pendingSeedRef.current = null;
+          applyPoint(p.lat, p.lng, { keepAddress: true });
+        }
       })
       .catch(() => {
         if (!cancelled) setMapError(true);
@@ -160,6 +176,19 @@ export default function DeliveryLocationPicker({ onUpdate, className }: Props) {
       }
     };
   }, [applyPoint]);
+
+  // Re-centra el mapa cuando llega un seed externo (dirección guardada elegida).
+  // Solo actúa al cambiar `seed.key` → no entra en loop con onUpdate.
+  useEffect(() => {
+    if (!seed || seed.key === lastSeedKeyRef.current) return;
+    lastSeedKeyRef.current = seed.key;
+    if (mapRef.current && markerRef.current) {
+      applyPoint(seed.lat, seed.lng, { keepAddress: true });
+    } else {
+      // El mapa aún no carga: aplicarlo en el init effect cuando esté listo.
+      pendingSeedRef.current = { lat: seed.lat, lng: seed.lng };
+    }
+  }, [seed, applyPoint]);
 
   // Autocomplete con debounce.
   const onQueryChange = useCallback((value: string) => {
