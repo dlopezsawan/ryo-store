@@ -84,6 +84,14 @@ services:
       POSTHOG_HOST: ${POSTHOG_HOST:-https://us.i.posthog.com}
       POSTHOG_PROJECT_ID: ${POSTHOG_PROJECT_ID:-}
       POSTHOG_PERSONAL_API_KEY: ${POSTHOG_PERSONAL_API_KEY:-}
+      # Replai (pasarela de WhatsApp para Dana). El webhook /webhooks/replai
+      # verifica la firma con REPLAI_WEBHOOK_SECRET; las respuestas salen por
+      # {REPLAI_API_BASE}/v1/messages con REPLAI_API_KEY (sessionId=REPLAI_SESSION_ID).
+      # Replai está self-hosted en este mismo VPS.
+      REPLAI_API_BASE: ${REPLAI_API_BASE:-https://srv977695.hstgr.cloud/api}
+      REPLAI_SESSION_ID: ${REPLAI_SESSION_ID:-}
+      REPLAI_API_KEY: ${REPLAI_API_KEY:-}
+      REPLAI_WEBHOOK_SECRET: ${REPLAI_WEBHOOK_SECRET:-}
     volumes:
       - medusa_uploads:/app/static
     labels:
