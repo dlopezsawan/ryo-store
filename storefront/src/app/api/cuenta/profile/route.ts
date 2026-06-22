@@ -21,8 +21,12 @@ export async function GET() {
   const token = (session as unknown as Record<string, unknown>)?.medusaToken as string
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
+  // OJO: en Medusa v2 un campo "pelado" en `fields` (p.ej. ",metadata") REEMPLAZA
+  // los campos por defecto → se caen first_name/last_name/phone. Usar SIEMPRE el
+  // `*relation` (preserva defaults, e incluye metadata por defecto). Para forzar
+  // un campo extra usar el prefijo "+", nunca el nombre pelado.
   const res = await fetch(
-    `${BACKEND_URL}/store/customers/me?fields=*addresses,metadata`,
+    `${BACKEND_URL}/store/customers/me?fields=*addresses`,
     { headers: headers(token), next: { revalidate: 0 } }
   )
   if (!res.ok) return NextResponse.json({ error: "Error al obtener perfil" }, { status: res.status })

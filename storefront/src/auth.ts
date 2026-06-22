@@ -1,7 +1,7 @@
 import type { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { medusaLogin, medusaRegister, medusaGetMe } from "@/lib/medusaAuth";
+import { medusaLogin, medusaRegister, medusaGetMe, medusaRefreshToken } from "@/lib/medusaAuth";
 
 const SECRET = process.env.NEXTAUTH_SECRET || "ryo-secret-change-in-prod";
 
@@ -80,7 +80,27 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.medusaToken = (user as unknown as Record<string, unknown>).medusaToken as string;
+        token.medusaTokenIssuedAt = Date.now();
         token.sub = user.id;
+        return token;
+      }
+      // Lecturas posteriores de la sesión: mantener fresco el token de Medusa.
+      // Vive 24h, pero la sesión de NextAuth dura más → sin esto el token
+      // embebido expira y CADA llamada a Medusa (perfil, órdenes, guardar)
+      // devuelve 401 ("no aparecen los datos" / "error al guardar").
+      const issuedAt = (token.medusaTokenIssuedAt as number) || 0;
+      const ageMs = Date.now() - issuedAt;
+      const REFRESH_AFTER_MS = 6 * 60 * 60 * 1000; // 6h (el token vive 24h)
+      if (token.medusaToken && ageMs > REFRESH_AFTER_MS) {
+        const fresh = await medusaRefreshToken(token.medusaToken as string);
+        if (fresh) {
+          token.medusaToken = fresh;
+          token.medusaTokenIssuedAt = Date.now();
+        } else {
+          // No se pudo refrescar (token ya expirado) → quitarlo para que la app
+          // pida re-login en vez de fallar en silencio con 401.
+          delete token.medusaToken;
+        }
       }
       return token;
     },

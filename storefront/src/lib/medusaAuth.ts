@@ -21,6 +21,25 @@ export async function medusaLogin(email: string, password: string) {
   return (data.token as string) || null;
 }
 
+/**
+ * Refresca el JWT de customer de Medusa (vive 24h). Devuelve un token nuevo
+ * mientras el actual siga válido; null si ya expiró (→ re-login). Lo usa el
+ * callback jwt de NextAuth para que el token no muera bajo una sesión que dura más.
+ */
+export async function medusaRefreshToken(token: string): Promise<string | null> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/auth/token/refresh`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { token?: string };
+    return data.token ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function medusaRegister(
   email: string,
   password: string,
