@@ -24,5 +24,14 @@ export default defineMiddlewares({
           rawBodyCapture(req, res, next as unknown as express.NextFunction),
       ],
     },
+    {
+      // Replai firma con HMAC sobre el body crudo → necesitamos los bytes raw.
+      matcher: "/webhooks/replai",
+      method: ["POST"],
+      middlewares: [
+        (req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) =>
+          rawBodyCapture(req, res, next as unknown as express.NextFunction),
+      ],
+    },
   ],
 })
