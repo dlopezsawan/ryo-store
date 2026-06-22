@@ -606,7 +606,7 @@ function MisDireccionesTab({ token }: { token: string }) {
                 setField("address_1", components.address_1);
                 if (components.city) setField("city", components.city);
                 if (components.province) setField("province", components.province);
-                if (components.country_code) setField("country_code", components.country_code.toUpperCase());
+                if (components.country_code) setField("country_code", components.country_code.toLowerCase());
               }}
               required
               placeholder="Empieza a escribir tu dirección..."

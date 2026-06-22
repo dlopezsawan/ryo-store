@@ -41,6 +41,7 @@ export default function ComboBuilder({
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [adding, setAdding] = useState(false);
   const [addedId, setAddedId] = useState<string | null>(null);
+  const [comboError, setComboError] = useState<string | null>(null);
   const { addItem } = useCart();
 
   const totalItemCount = useMemo(
@@ -116,23 +117,44 @@ export default function ComboBuilder({
   const addComboToCart = useCallback(async () => {
     if (comboItems.length === 0) return;
     setAdding(true);
+    setComboError(null);
+    const failedItems: ComboItem[] = [];
     try {
       // Fetch variant IDs for each product, then add to cart
       for (const item of comboItems) {
-        // We need to get the variant ID - fetch from the store API
-        const res = await fetch(
-          `/api/product-variant?slug=${encodeURIComponent(item.product.slug)}`
-        );
-        if (res.ok) {
-          const data = await res.json();
-          if (data.variantId) {
-            await addItem(data.variantId, item.quantity);
+        let addedOk = false;
+        try {
+          const res = await fetch(
+            `/api/product-variant?slug=${encodeURIComponent(item.product.slug)}`
+          );
+          if (res.ok) {
+            const data = await res.json();
+            if (data.variantId) {
+              const { ok } = await addItem(data.variantId, item.quantity);
+              addedOk = ok;
+            }
           }
+        } catch {
+          // per-item fetch failure
+        }
+        if (!addedOk) {
+          failedItems.push(item);
         }
       }
-      setComboItems([]);
+      if (failedItems.length === 0) {
+        // All items added successfully — clear the combo
+        setComboItems([]);
+      } else {
+        // Keep only the items that failed so the user can retry
+        setComboItems(failedItems);
+        const names = failedItems.map((i) => i.product.name).join(", ");
+        setComboError(
+          `No se pudo agregar al carrito: ${names}. Verifica tu conexión e intenta de nuevo.`
+        );
+      }
     } catch (err) {
       console.error("Error adding combo to cart:", err);
+      setComboError("Error inesperado al agregar el combo. Intenta de nuevo.");
     } finally {
       setAdding(false);
     }
@@ -420,6 +442,14 @@ export default function ComboBuilder({
                     : "productos mas"}{" "}
                   para obtener 10% de descuento
                 </p>
+              </div>
+            )}
+
+            {/* Error message for partial/full add failures */}
+            {comboError && (
+              <div className="mt-3 flex items-start gap-2 bg-red-50 border-2 border-red-400 p-3">
+                <span className="text-red-600 font-black text-base leading-none flex-shrink-0 mt-0.5">!</span>
+                <p className="text-red-700 text-xs font-medium leading-snug">{comboError}</p>
               </div>
             )}
 

@@ -105,6 +105,9 @@ interface MedusaVariant {
     original_amount?: number | null;
     currency_code: string;
   };
+  inventory_quantity?: number | null;
+  manage_inventory?: boolean;
+  allow_backorder?: boolean;
 }
 
 interface MedusaProductCategory {
@@ -157,6 +160,8 @@ export interface Product {
   category: string;
   category_id?: string;
   description?: string;
+  /** true when product has at least one in-stock variant (or inventory is unmanaged). */
+  inStock: boolean;
 }
 
 /** Obtiene la categoría desde product_categories, metadata o valor por defecto */
@@ -203,6 +208,24 @@ function mapMedusaToProduct(p: MedusaProduct): Product {
   const sliderImage = metaSliderRaw ? absolutize(metaSliderRaw) : undefined;
 
   const { name: categoryName, id: categoryId } = getCategoryFromProduct(p);
+
+  // Derive inStock: a product is in stock when at least one variant is available.
+  // A variant is available when:
+  //   - inventory is not managed (manage_inventory === false), OR
+  //   - backorders are allowed (allow_backorder === true), OR
+  //   - inventory_quantity > 0
+  // If the fields were not fetched (undefined), default to true (safe, avoids false "out of stock").
+  const variants = p.variants ?? [];
+  const inStock =
+    variants.length === 0
+      ? true
+      : variants.some((v) => {
+          if (v.manage_inventory === false) return true;
+          if (v.allow_backorder === true) return true;
+          if (v.inventory_quantity == null) return true; // field not fetched → assume available
+          return v.inventory_quantity > 0;
+        });
+
   return {
     id: p.id,
     slug: p.handle,
@@ -216,6 +239,7 @@ function mapMedusaToProduct(p: MedusaProduct): Product {
     description: p.description ?? undefined,
     subtitle: p.subtitle ?? undefined,
     material: p.material ?? undefined,
+    inStock,
   };
 }
 
@@ -368,7 +392,7 @@ export async function getProductByHandleWithVariant(
       handle,
       limit: "1",
       region_id: regionId,
-      fields: "*variants.calculated_price,*variants.options,*categories,+metadata",
+      fields: "*variants.calculated_price,*variants.options,+variants.inventory_quantity,+variants.manage_inventory,+variants.allow_backorder,*categories,+metadata",
     });
     const res = await fetchWithRetry(
       `${BACKEND_URL}/store/products?${params.toString()}`,

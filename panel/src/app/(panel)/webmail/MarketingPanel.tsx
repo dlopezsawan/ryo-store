@@ -42,8 +42,6 @@ export function MarketingPanel({
   const clicked = emails.filter((e) => e.last_event === "clicked").length
   const bounced = emails.filter((e) => e.last_event === "bounced" || e.last_event === "complained").length
 
-  const totalContacts = 0 // queda como placeholder — listContacts es por audience y SSR-only
-
   return (
     <div className="space-y-4">
       {/* KPIs */}
@@ -95,7 +93,9 @@ export function MarketingPanel({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-display font-bold text-[13px] truncate">{a.name}</div>
-                  <div className="text-[10px] font-mono text-ink-3">desde {fmtRelative(a.created_at)}</div>
+                  <div className="text-[10px] font-mono text-ink-3">
+                    desde {fmtRelative(a.created_at)} · <span title="Conteo disponible en resend.com/audiences">— contactos</span>
+                  </div>
                 </div>
                 <a href="/webmail/audiences" className="text-[10px] font-display font-bold uppercase tracking-wider text-orange hover:underline">
                   Ver contactos →

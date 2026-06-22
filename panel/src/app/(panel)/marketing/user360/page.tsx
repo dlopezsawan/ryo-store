@@ -69,10 +69,14 @@ async function ListView({ params }: { params: SearchParams }) {
 
   // 2) Fetch últimos orders para anotar customers con pedidos / revenue
   //    Cargamos un batch grande, lo bucketeamos por customer_id en memoria.
+  //    LIMITACIÓN: solo se cargan las últimas 500 órdenes; clientes cuyas
+  //    compras caen fuera de este rango pueden aparecer sin pedidos registrados.
   let recentOrders: AdminOrderListItem[] = []
+  let orderSampleCapped = false
   try {
     const r = await listOrders({ limit: 500 })
     recentOrders = r.orders
+    orderSampleCapped = recentOrders.length >= 500
   } catch { /* ignore */ }
 
   const ordersByCustomer = new Map<string, { count: number; revenue: number; lastAt: string | null; lastTotal: number }>()
@@ -157,6 +161,21 @@ async function ListView({ params }: { params: SearchParams }) {
         <FilterPill href={buildHref(params, { filter: "has_phone", page: undefined })} active={filter === "has_phone"} label="Con WhatsApp" count={filterCounts.has_phone} />
         <FilterPill href={buildHref(params, { filter: "has_account", page: undefined })} active={filter === "has_account"} label="Cuenta creada" count={filterCounts.has_account} />
       </div>
+
+      {/* Aviso de muestra parcial de pedidos */}
+      {orderSampleCapped && (
+        <div className="stamp-card p-3 bg-orange/5 flex items-start gap-2" style={{ borderColor: "#D4A015" }}>
+          <AlertTriangle size={13} className="text-orange flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+          <p className="text-[11px] text-ink-2 leading-relaxed">
+            <span className="font-display font-bold text-orange uppercase tracking-wider text-[10px]">Muestra parcial · </span>
+            {filter === "with_orders" || filter === "no_orders" ? (
+              <>Los filtros <span className="font-bold">"Con pedidos"</span> y <span className="font-bold">"Sin pedidos"</span> se calculan sobre las <span className="font-bold">últimas 500 órdenes</span> cargadas en memoria. Clientes con pedidos más antiguos pueden aparecer clasificados incorrectamente como "sin pedidos". Los conteos en los botones de filtro no son exactos.</>
+            ) : (
+              <>Los conteos de pedidos por cliente se calculan sobre las <span className="font-bold">últimas 500 órdenes</span>. Clientes con pedidos más antiguos pueden mostrar LTV incompleto.</>
+            )}
+          </p>
+        </div>
+      )}
 
       {listError && (
         <div className="stamp-card p-4 bg-primary/5" style={{ borderColor: "#BB3B2E" }}>

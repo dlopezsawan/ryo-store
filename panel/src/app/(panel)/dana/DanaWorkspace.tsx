@@ -96,12 +96,20 @@ export function DanaWorkspace({
   }, [statusFilter, search])
 
   // ─── Polling thread activo ────────────────────────────────────────
+  // currentThreadPhone tracks which phone owns the "live" slot so that
+  // a slow response for a previously-selected conversation is silently
+  // dropped instead of overwriting the current one.
+  const currentThreadPhone = useRef<string | undefined>(undefined)
+
   const fetchThread = useCallback(async (phone: string, silent: boolean) => {
     if (!silent) setThreadLoading(true)
     try {
       const res = await fetch(`/api/dana/conversation/${encodeURIComponent(phone)}`, { cache: "no-store" })
       if (!res.ok) return
       const data = (await res.json()) as { conversation: DanaConversation; messages: DanaMessage[] }
+      // Guard: discard this response if the user has already moved to a
+      // different conversation while the request was in flight.
+      if (currentThreadPhone.current !== phone) return
       setActiveConv(data.conversation)
       setMessages(data.messages)
     } catch { /* swallow */ }
@@ -110,13 +118,22 @@ export function DanaWorkspace({
 
   useEffect(() => {
     if (!activePhone) {
+      currentThreadPhone.current = undefined
       setActiveConv(null)
       setMessages([])
       return
     }
+    // Mark this phone as the current one before firing any fetch so the
+    // guard inside fetchThread is accurate from the very first request.
+    currentThreadPhone.current = activePhone
     fetchThread(activePhone, false)
     const id = setInterval(() => fetchThread(activePhone, true), POLL_INTERVAL_THREAD_MS)
-    return () => clearInterval(id)
+    return () => {
+      // On cleanup (phone changed or unmount) clear the current marker so
+      // any in-flight response for the old phone is treated as stale.
+      currentThreadPhone.current = undefined
+      clearInterval(id)
+    }
   }, [activePhone, fetchThread])
 
   // Master-detail responsive: en móvil (<md) solo una vista a la vez.
@@ -319,6 +336,12 @@ function ChatView({
   function sendDirect() {
     if (!draft.trim()) return
     const text = preview ?? draft  // si hay preview aprobado, mandalo
+    // Si el operador ya aprobó un preview reescrito por Dana, lo mandamos como
+    // "as-dana". NOTA (deferred): el backend re-aplica el rewrite de DeepSeek
+    // sobre este texto ya reescrito (doble costo LLM). Saltarse esa segunda
+    // pasada requiere un flag coordinado backend+panel (un mode tipo
+    // "as-dana-pre-rewritten" que el backend respete) — no se introduce aquí
+    // para no romper el contrato actual del send. Si no hay preview, va "human".
     const mode = preview && !previewWarning ? "as-dana" : "human"
     startTransition(async () => {
       const r = await sendMessageAction(conv.phone, text, mode)

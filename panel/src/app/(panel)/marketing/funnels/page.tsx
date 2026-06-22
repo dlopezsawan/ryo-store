@@ -1,4 +1,4 @@
-import { GitBranch } from "lucide-react"
+import { GitBranch, AlertTriangle } from "lucide-react"
 import { PageHeader, PageWatermark } from "@/components/layout/PageHeader"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { MarketingNav } from "../MarketingNav"
@@ -15,6 +15,12 @@ export default async function FunnelsPage() {
   let errorMsg: string | null = null
   const orders = ordersR.status === "fulfilled" ? ordersR.value.orders : []
   const customers = customersR.status === "fulfilled" ? customersR.value.customers : []
+  const ordersTotalCount = ordersR.status === "fulfilled" ? ordersR.value.count : 0
+  const customersTotalCount = customersR.status === "fulfilled" ? customersR.value.count : 0
+  const datasetTruncated = orders.length >= 1000 || customers.length >= 1000
+  const truncatedEntities: string[] = []
+  if (orders.length >= 1000 && ordersTotalCount > 1000) truncatedEntities.push(`pedidos (${ordersTotalCount.toLocaleString("es-VE")} total, mostrando 1 000)`)
+  if (customers.length >= 1000 && customersTotalCount > 1000) truncatedEntities.push(`clientes (${customersTotalCount.toLocaleString("es-VE")} total, mostrando 1 000)`)
   if ([ordersR, customersR].some((r) => r.status === "rejected" && r.reason instanceof MedusaError && r.reason.status === 401)) {
     errorMsg = "Sesión expirada. Recarga la página."
   }
@@ -51,6 +57,18 @@ export default async function FunnelsPage() {
       />
 
       <MarketingNav />
+
+      {/* Aviso de truncado de datos — métricas parciales */}
+      {datasetTruncated && truncatedEntities.length > 0 && (
+        <div className="stamp-card p-3 bg-orange/5 flex items-start gap-2" style={{ borderColor: "#D4A015" }}>
+          <AlertTriangle size={13} className="text-orange flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+          <p className="text-[11px] text-ink-2 leading-relaxed">
+            <span className="font-display font-bold text-orange uppercase tracking-wider text-[10px]">Dataset truncado · </span>
+            Las métricas del funnel son <span className="font-bold">parciales</span>: se están mostrando solo las primeras 1 000 filas de{" "}
+            {truncatedEntities.join(" y ")}. Los porcentajes de conversión y los totales de revenue no representan el universo completo.
+          </p>
+        </div>
+      )}
 
       {errorMsg && (
         <div className="stamp-card p-4 bg-primary/5" style={{ borderColor: "#BB3B2E" }}>
