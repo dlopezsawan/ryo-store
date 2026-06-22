@@ -8,7 +8,14 @@ import { createAndSendBroadcastAction } from "../actions"
 interface AudienceOption {
   id: string
   name: string
-  contactCount: number
+  /** Conteo real de contactos en Resend; null si no se pudo obtener. */
+  contactCount: number | null
+}
+
+/** "12 contactos" / "1 contacto" / "—" cuando el conteo es desconocido. */
+function fmtContacts(n: number | null | undefined): string {
+  if (n == null) return "—"
+  return `${n} contacto${n === 1 ? "" : "s"}`
 }
 
 interface Props {
@@ -55,7 +62,7 @@ export function BroadcastComposer({ audiences, defaultFrom }: Props) {
       flash(
         "ok",
         form.mode === "send_now"
-          ? `Broadcast enviado a ${aud?.contactCount ?? 0} contacto(s)`
+          ? `Broadcast enviado a ${fmtContacts(aud?.contactCount)}`
           : form.mode === "schedule"
             ? `Broadcast programado · ${form.scheduled_at}`
             : "Broadcast guardado como draft (envíalo desde Resend dashboard)",
@@ -112,7 +119,7 @@ export function BroadcastComposer({ audiences, defaultFrom }: Props) {
                   <select value={form.audience_id} onChange={(e) => setForm((f) => ({ ...f, audience_id: e.target.value }))}
                     className="w-full px-3 py-2 bg-cream rounded-md text-[12px] focus:outline-none" style={{ border: "1.5px solid var(--border)" }}>
                     {audiences.map((a) => (
-                      <option key={a.id} value={a.id}>{a.name} ({a.contactCount} contactos)</option>
+                      <option key={a.id} value={a.id}>{a.name} ({fmtContacts(a.contactCount)})</option>
                     ))}
                   </select>
                 </Field>
@@ -134,7 +141,7 @@ export function BroadcastComposer({ audiences, defaultFrom }: Props) {
                   placeholder="Texto plano se convierte automáticamente a HTML simple"
                   className="w-full px-3 py-2 bg-cream rounded-md text-[12px] font-mono focus:outline-none resize-none" style={{ border: "1.5px solid var(--border)" }} />
                 <p className="text-[10px] text-ink-3 font-mono mt-1">
-                  Se enviará a {selectedAud?.contactCount ?? 0} contactos
+                  Se enviará a {fmtContacts(selectedAud?.contactCount)}
                 </p>
               </Field>
 

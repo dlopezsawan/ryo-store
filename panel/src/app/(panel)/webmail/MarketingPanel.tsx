@@ -12,12 +12,14 @@ import { BroadcastComposer } from "./audiences/BroadcastComposer"
 export function MarketingPanel({
   configured,
   audiences,
+  contactCounts = {},
   emails,
   listError,
   defaultFrom,
 }: {
   configured: boolean
   audiences: ResendAudience[]
+  contactCounts?: Record<string, number | null>
   emails: ResendEmail[]
   listError: string | null
   defaultFrom: string
@@ -64,7 +66,7 @@ export function MarketingPanel({
           </div>
           {audiences.length > 0 && (
             <BroadcastComposer
-              audiences={audiences.map((a) => ({ id: a.id, name: a.name, contactCount: 0 }))}
+              audiences={audiences.map((a) => ({ id: a.id, name: a.name, contactCount: contactCounts[a.id] ?? null }))}
               defaultFrom={defaultFrom}
             />
           )}
@@ -94,7 +96,7 @@ export function MarketingPanel({
                 <div className="flex-1 min-w-0">
                   <div className="font-display font-bold text-[13px] truncate">{a.name}</div>
                   <div className="text-[10px] font-mono text-ink-3">
-                    desde {fmtRelative(a.created_at)} · <span title="Conteo disponible en resend.com/audiences">— contactos</span>
+                    desde {fmtRelative(a.created_at)} · {contactCounts[a.id] != null ? `${contactCounts[a.id]} contacto${contactCounts[a.id] === 1 ? "" : "s"}` : <span title="No se pudo obtener el conteo de Resend">— contactos</span>}
                   </div>
                 </div>
                 <a href="/webmail/audiences" className="text-[10px] font-display font-bold uppercase tracking-wider text-orange hover:underline">

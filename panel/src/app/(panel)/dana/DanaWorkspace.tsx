@@ -337,12 +337,10 @@ function ChatView({
     if (!draft.trim()) return
     const text = preview ?? draft  // si hay preview aprobado, mandalo
     // Si el operador ya aprobó un preview reescrito por Dana, lo mandamos como
-    // "as-dana". NOTA (deferred): el backend re-aplica el rewrite de DeepSeek
-    // sobre este texto ya reescrito (doble costo LLM). Saltarse esa segunda
-    // pasada requiere un flag coordinado backend+panel (un mode tipo
-    // "as-dana-pre-rewritten" que el backend respete) — no se introduce aquí
-    // para no romper el contrato actual del send. Si no hay preview, va "human".
-    const mode = preview && !previewWarning ? "as-dana" : "human"
+    // "as-dana-verbatim": el backend lo envía tal cual (role=assistant) SIN una
+    // segunda pasada de DeepSeek — evita el doble costo de LLM y el drift de
+    // reescribir texto ya reescrito. Si no hay preview, va "human" (texto crudo).
+    const mode = preview && !previewWarning ? "as-dana-verbatim" : "human"
     startTransition(async () => {
       const r = await sendMessageAction(conv.phone, text, mode)
       if (!r.ok) return flash("err", r.error)
