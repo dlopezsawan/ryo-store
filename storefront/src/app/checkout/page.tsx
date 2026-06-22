@@ -195,6 +195,12 @@ export default function CheckoutPage() {
     status: "idle" | "loading" | "match" | "partial" | "mismatch" | "not_found" | "unavailable";
     cneName?: string;
   }>({ status: "idle" });
+  // Verificación de la cédula del RECEPTOR (solo MRW + "para otra persona").
+  // La cédula del comprador usa cedulaCheck y se pide siempre.
+  const [recipientCedulaCheck, setRecipientCedulaCheck] = useState<{
+    status: "idle" | "loading" | "match" | "partial" | "mismatch" | "not_found" | "unavailable";
+    cneName?: string;
+  }>({ status: "idle" });
   const [shippingType, setShippingType] = useState<"inmediato" | "mrw">("inmediato");
 
   // Saved addresses (logged-in users)
@@ -366,82 +372,89 @@ export default function CheckoutPage() {
       .catch(() => {});
   }, []);
 
-  // ─── CNE cedula validator (only when MRW selected) ────────────────────────
-  // Compares the typed name against the name CNE has registered for that
-  // cedula. Debounced 600ms so we don't spam the endpoint on every keystroke.
-  // Result drives a small advisory UI block; never blocks submission outright.
-  useEffect(() => {
-    if (shippingType !== "mrw") {
-      setCedulaCheck({ status: "idle" });
-      return;
+  // ─── CNE cedula validator ─────────────────────────────────────────────────
+  // Consulta el API y compara contra el nombre escrito. Debounced 600ms.
+  // Resultado = bloque advisory; nunca bloquea el submit por sí solo.
+  type CedulaStatus = {
+    status: "idle" | "loading" | "match" | "partial" | "mismatch" | "not_found" | "unavailable";
+    cneName?: string;
+  };
+  const fetchCedulaStatus = async (
+    ced: string,
+    nat: "V" | "E",
+    fullName: string,
+    signal: AbortSignal,
+  ): Promise<CedulaStatus> => {
+    const r = await fetch(
+      `/api/checkout/verify-cedula?nacionalidad=${nat}&cedula=${ced}`,
+      { signal },
+    );
+    const data = (await r.json()) as { valid: boolean | null; name?: string; reason?: string };
+    if (data.valid === true && data.name) {
+      const result = compareNameToCne(fullName, data.name);
+      return {
+        status: result === "match" ? "match" : result === "partial" ? "partial" : "mismatch",
+        cneName: data.name,
+      };
     }
-    const isOther = recipientType === "other";
-    const ced = (isOther ? recipientCedula : cedula).replace(/\D/g, "");
-    const nat = isOther ? recipientNationality : nationality;
-    const targetFirst = isOther ? recipientFirstName : firstName;
-    const targetLast = isOther ? recipientLastName : lastName;
-    const fullName = `${targetFirst} ${targetLast}`.trim();
+    if (data.valid === false && data.reason === "not_found") return { status: "not_found" };
+    // null → no soportado (E) o servicio caído: no alarmar al usuario.
+    return { status: "unavailable" };
+  };
 
+  // Cédula del COMPRADOR — se verifica SIEMPRE (vs nombre + apellido del comprador).
+  useEffect(() => {
+    const ced = cedula.replace(/\D/g, "");
+    const fullName = `${firstName} ${lastName}`.trim();
     if (!ced || ced.length < 6 || !fullName) {
       setCedulaCheck({ status: "idle" });
       return;
     }
-
     setCedulaCheck({ status: "loading" });
     const controller = new AbortController();
     const t = setTimeout(async () => {
       try {
-        const r = await fetch(
-          `/api/checkout/verify-cedula?nacionalidad=${nat}&cedula=${ced}`,
-          { signal: controller.signal }
-        );
-        const data = (await r.json()) as {
-          valid: boolean | null;
-          name?: string;
-          reason?: string;
-        };
-        if (controller.signal.aborted) return;
-
-        if (data.valid === true && data.name) {
-          const result = compareNameToCne(fullName, data.name);
-          setCedulaCheck({
-            status:
-              result === "match"
-                ? "match"
-                : result === "partial"
-                ? "partial"
-                : "mismatch",
-            cneName: data.name,
-          });
-        } else if (data.valid === false && data.reason === "not_found") {
-          setCedulaCheck({ status: "not_found" });
-        } else {
-          // null → not supported (E) or service unavailable: don't alarm the user
-          setCedulaCheck({ status: "unavailable" });
-        }
+        const res = await fetchCedulaStatus(ced, nationality, fullName, controller.signal);
+        if (!controller.signal.aborted) setCedulaCheck(res);
       } catch (err) {
-        if ((err as Error).name !== "AbortError") {
-          setCedulaCheck({ status: "unavailable" });
-        }
+        if ((err as Error).name !== "AbortError") setCedulaCheck({ status: "unavailable" });
       }
     }, 600);
-
     return () => {
       controller.abort();
       clearTimeout(t);
     };
-  }, [
-    shippingType,
-    recipientType,
-    cedula,
-    nationality,
-    recipientCedula,
-    recipientNationality,
-    firstName,
-    lastName,
-    recipientFirstName,
-    recipientLastName,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cedula, nationality, firstName, lastName]);
+
+  // Cédula del RECEPTOR — solo cuando MRW + "para otra persona".
+  useEffect(() => {
+    if (shippingType !== "mrw" || recipientType !== "other") {
+      setRecipientCedulaCheck({ status: "idle" });
+      return;
+    }
+    const ced = recipientCedula.replace(/\D/g, "");
+    const fullName = `${recipientFirstName} ${recipientLastName}`.trim();
+    if (!ced || ced.length < 6 || !fullName) {
+      setRecipientCedulaCheck({ status: "idle" });
+      return;
+    }
+    setRecipientCedulaCheck({ status: "loading" });
+    const controller = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetchCedulaStatus(ced, recipientNationality, fullName, controller.signal);
+        if (!controller.signal.aborted) setRecipientCedulaCheck(res);
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") setRecipientCedulaCheck({ status: "unavailable" });
+      }
+    }, 600);
+    return () => {
+      controller.abort();
+      clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shippingType, recipientType, recipientCedula, recipientNationality, recipientFirstName, recipientLastName]);
 
   // Auto-fill from logged-in customer profile (only if fields are still empty)
   useEffect(() => {
@@ -458,6 +471,16 @@ export default function CheckoutPage() {
         if (!lastName && c.last_name) setLastName(c.last_name);
         const customerPhone = c.phone || "";
         if (!phone && customerPhone) setPhone(customerPhone);
+        // Cédula guardada en metadata del customer (formato "V-12345678").
+        // Se rellena solo si el campo está vacío; el cliente puede editarla.
+        const savedCedula = (c.metadata?.cedula as string | undefined) || "";
+        if (!cedula && savedCedula) {
+          const m = savedCedula.match(/^([VE])-?(\d+)$/i);
+          if (m) {
+            setNationality(m[1].toUpperCase() as "V" | "E");
+            setCedula(m[2]);
+          }
+        }
         // Pre-fill from default/first saved address — always auto-select on load
         const addrs = c.addresses ?? [];
         if (addrs.length > 0) {
@@ -656,32 +679,35 @@ export default function CheckoutPage() {
         postal_code: "",
       };
 
-      // Cédula on the order is the one MRW will validate (recipient's if other,
-      // buyer's if self). Always store with the V-/E- prefix in metadata.
+      // Cédula en la orden. La del COMPRADOR se guarda SIEMPRE (ahora se pide
+      // en todos los pedidos). Para MRW + "otra persona" la cédula que MRW
+      // validará es la del receptor, y guardamos ambas + datos del receptor.
+      const buyerCed = cedula.replace(/\D/g, "");
       let mrwIdMeta: Record<string, unknown> = {};
-      if (shippingType === "mrw") {
-        const ced = (recipientType === "other" ? recipientCedula : cedula).replace(/\D/g, "");
-        const nat = recipientType === "other" ? recipientNationality : nationality;
-        if (ced) {
-          mrwIdMeta = {
-            cedula: `${nat}-${ced}`,
-            cedula_owner: recipientType, // "self" | "other"
-          };
-          if (recipientType === "other") {
-            mrwIdMeta = {
-              ...mrwIdMeta,
-              recipient_first_name: recipientFirstName.trim(),
-              recipient_last_name: recipientLastName.trim(),
-              recipient_phone: recipientPhone.trim(),
-              recipient_cedula: `${recipientNationality}-${recipientCedula.replace(/\D/g, "")}`,
-              // Keep buyer info preserved separately for clarity in admin/Telegram
-              buyer_first_name: firstName.trim(),
-              buyer_last_name: lastName.trim(),
-              buyer_phone: phone.trim(),
-              buyer_email: email.trim(),
-            };
-          }
-        }
+      if (buyerCed) {
+        mrwIdMeta = {
+          cedula: `${nationality}-${buyerCed}`,
+          cedula_owner: "self",
+        };
+      }
+      if (shippingType === "mrw" && recipientType === "other") {
+        const rCed = recipientCedula.replace(/\D/g, "");
+        mrwIdMeta = {
+          ...mrwIdMeta,
+          // MRW valida contra el receptor → esa es la cédula "operativa" del envío.
+          cedula: rCed ? `${recipientNationality}-${rCed}` : mrwIdMeta.cedula,
+          cedula_owner: "other",
+          recipient_first_name: recipientFirstName.trim(),
+          recipient_last_name: recipientLastName.trim(),
+          recipient_phone: recipientPhone.trim(),
+          recipient_cedula: rCed ? `${recipientNationality}-${rCed}` : "",
+          // Cédula del comprador preservada aparte para admin/Telegram.
+          buyer_cedula: buyerCed ? `${nationality}-${buyerCed}` : "",
+          buyer_first_name: firstName.trim(),
+          buyer_last_name: lastName.trim(),
+          buyer_phone: phone.trim(),
+          buyer_email: email.trim(),
+        };
       }
 
       // Inmediato shipping ahora cobra por DISTANCIA (delivery por km),
@@ -912,15 +938,24 @@ export default function CheckoutPage() {
           items: cart?.item_count ?? 0,
           payment_method: "pago_movil",
         });
+        // Recordar la cédula del comprador en su perfil → auto-rellena la
+        // próxima compra. Best-effort: si falla, no afecta el pedido.
+        if (isLoggedIn && buyerCed) {
+          fetch("/api/cuenta/profile", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ metadata: { cedula: `${nationality}-${buyerCed}` } }),
+          }).catch(() => {});
+        }
         if (emailToUse) {
           fetch("/api/checkout/send-confirmation", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-              order, 
-              email: emailToUse, 
-              bcvRate: bcvRate ?? undefined, 
-              paymentProofUrl: url, 
+            body: JSON.stringify({
+              order,
+              email: emailToUse,
+              bcvRate: bcvRate ?? undefined,
+              paymentProofUrl: url,
               shippingType,
               redeemedRewards: selectedRewards.length > 0 ? selectedRewards : undefined,
               totalPointsRedeemed: pointsUsed > 0 ? pointsUsed : undefined
@@ -1198,6 +1233,46 @@ export default function CheckoutPage() {
                     className="vintage-input w-full"
                   />
                 </div>
+                {/* Cédula del comprador — siempre requerida + verificación CNE */}
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">Cédula *</label>
+                  <div className="flex gap-2">
+                    <select
+                      value={nationality}
+                      onChange={(e) => setNationality(e.target.value as "V" | "E")}
+                      className="vintage-input w-20 flex-shrink-0"
+                      aria-label="Nacionalidad"
+                    >
+                      <option value="V">V</option>
+                      <option value="E">E</option>
+                    </select>
+                    <input
+                      type="text"
+                      required
+                      inputMode="numeric"
+                      value={cedula}
+                      onChange={(e) => setCedula(e.target.value.replace(/\D/g, ""))}
+                      placeholder="12345678"
+                      className="vintage-input w-full"
+                    />
+                  </div>
+                  {/* Estado de verificación (advisory, no bloquea el submit) */}
+                  {cedulaCheck.status === "loading" && (
+                    <p className="mt-1.5 text-xs text-muted">Verificando cédula…</p>
+                  )}
+                  {cedulaCheck.status === "match" && (
+                    <p className="mt-1.5 text-xs text-emerald-700 font-medium">✅ Cédula verificada{cedulaCheck.cneName ? ` · ${cedulaCheck.cneName}` : ""}</p>
+                  )}
+                  {cedulaCheck.status === "partial" && (
+                    <p className="mt-1.5 text-xs text-amber-700 font-medium">⚠️ El nombre coincide parcialmente con el registrado{cedulaCheck.cneName ? ` (${cedulaCheck.cneName})` : ""}. Revisa que esté bien.</p>
+                  )}
+                  {cedulaCheck.status === "mismatch" && (
+                    <p className="mt-1.5 text-xs text-primary font-medium">⚠️ El nombre no coincide con el registrado para esa cédula{cedulaCheck.cneName ? ` (${cedulaCheck.cneName})` : ""}.</p>
+                  )}
+                  {cedulaCheck.status === "not_found" && (
+                    <p className="mt-1.5 text-xs text-primary font-medium">⚠️ No encontramos esa cédula. Verifica el número.</p>
+                  )}
+                </div>
               </div>
               <div className="mt-4">
                 <label className="block text-xs font-bold text-dark uppercase tracking-wider mb-2">
@@ -1434,31 +1509,9 @@ export default function CheckoutPage() {
                   </div>
 
                   {recipientType === "self" ? (
-                    <div className="grid sm:grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-xs font-bold text-muted uppercase mb-1">Tipo</label>
-                        <select
-                          value={nationality}
-                          onChange={(e) => setNationality(e.target.value as "V" | "E")}
-                          className="vintage-input w-full"
-                        >
-                          <option value="V">V</option>
-                          <option value="E">E</option>
-                        </select>
-                      </div>
-                      <div className="sm:col-span-2">
-                        <label className="block text-xs font-bold text-muted uppercase mb-1">Tu cédula *</label>
-                        <input
-                          type="text"
-                          required
-                          inputMode="numeric"
-                          value={cedula}
-                          onChange={(e) => setCedula(e.target.value.replace(/\D/g, ""))}
-                          placeholder="12345678"
-                          className="vintage-input w-full"
-                        />
-                      </div>
-                    </div>
+                    <p className="text-xs text-muted">
+                      Usaremos la cédula <span className="font-bold text-dark">{cedula ? `${nationality}-${cedula}` : "que ingresaste arriba"}</span> y tu nombre para el retiro en MRW.
+                    </p>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
@@ -1520,32 +1573,30 @@ export default function CheckoutPage() {
                     </div>
                   )}
 
-                  {/* Validation feedback — silent unless there's an actual problem.
-                       Match → discreet green check.
-                       Partial / mismatch / not_found → warning to act on.
-                       Loading / unavailable / rate_limited → render nothing. */}
-                  {cedulaCheck.status === "match" && (
+                  {/* Validación de la cédula del RECEPTOR (solo "para otra persona").
+                       Para "self" el estado ya se muestra arriba en Datos de Envío. */}
+                  {recipientType === "other" && recipientCedulaCheck.status === "match" && (
                     <p className="mt-3 text-xs text-emerald-700 font-medium">
-                      ✅ Cédula verificada
+                      ✅ Cédula del receptor verificada
                     </p>
                   )}
-                  {cedulaCheck.status === "partial" && (
+                  {recipientType === "other" && recipientCedulaCheck.status === "partial" && (
                     <div className="mt-3 p-2 bg-amber-100 border border-amber-300 text-xs text-amber-900">
-                      ⚠️ El nombre coincide solo parcialmente con la cédula
-                      {cedulaCheck.cneName ? ` (registro: "${cedulaCheck.cneName}")` : ""}.
+                      ⚠️ El nombre del receptor coincide solo parcialmente con la cédula
+                      {recipientCedulaCheck.cneName ? ` (registro: "${recipientCedulaCheck.cneName}")` : ""}.
                       Verifica los datos para evitar problemas con MRW.
                     </div>
                   )}
-                  {cedulaCheck.status === "mismatch" && (
+                  {recipientType === "other" && recipientCedulaCheck.status === "mismatch" && (
                     <div className="mt-3 p-2 bg-red-100 border border-red-400 text-xs text-red-900">
-                      🚫 El nombre <strong>no coincide</strong> con la cédula
-                      {cedulaCheck.cneName ? ` (registro: "${cedulaCheck.cneName}")` : ""}.
+                      🚫 El nombre del receptor <strong>no coincide</strong> con la cédula
+                      {recipientCedulaCheck.cneName ? ` (registro: "${recipientCedulaCheck.cneName}")` : ""}.
                       MRW probablemente rechazará el envío. Revisa el nombre o la cédula antes de continuar.
                     </div>
                   )}
-                  {cedulaCheck.status === "not_found" && (
+                  {recipientType === "other" && recipientCedulaCheck.status === "not_found" && (
                     <div className="mt-3 p-2 bg-red-100 border border-red-400 text-xs text-red-900">
-                      🚫 La cédula no está registrada. Verifica el número.
+                      🚫 La cédula del receptor no está registrada. Verifica el número.
                     </div>
                   )}
                 </div>
