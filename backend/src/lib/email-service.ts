@@ -310,8 +310,28 @@ ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;font-size:1
 
 // ─── Email Templates ──────────────────────────────────────────────────────────
 
-export function welcomeEmailHtml(customerName: string): string {
+export function welcomeEmailHtml(
+  customerName: string,
+  coupon?: { code: string; percent: number; hours: number } | null
+): string {
   const firstName = customerName.split(" ")[0]
+  // Bloque del cupón — SOLO si se creó. Condiciones SIEMPRE explícitas para no
+  // generar falsas expectativas (es % sobre 1 producto, no sobre todo el carrito).
+  const couponBlock = coupon
+    ? `
+    <div class="discount-box">
+      <p class="discount-label-top">Tu regalo de bienvenida</p>
+      <p class="discount-code">${coupon.code}</p>
+      <p class="discount-desc">${coupon.percent}% de descuento en 1 producto de tu carrito</p>
+    </div>
+    <p class="email-muted" style="text-align:center;margin-top:8px;">
+      Condiciones: el ${coupon.percent}% aplica a <strong>1 solo producto</strong> del carrito ·
+      válido <strong>${coupon.hours} horas</strong> · <strong>1 uso por cliente</strong> ·
+      exclusivo para tu cuenta. Aplica el código en el checkout.
+    </p>
+    `
+    : ""
+  const ctaLabel = coupon ? "Usar mi regalo →" : "Explorar la tienda →"
   return baseTemplate(
     `
     <div class="stamp">Nuevo miembro</div>
@@ -320,6 +340,7 @@ export function welcomeEmailHtml(customerName: string): string {
       Nos alegra tenerte aquí. Enrola es más que una tienda — es una comunidad
       de aficionados al tabaco artesanal que valoran la calidad, el ritual y la autenticidad.
     </p>
+    ${couponBlock}
     <p class="email-p">Lo que te espera en el club:</p>
     <ul class="email-ul">
       <li>Selección curada de tabacos de hebra y mezclas exclusivas</li>
@@ -328,14 +349,16 @@ export function welcomeEmailHtml(customerName: string): string {
       <li>Ofertas y ediciones limitadas para miembros</li>
     </ul>
     <div class="cta-wrap">
-      <a href="${withUtm(STORE_URL, "welcome")}" class="cta-btn">Explorar la tienda →</a>
+      <a href="${withUtm(STORE_URL, "welcome")}" class="cta-btn">${ctaLabel}</a>
     </div>
     <hr class="divider"/>
     <p class="email-muted" style="text-align:center;">
       ¿Tienes dudas? Responde a este email y te ayudamos enseguida.
     </p>
     `,
-    `Bienvenido/a al Club Enrola — explora nuestra selección artesanal`
+    coupon
+      ? `Bienvenido/a al Club Enrola — tu ${coupon.percent}% de bienvenida te espera`
+      : `Bienvenido/a al Club Enrola — explora nuestra selección artesanal`
   )
 }
 
