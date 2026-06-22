@@ -22,7 +22,7 @@ export async function GET() {
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const res = await fetch(
-    `${BACKEND_URL}/store/customers/me?fields=*addresses`,
+    `${BACKEND_URL}/store/customers/me?fields=*addresses,metadata`,
     { headers: headers(token), next: { revalidate: 0 } }
   )
   if (!res.ok) return NextResponse.json({ error: "Error al obtener perfil" }, { status: res.status })
