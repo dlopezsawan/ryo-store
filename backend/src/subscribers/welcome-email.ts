@@ -8,6 +8,7 @@ import { sendEmail, welcomeEmailHtml } from "../lib/email-service"
 import { logEmail, getSetting, alreadyNotified, resolveCustomerCedula } from "../lib/remarketing-db"
 import { welcomeWhatsAppText } from "../lib/whatsapp-templates"
 import { findCustomerPhone, isWhatsAppEnabledFor, sendRemarketingWhatsApp } from "../lib/remarketing-wa"
+import { createWelcomeCoupon } from "../lib/welcome-coupon"
 
 export default async function welcomeEmailHandler({
   event: { data },
@@ -32,7 +33,6 @@ export default async function welcomeEmailHandler({
       : customer.email
 
     const subject = `¡Bienvenido/a al Club Enrola! 🎉`
-    const html = welcomeEmailHtml(customerName)
 
     // Dedup by cédula in case user created a second account with a new email
     const cedula = await resolveCustomerCedula(customer.id, customer.email)
@@ -43,6 +43,11 @@ export default async function welcomeEmailHandler({
     )
     if (alreadyWelcomed) return
 
+    // Cupón de bienvenida ÚNICO por cliente (15% sobre 1 producto, 1 uso, 48h).
+    // Si la creación falla, la bienvenida igual sale (sin cupón) — best-effort.
+    const coupon = await createWelcomeCoupon(container, customer.id)
+    const html = welcomeEmailHtml(customerName, coupon)
+
     // WhatsApp primary, email fallback
     let whatsappSent = false
     if (await isWhatsAppEnabledFor("welcome")) {
@@ -51,9 +56,9 @@ export default async function welcomeEmailHandler({
         whatsappSent = await sendRemarketingWhatsApp(
           "welcome",
           phone,
-          welcomeWhatsAppText(customerName),
+          welcomeWhatsAppText(customerName, coupon),
           customer.id,
-          { customer_name: customerName, cedula }
+          { customer_name: customerName, cedula, coupon_code: coupon?.code }
         )
       }
     }

@@ -12,10 +12,19 @@ function firstName(fullName: string): string {
   return fullName.split(" ")[0] || "Amigo/a"
 }
 
-export function welcomeWhatsAppText(customerName: string): string {
+export function welcomeWhatsAppText(
+  customerName: string,
+  coupon?: { code: string; percent: number; hours: number } | null
+): string {
+  const giftBlock = coupon
+    ? `🎁 Tu regalo de bienvenida: *${coupon.code}*\n` +
+      `${coupon.percent}% de descuento en 1 producto de tu carrito. Solo para ti · 1 uso · válido ${coupon.hours}h.\n` +
+      `Aplicá el código en el checkout 👇\n\n`
+    : ""
   return (
     `👋 ¡Hola ${firstName(customerName)}, bienvenido/a al Club Enrola!\n\n` +
-    `Nos alegra tenerte aquí. Explorá nuestra selección artesanal cuando quieras:\n` +
+    giftBlock +
+    `Explorá nuestra selección artesanal:\n` +
     withUtm(STORE_URL, "welcome", "whatsapp") +
     `\n\nCualquier duda, respondé este mensaje 🤝`
   )
