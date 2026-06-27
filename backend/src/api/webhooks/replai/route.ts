@@ -150,6 +150,13 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
   const p = body.payload || {}
   const remoteJid = String(p.remoteJid || "")
+
+  // Dana NO responde en grupos. Los JIDs de grupo terminan en "@g.us"
+  // (los chats 1:1 son @s.whatsapp.net o @lid). Ignoramos sin procesar.
+  if (remoteJid.includes("@g.us") || remoteJid.endsWith("@broadcast") || remoteJid.includes("@newsletter")) {
+    return res.status(200).json({ ok: true, skipped: "group_or_broadcast" })
+  }
+
   const phone = remoteJid.replace(/@.*/, "").replace(/\D/g, "")
   const messageId = String(p.messageId || "")
   const bodyType = p.body?.type || "unknown"
