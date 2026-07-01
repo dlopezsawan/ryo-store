@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Checkout (for the workflow file itself; lets us read VERSION etc.)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.5
