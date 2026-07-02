@@ -16,6 +16,8 @@
 
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import crypto from "crypto"
+import path from "node:path"
+import { mkdir, writeFile } from "node:fs/promises"
 import {
   ensureTables,
   getConfig,
@@ -27,6 +29,7 @@ import {
 } from "../../../lib/whatsapp-db"
 import { chat, buildGreeting } from "../../../lib/whatsapp-bot"
 import { sendViaReplai, resolveReplaiMediaId, downloadReplaiMedia } from "../../../lib/replai-sender"
+import { analyzeImage, buildPlaceholderForAnalysis, type ImageAnalysis } from "../../../lib/whatsapp-vision"
 
 let tablesReady = false
 const WEBHOOK_SECRET = process.env.REPLAI_WEBHOOK_SECRET || ""
@@ -114,6 +117,76 @@ async function transcribeReplaiAudio(
   }
 }
 
+/**
+ * Descarga una imagen entrante de Replai, la guarda en static/wa-proofs
+ * (mismo directorio que usa el webhook WaSender, para que el panel pueda
+ * mostrarla) y la pasa por el pipeline de visión (DeepSeek → Groq →
+ * Tesseract). Devuelve el análisis + URL pública, o null si no se pudo
+ * descargar/guardar la imagen.
+ */
+async function analyzeReplaiImage(
+  remoteJid: string,
+  messageId: string,
+  phone: string,
+  payload: { mediaId?: string; media?: { id?: string } }
+): Promise<{ analysis: ImageAnalysis; publicUrl: string } | null> {
+  const mediaId =
+    payload.mediaId || payload.media?.id || (await resolveReplaiMediaId(remoteJid, messageId))
+  if (!mediaId) {
+    console.warn("[replai-webhook] no se pudo resolver el mediaId de la imagen")
+    return null
+  }
+  const media = await downloadReplaiMedia(mediaId)
+  if (!media || media.buffer.length < 100) {
+    console.warn("[replai-webhook] descarga de imagen vacía / fallida")
+    return null
+  }
+  const buffer = media.buffer
+  const isJpeg = buffer[0] === 0xff && buffer[1] === 0xd8
+  const isPng = buffer[0] === 0x89 && buffer[1] === 0x50
+  const isWebp = buffer[0] === 0x52 && buffer[1] === 0x49 // RIFF
+  if (!isJpeg && !isPng && !isWebp) {
+    console.warn(
+      "[replai-webhook] media no es una imagen válida (magic:",
+      buffer.slice(0, 4).toString("hex"),
+      ")"
+    )
+    return null
+  }
+  try {
+    const uploadDir = path.join(process.cwd(), "static", "wa-proofs")
+    await mkdir(uploadDir, { recursive: true })
+    const ext = isPng ? "png" : isWebp ? "webp" : "jpg"
+    const filename = `proof-${phone}-${Date.now()}.${ext}`
+    const filePath = path.join(uploadDir, filename)
+    await writeFile(filePath, buffer)
+    const publicUrl = `https://api.enrola.shop/static/wa-proofs/${filename}`
+    console.log("[replai-webhook] 📸 imagen guardada:", publicUrl, `(${buffer.length} bytes)`)
+
+    let analysis: ImageAnalysis
+    try {
+      analysis = await analyzeImage(filePath)
+    } catch (err) {
+      // analyzeImage no debería lanzar nunca, pero no dejamos que un bug
+      // ahí tumbe el webhook — degradamos a provider="failed".
+      console.error("[replai-webhook] analyzeImage lanzó inesperadamente:", err)
+      analysis = {
+        type: "other",
+        text_content: "",
+        description: "",
+        confidence: "low",
+        raw_ocr: "",
+        provider: "failed",
+        error: err instanceof Error ? err.message : String(err),
+      }
+    }
+    return { analysis, publicUrl }
+  } catch (err) {
+    console.error("[replai-webhook] guardado de imagen falló:", err)
+    return null
+  }
+}
+
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
   if (!tablesReady) {
     try {
@@ -138,7 +211,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       sessionId?: string
       messageId?: string
       remoteJid?: string
-      body?: { type?: string; text?: string }
+      body?: { type?: string; text?: string; caption?: string }
       pushName?: string
     }
   }
@@ -174,7 +247,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     return res.status(200).json({ ok: true, skipped: "bot_disabled" })
   }
 
-  // Resolver el texto: directo, o transcribiendo la nota de voz (Groq Whisper).
+  // Resolver el texto: directo, transcribiendo la nota de voz (Groq Whisper),
+  // o analizando la imagen (pipeline de visión).
   let text = bodyType === "text" ? String(p.body?.text || "").trim() : ""
   if (!text && bodyType === "audio") {
     text =
@@ -186,19 +260,50 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       )) || ""
   }
 
+  // Imagen → visión (mismo pipeline que el webhook WaSender): Dana recibe un
+  // placeholder semántico ([IMAGEN_COMPROBANTE_PAGO: ...]) en vez de pedir texto.
+  if (!text && bodyType === "image") {
+    const caption = String(p.body?.caption || "").trim()
+    const result = await analyzeReplaiImage(
+      remoteJid,
+      messageId,
+      phone,
+      p as { mediaId?: string; media?: { id?: string } }
+    )
+    if (result) {
+      if (result.analysis.provider !== "failed") {
+        text = buildPlaceholderForAnalysis(result.analysis)
+        console.log(
+          `[replai-webhook] 🖼 Vision: ${result.analysis.type} (${result.analysis.confidence}, via ${result.analysis.provider}) — ${result.analysis.description.slice(0, 80)}`
+        )
+      } else {
+        // Todos los providers de visión fallaron — placeholder legacy con la
+        // URL para que Dana al menos acuse recibo (igual que el webhook WaSender).
+        text = `[IMAGEN_RECIBIDA: ${result.publicUrl}]`
+      }
+      if (caption) text += ` Caption del cliente: ${JSON.stringify(caption)}`
+    }
+    // result === null (no se pudo ni descargar) → text queda vacío y cae al
+    // fallback amable de abajo pidiendo los datos por escrito.
+  }
+
   try {
     const conversation = await getOrCreateConversation(phone)
 
-    // Sin texto utilizable (audio no transcrito o tipo no soportado: imagen,
-    // ubicación, etc.) → guardar el mensaje y, si el bot está activo, mandar un
-    // fallback amable pidiendo texto. No rompemos el flujo de Dana.
+    // Sin texto utilizable (audio no transcrito, imagen no descargable o tipo
+    // no soportado: ubicación, contactos, etc.) → guardar el mensaje y, si el
+    // bot está activo, mandar un fallback amable. No rompemos el flujo de Dana.
     if (!text) {
-      await saveMessage(phone, "user", bodyType === "audio" ? "[nota de voz]" : `[${bodyType}]`, messageId)
+      const userPlaceholder =
+        bodyType === "audio" ? "[nota de voz]" : bodyType === "image" ? "[imagen]" : `[${bodyType}]`
+      await saveMessage(phone, "user", userPlaceholder, messageId)
       if (conversation.session_status !== "human_active") {
         const fb =
           bodyType === "audio"
             ? "Recibí tu nota de voz 🌸 pero no pude escucharla bien. ¿Me lo escribes porfa?"
-            : "Recibí tu mensaje 🌸 ¿me lo mandas por texto? Así te ayudo mejor."
+            : bodyType === "image"
+              ? "Recibí tu imagen 🌸 pero no pude abrirla bien. ¿Me escribes los datos porfa?"
+              : "Recibí tu mensaje 🌸 ¿me lo mandas por texto? Así te ayudo mejor."
         const sent = await sendViaReplai(remoteJid || phone, fb)
         if (sent && sent !== "sent") await saveBotMsgId(sent)
         await saveMessage(phone, "assistant", fb, sent || undefined)
