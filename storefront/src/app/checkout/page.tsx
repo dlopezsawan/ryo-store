@@ -1009,7 +1009,9 @@ export default function CheckoutPage() {
           }
         }
         await refresh();
-        router.push(`/checkout/gracias?order=${completeData.order.id}`);
+        router.push(
+          `/checkout/gracias?order=${completeData.order.id}${completeData.order.display_id ? `&n=${completeData.order.display_id}` : ""}`
+        );
       } else {
         throw new Error(
           completeData.error?.message || completeData.message || "Error al completar el pedido"
