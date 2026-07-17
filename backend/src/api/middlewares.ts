@@ -1,4 +1,5 @@
 import { defineMiddlewares } from "@medusajs/medusa"
+import { authenticate } from "@medusajs/framework/http"
 import type { MedusaNextFunction, MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import express from "express"
 
@@ -12,6 +13,17 @@ const rawBodyCapture = express.json({
 
 export default defineMiddlewares({
   routes: [
+    {
+      // Bot admin API (/bot/config, /bot/conversations, /bot/stats).
+      // These endpoints expose WhatsApp/Meta bot configuration and customer
+      // conversation history, so they must require an authenticated admin —
+      // the SAME guard Medusa applies to /admin/* (session cookie used by the
+      // dashboard, bearer JWT, or an admin API key). Without this they were
+      // publicly readable/writable by anyone on the internet. Applies to every
+      // HTTP method (no `method` restriction → GET, POST, etc.).
+      matcher: "/bot/*",
+      middlewares: [authenticate("user", ["session", "bearer", "api-key"])],
+    },
     {
       matcher: "/maintenance",
       middlewares: [],
