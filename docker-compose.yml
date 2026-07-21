@@ -303,6 +303,32 @@ volumes:
   payment_proofs:
   medusa_uploads:
 
+  # Umami analytics (analytics.enrola.shop). Estuvo 7 semanas caído por quedar
+  # HUÉRFANO: se sacó del compose y al recrearse la red perdió el DNS de
+  # postgres (getaddrinfo EAI_AGAIN). De vuelta al compose = sobrevive
+  # recreaciones. Requiere UMAMI_APP_SECRET en .env (no va al repo).
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    init: true
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://medusa:${POSTGRES_PASSWORD:-medusa_secret}@postgres:5432/umami
+      DATABASE_TYPE: postgresql
+      APP_SECRET: ${UMAMI_APP_SECRET:?falta UMAMI_APP_SECRET en .env}
+    networks:
+      - ryo_internal
+      - n8n_default
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.umami.entrypoints=websecure
+      - traefik.http.routers.umami.rule=Host(`analytics.enrola.shop`)
+      - traefik.http.routers.umami.tls=true
+      - traefik.http.routers.umami.tls.certresolver=mytlschallenge
+      - traefik.http.services.umami.loadbalancer.server.port=3000
+
+
 networks:
   # Project-scoped network for inter-service traffic. Postgres + Redis
   # live ONLY here so they can't be reached by other tenants on the
