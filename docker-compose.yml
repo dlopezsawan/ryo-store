@@ -298,11 +298,6 @@ services:
       - ryo_internal
       - n8n_default
 
-volumes:
-  postgres_data:
-  payment_proofs:
-  medusa_uploads:
-
   # Umami analytics (analytics.enrola.shop). Estuvo 7 semanas caído por quedar
   # HUÉRFANO: se sacó del compose y al recrearse la red perdió el DNS de
   # postgres (getaddrinfo EAI_AGAIN). De vuelta al compose = sobrevive
@@ -327,6 +322,12 @@ volumes:
       - traefik.http.routers.umami.tls=true
       - traefik.http.routers.umami.tls.certresolver=mytlschallenge
       - traefik.http.services.umami.loadbalancer.server.port=3000
+
+volumes:
+  postgres_data:
+  payment_proofs:
+  medusa_uploads:
+
 
 
 networks:
