@@ -1,5 +1,6 @@
 services:
   mailserver:
+    init: true
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
     container_name: mailserver
     hostname: mail.enrola.shop
@@ -28,6 +29,7 @@ services:
       - n8n_default
 
   snappymail:
+    init: true
     image: djmaze/snappymail:latest
     container_name: snappymail
     restart: unless-stopped
