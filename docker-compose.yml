@@ -26,6 +26,7 @@ services:
       - ryo_internal
 
   medusa:
+    init: true
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -134,6 +135,7 @@ services:
       - n8n_default
 
   storefront:
+    init: true
     build:
       context: ./storefront
       dockerfile: Dockerfile
@@ -222,6 +224,7 @@ services:
   # the time, surfacing as random 401s ("Sesión expirada", "credenciales
   # incorrectas"). Pinning to the container name makes DNS deterministic.
   panel:
+    init: true
     build:
       context: ./panel
       dockerfile: Dockerfile
