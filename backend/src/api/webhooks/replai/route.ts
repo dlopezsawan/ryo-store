@@ -23,6 +23,7 @@ import {
   setSessionStatus,
   saveMessage,
   isBotEcho,
+  isRecentBotMessage,
   saveBotMsgId,
 } from "../../../lib/whatsapp-db"
 import { chat, buildGreeting } from "../../../lib/whatsapp-bot"
@@ -114,6 +115,59 @@ async function transcribeReplaiAudio(
   }
 }
 
+/**
+ * Mensaje saliente que NO es de Dana → el operador tomó la conversación.
+ *
+ * Anti-eco (para que Dana no se pause con sus propias respuestas):
+ *   1. `jobId` — sendViaReplai guarda el jobId que devuelve POST /v1/messages
+ *      (saveBotMsgId); el worker de Replai lo incluye en el evento.
+ *   2. `messageId` — por si algún flujo guardó el id de fila del mensaje.
+ *   3. Texto idéntico a un mensaje del bot en los últimos 60s — backstop
+ *      cuando la respuesta de la API no trajo jobId (saveBotMsgId no corrió).
+ * Los mensajes con `source: "device"` (teléfono / WhatsApp Web) nunca son de
+ * Dana, pero pasan igual por los chequeos — son baratos y no hacen daño.
+ */
+async function handleOperatorMessage(
+  res: MedusaResponse,
+  p: { messageId?: string; remoteJid?: string; body?: { type?: string; text?: string }; jobId?: string; source?: string }
+) {
+  const remoteJid = String(p.remoteJid || "")
+  if (remoteJid.includes("@g.us") || remoteJid.endsWith("@broadcast") || remoteJid.includes("@newsletter")) {
+    return res.status(200).json({ ok: true, skipped: "group_or_broadcast" })
+  }
+  const phone = remoteJid.replace(/@.*/, "").replace(/\D/g, "")
+  if (!phone) {
+    return res.status(200).json({ ok: true, skipped: "no_phone" })
+  }
+
+  const messageId = String(p.messageId || "")
+  const jobId = String(p.jobId || "")
+  const text = p.body?.type === "text" ? String(p.body?.text || "").trim() : `[${p.body?.type || "mensaje"}]`
+
+  if (jobId && (await isBotEcho(jobId))) {
+    return res.status(200).json({ ok: true, skipped: "bot_echo" })
+  }
+  if (messageId && (await isBotEcho(messageId))) {
+    return res.status(200).json({ ok: true, skipped: "bot_echo" })
+  }
+  if (p.body?.type === "text" && text && (await isRecentBotMessage(phone, text))) {
+    return res.status(200).json({ ok: true, skipped: "bot_echo_text" })
+  }
+
+  try {
+    const conversation = await getOrCreateConversation(phone)
+    await saveMessage(phone, "human", text, messageId || undefined)
+    if (conversation.session_status !== "human_active") {
+      await setSessionStatus(phone, "human_active")
+      console.log(`[replai-webhook] 👤 Operador tomó ${phone} (${p.source || "api"}) — Dana en pausa`)
+    }
+    return res.status(200).json({ ok: true, action: "human_takeover" })
+  } catch (e) {
+    console.error("[replai-webhook] operator handoff error:", e)
+    return res.status(200).json({ ok: false, error: "internal" })
+  }
+}
+
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
   if (!tablesReady) {
     try {
@@ -140,10 +194,22 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       remoteJid?: string
       body?: { type?: string; text?: string }
       pushName?: string
+      // message.sent extras (Replai ≥ feat/forward-operator-device-messages)
+      jobId?: string
+      source?: "api" | "device"
     }
   }
 
-  // Solo procesamos mensajes ENTRANTES de clientes. message.sent / delivered → ignorar.
+  // message.sent = salió un mensaje por el número del negocio. Si NO lo mandó
+  // Dana, lo escribió el operador (teléfono, WhatsApp Web o dashboard de
+  // Replai) → handoff: el humano tomó la conversación y Dana se calla.
+  // Incidente 2026-07-01: el operador escribió "te habla un humano" y Dana
+  // siguió respondiendo porque este webhook descartaba los message.sent.
+  if (body.event === "message.sent") {
+    return handleOperatorMessage(res, body.payload || {})
+  }
+
+  // Solo procesamos mensajes ENTRANTES de clientes. delivered / read → ignorar.
   if (body.event !== "message.received") {
     return res.status(200).json({ ok: true, skipped: body.event || "no_event" })
   }
