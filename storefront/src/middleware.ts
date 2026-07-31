@@ -24,8 +24,24 @@ async function isMaintenanceMode(): Promise<boolean> {
   }
 }
 
+// Kill switch: the WHOLE storefront answers 404 (assets and /api included).
+// Toggled per-deploy via docker-compose environment — flip the env and
+// `docker compose up -d storefront` to restore; no rebuild needed.
+// X-Robots-Tag tells crawlers to drop the pages faster than the 404 alone.
+const KILL_SWITCH = process.env.STOREFRONT_KILL_SWITCH === "1"
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  if (KILL_SWITCH) {
+    return new NextResponse("404 — Not Found", {
+      status: 404,
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "x-robots-tag": "noindex, nofollow",
+      },
+    })
+  }
 
   // Never block these paths
   if (
@@ -56,5 +72,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Match everything so the kill switch can 404 assets too. Normal mode
+  // is unchanged: the early-allow list above already passes /_next,
+  // favicon and static files through.
+  matcher: ["/(.*)"],
 }

@@ -164,6 +164,11 @@ services:
       # to the container name makes DNS deterministic. See PR fixing
       # the panel "Sesión expirada / credenciales incorrectas" loop.
       MEDUSA_BACKEND_URL: http://ryo-store-medusa-1:9000
+      # Kill switch (2026-07-31): the whole storefront answers 404 while this
+      # is "1" — enrola.shop is intentionally OFF the air. api.enrola.shop,
+      # the panel and Dana are NOT affected. To bring the store back: set to
+      # "0" (or remove) and `docker compose up -d storefront` — no rebuild.
+      STOREFRONT_KILL_SWITCH: "1"
       NEXT_PUBLIC_MEDUSA_BACKEND_URL: https://api.enrola.shop
       NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY}
       NEXT_PUBLIC_STORE_NAME: RYO Store
