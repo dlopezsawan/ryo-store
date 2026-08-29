@@ -9,6 +9,14 @@ import { useSearchParams } from "next/navigation";
 function GraciasContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order");
+  const displayId = searchParams.get("n");
+  // Mismo número que el email de confirmación: #display_id si existe,
+  // si no el tail del id de Medusa (Dana acepta ambos).
+  const orderNumber = displayId
+    ? `#${displayId}`
+    : orderId
+      ? orderId.slice(-6).toUpperCase()
+      : null;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -28,9 +36,9 @@ function GraciasContent() {
           <p className="text-muted text-base mb-6 max-w-md mx-auto">
             Hemos recibido tu pedido. Verificaremos el pago y recibirás actualizaciones por correo.
           </p>
-          {orderId && (
+          {orderNumber && (
             <p className="text-dark font-bold mb-8">
-              Pedido: <span className="font-mono bg-cream px-3 py-1 border border-dark/20">{orderId.slice(-6).toUpperCase()}</span>
+              Pedido: <span className="font-mono bg-cream px-3 py-1 border border-dark/20">{orderNumber}</span>
             </p>
           )}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

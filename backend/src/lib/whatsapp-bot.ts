@@ -424,6 +424,14 @@ async function listCategories(): Promise<string> {
 
 async function checkOrder(orderNumber?: string, email?: string): Promise<string> {
   if (orderNumber) {
+    // Customers know two kinds of order codes: the numeric display_id
+    // (confirmation email, "#8") and the 6-char tail of the Medusa order id
+    // shown on the checkout thank-you page ("HKHFT9"). Accept both.
+    const code = orderNumber.trim().replace(/^#/, "")
+    const isNumeric = /^\d+$/.test(code)
+    if (!isNumeric && !/^[a-zA-Z0-9]{1,26}$/.test(code)) {
+      return `No encontré el pedido #${orderNumber}.`
+    }
     const r = await pool.query(
       `SELECT o.id, o.display_id, o.status, o.email, o.created_at,
               COALESCE((os.totals->>'original_order_total')::numeric, 0) as total,
@@ -432,8 +440,8 @@ async function checkOrder(orderNumber?: string, email?: string): Promise<string>
        LEFT JOIN LATERAL (SELECT totals FROM order_summary WHERE order_id = o.id ORDER BY created_at DESC LIMIT 1) os ON true
        LEFT JOIN order_fulfillment of2 ON of2.order_id = o.id
        LEFT JOIN fulfillment f ON f.id = of2.fulfillment_id
-       WHERE o.display_id = $1`,
-      [parseInt(orderNumber)]
+       WHERE ${isNumeric ? "o.display_id = $1" : "UPPER(RIGHT(o.id, 6)) = UPPER($1)"}`,
+      [isNumeric ? parseInt(code, 10) : code.slice(-6)]
     )
     if (r.rows.length === 0) return `No encontré el pedido #${orderNumber}.`
     const o = r.rows[0]
@@ -446,7 +454,7 @@ async function checkOrder(orderNumber?: string, email?: string): Promise<string>
   }
   if (email) {
     const r = await pool.query(
-      `SELECT display_id, status, created_at FROM "order" WHERE email = $1 ORDER BY created_at DESC LIMIT 5`,
+      `SELECT display_id, status, created_at FROM "order" WHERE LOWER(email) = LOWER($1) ORDER BY created_at DESC LIMIT 5`,
       [email]
     )
     if (r.rows.length === 0) return "No encontré pedidos con ese email."
@@ -459,7 +467,7 @@ async function checkOrder(orderNumber?: string, email?: string): Promise<string>
 
 async function lookupCustomer(email: string): Promise<string> {
   const cust = await pool.query(
-    "SELECT id, first_name, last_name, email FROM customer WHERE email = $1 AND deleted_at IS NULL LIMIT 1",
+    "SELECT id, first_name, last_name, email FROM customer WHERE LOWER(email) = LOWER($1) AND deleted_at IS NULL LIMIT 1",
     [email]
   )
   if (cust.rows.length === 0) {
