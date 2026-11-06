@@ -24,13 +24,34 @@ const ICON: Record<FeedItem["kind"], React.ComponentType<{ size?: number; stroke
   "post-published":    Calendar,
 }
 
+/** Timestamp más reciente de la lista, ignorando null/undefined/inválidos. */
+function latestTs(times: Array<string | null | undefined>): string | undefined {
+  let best: string | undefined
+  let bestMs = -Infinity
+  for (const t of times) {
+    if (!t) continue
+    const ms = new Date(t).getTime()
+    if (Number.isNaN(ms)) continue
+    if (ms > bestMs) { bestMs = ms; best = t }
+  }
+  return best
+}
+
 export default async function ActivityPage() {
   const items: FeedItem[] = []
   const errors: string[] = []
 
   try {
     const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-    const ord = await listOrders({ limit: 100, created_at_gte: since, order: "-created_at" })
+    // Feed de actividad: no renderiza items, así que pedimos un set más liviano
+    // que el default (sin los *items joins) PERO con los timestamps por-evento
+    // (canceled_at, fulfillments, payment_collections.payments) que necesitamos.
+    const ord = await listOrders({
+      limit: 100,
+      created_at_gte: since,
+      order: "-created_at",
+      fields: "id,display_id,email,status,payment_status,fulfillment_status,total,currency_code,created_at,updated_at,canceled_at,*fulfillments,*payment_collections,*payment_collections.payments",
+    })
     for (const o of ord.orders) {
       items.push({
         id: `oc-${o.id}`,
@@ -42,9 +63,16 @@ export default async function ActivityPage() {
         tone: "orange",
       })
       if (o.payment_status === "captured") {
+        // Cuándo se capturó el pago: captured_at del último pago, luego su
+        // created_at, luego el updated_at/created_at de la orden.
+        const payments = (o.payment_collections ?? []).flatMap((pc) => pc.payments ?? [])
+        const paidTs =
+          latestTs(payments.map((p) => p.captured_at)) ??
+          latestTs(payments.map((p) => p.created_at)) ??
+          o.updated_at ?? o.created_at
         items.push({
           id: `op-${o.id}`,
-          ts: o.updated_at ?? o.created_at,
+          ts: paidTs,
           kind: "order-paid",
           label: `Pago capturado #${o.display_id}`,
           detail: fmtEur(Number(o.total) || 0),
@@ -53,9 +81,14 @@ export default async function ActivityPage() {
         })
       }
       if (o.fulfillment_status === "shipped" || o.fulfillment_status === "fulfilled" || o.fulfillment_status === "delivered") {
+        // Cuándo se envió/entregó: por cada fulfillment usamos delivered_at o,
+        // si aún no se entregó, shipped_at; tomamos el más reciente.
+        const shippedTs =
+          latestTs((o.fulfillments ?? []).map((f) => f.delivered_at ?? f.shipped_at)) ??
+          o.updated_at ?? o.created_at
         items.push({
           id: `os-${o.id}`,
-          ts: o.updated_at ?? o.created_at,
+          ts: shippedTs,
           kind: "order-shipped",
           label: `#${o.display_id} ${o.fulfillment_status === "delivered" ? "entregado" : "enviado"}`,
           detail: `${o.email ?? "guest"}`,
@@ -66,7 +99,7 @@ export default async function ActivityPage() {
       if (o.status === "canceled") {
         items.push({
           id: `ox-${o.id}`,
-          ts: o.updated_at ?? o.created_at,
+          ts: o.canceled_at ?? o.updated_at ?? o.created_at,
           kind: "order-canceled",
           label: `Pedido #${o.display_id} cancelado`,
           detail: `${o.email ?? "guest"}`,

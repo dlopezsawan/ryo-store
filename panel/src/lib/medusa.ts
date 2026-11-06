@@ -158,6 +158,22 @@ export interface AdminOrderListItem {
       product?: { id: string; title: string }
     } | null
   }> | null
+  /** Order-level cancelation timestamp (null hasta que se cancela). */
+  canceled_at?: string | null
+  /** Para timestamps por-evento precisos (ej. el feed de actividad). */
+  payment_collections?: Array<{
+    id: string
+    amount: number
+    status: string
+    payments?: Array<{ id: string; amount: number; provider_id: string; created_at: string; captured_at?: string | null }>
+  }>
+  fulfillments?: Array<{
+    id: string
+    created_at: string
+    shipped_at?: string | null
+    delivered_at?: string | null
+    canceled_at?: string | null
+  }>
 }
 
 export interface MedusaOrderListResponse {
@@ -197,7 +213,7 @@ export interface AdminOrderDetail extends AdminOrderListItem {
     id: string
     amount: number
     status: string
-    payments?: Array<{ id: string; amount: number; provider_id: string; created_at: string }>
+    payments?: Array<{ id: string; amount: number; provider_id: string; created_at: string; captured_at?: string | null }>
   }>
   fulfillments?: Array<{
     id: string

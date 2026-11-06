@@ -66,6 +66,13 @@ export function SocialClient({
   const [channelFilter, setChannelFilter] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
   const [formatFilter, setFormatFilter] = useState<string | null>(null)
+  // Hide already-approved + already-scheduled posts from the review
+  // feed by default — once a post has been signed off there's nothing
+  // for the operator to do with it on this screen, so showing it just
+  // pads the column and pushes the in_review/draft cards down. The
+  // toggle lets the operator turn it back on when they explicitly
+  // want to inspect what's scheduled / approved.
+  const [hideFinalized, setHideFinalized] = useState(true)
   const [anchorDate, setAnchorDate] = useState(() => {
     const d = new Date()
     d.setHours(0, 0, 0, 0)
@@ -101,9 +108,14 @@ export function SocialClient({
       if (channelFilter && p.channel !== channelFilter) return false
       if (statusFilter && p.status !== statusFilter) return false
       if (formatFilter && (p.format ?? "post").toLowerCase() !== formatFilter) return false
+      // Hide approved+scheduled by default — they're done as far as
+      // the review feed cares. Only suppress when no explicit
+      // statusFilter is active so the operator can still drill into
+      // those statuses on demand via the dropdown.
+      if (hideFinalized && !statusFilter && (p.status === "approved" || p.status === "scheduled")) return false
       return true
     })
-  }, [posts, channelFilter, statusFilter, formatFilter])
+  }, [posts, channelFilter, statusFilter, formatFilter, hideFinalized])
 
   // Counts por format para mostrar badges en filter
   const formatCounts = useMemo(() => {
@@ -188,6 +200,22 @@ export function SocialClient({
             <option key={s} value={s}>{STATUS_META[s].label}</option>
           ))}
         </select>
+
+        {/* Hide-finalized toggle — defaults ON. Suppresses approved +
+            scheduled when no explicit status filter is active so the
+            review column stays focused on what needs attention. */}
+        {!statusFilter && (
+          <label className="flex items-center gap-1.5 px-2 py-2 bg-cream rounded-md text-[10px] font-display font-bold uppercase tracking-wider text-ink-2 cursor-pointer select-none"
+            style={{ border: "1.5px solid var(--border)" }}>
+            <input
+              type="checkbox"
+              checked={hideFinalized}
+              onChange={(e) => setHideFinalized(e.target.checked)}
+              className="w-3 h-3 accent-orange"
+            />
+            <span>Ocultar finalizados</span>
+          </label>
+        )}
 
         {/* Format filter (post/story/reel/etc.) */}
         <select value={formatFilter ?? "all"} onChange={(e) => setFormatFilter(e.target.value === "all" ? null : e.target.value)}
